@@ -37,18 +37,7 @@ export default function GameCanvas() {
     }
   }, [phase]);
 
-  // Separate effect for updating combo and power-ups
-  useEffect(() => {
-    if (phase === "playing") {
-      const interval = setInterval(() => {
-        updateCombo();
-        updatePowerUps();
-      }, 16); // ~60fps
-
-      return () => clearInterval(interval);
-    }
-  }, [phase, updateCombo, updatePowerUps]);
-
+  // Initialize canvas and game engine once
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -60,17 +49,19 @@ export default function GameCanvas() {
     canvas.width = 800;
     canvas.height = 600;
 
-    // Initialize game engine
+    // Initialize game engine with safe defaults
+    const safePowerUps = activePowerUps || {
+      shield: 0,
+      speed: 0,
+      magnet: 0
+    };
+
     gameEngineRef.current = new GameEngine({
       onScore: addScore,
       onHit: loseLife,
       onCombo: addCombo,
       onSound: playSound,
-      activePowerUps: activePowerUps || {
-        shield: 0,
-        speed: 0,
-        magnet: 0
-      }
+      activePowerUps: safePowerUps
     });
 
     return () => {
@@ -78,8 +69,9 @@ export default function GameCanvas() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []); // Only run once on mount
+  }, [addScore, loseLife, addCombo, playSound]);
 
+  // Handle game loop
   useEffect(() => {
     if (phase === "playing") {
       gameLoop();
@@ -96,12 +88,24 @@ export default function GameCanvas() {
     };
   }, [phase, gameLoop]);
 
+  // Update power-ups in game engine
   useEffect(() => {
-    // Update game engine with current power-ups
     if (gameEngineRef.current && activePowerUps) {
       gameEngineRef.current.updatePowerUps(activePowerUps);
     }
   }, [activePowerUps]);
+
+  // Handle combo and power-up updates separately to avoid infinite loops
+  useEffect(() => {
+    if (phase !== "playing") return;
+
+    const interval = setInterval(() => {
+      updateCombo();
+      updatePowerUps();
+    }, 16); // ~60fps
+
+    return () => clearInterval(interval);
+  }, [phase]);
 
   return (
     <canvas
