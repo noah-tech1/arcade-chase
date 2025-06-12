@@ -27,6 +27,7 @@ export class GameEngine {
     this.obstacles = [];
     this.powerUps = [];
     this.particles = new ParticleSystem();
+    this.screenShake = new ScreenShake();
     this.lastSpawnTime = 0;
     this.lastObstacleSpawn = 0;
     this.lastPowerUpSpawn = 0;
@@ -167,6 +168,9 @@ export class GameEngine {
     // Update particles
     this.particles.update();
     
+    // Update screen shake
+    this.screenShake.update();
+    
     // Check collectible collisions
     for (let i = this.collectibles.length - 1; i >= 0; i--) {
       const collectible = this.collectibles[i];
@@ -208,12 +212,15 @@ export class GameEngine {
       if (checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
         hit = true;
         
+        // Start screen shake effect
+        this.screenShake.start(8, 20);
+        
         // Create hit particle effect
         this.particles.createExplosion(
           this.player.position.x,
           this.player.position.y,
           GAME_CONFIG.COLORS.PRIMARY,
-          10
+          12
         );
         break;
       }
@@ -288,6 +295,11 @@ export class GameEngine {
     
     ctx.globalAlpha = 1;
     
+    // Apply screen shake offset
+    const shakeOffset = this.screenShake.getOffset();
+    ctx.save();
+    ctx.translate(shakeOffset.x, shakeOffset.y);
+    
     // Render particles (behind everything)
     this.particles.render(ctx);
     
@@ -308,6 +320,8 @@ export class GameEngine {
     
     // Render player (on top)
     this.player.render(ctx);
+    
+    ctx.restore();
   }
 
   resize(width: number, height: number) {
