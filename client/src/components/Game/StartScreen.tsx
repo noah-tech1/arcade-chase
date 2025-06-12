@@ -1,0 +1,53 @@
+import { useGame } from "../../lib/stores/useGame";
+import { useHighScore } from "../../lib/stores/useHighScore";
+import { Play, Trophy, Volume2 } from "lucide-react";
+
+export default function StartScreen() {
+  const { start, resetGame } = useGame();
+  const { highScore } = useHighScore();
+
+  const handleStart = () => {
+    resetGame();
+    start();
+  };
+
+  return (
+    <div className="start-screen">
+      <div className="start-content">
+        <h1 className="game-title">
+          <span className="title-arcade">ARCADE</span>
+          <span className="title-collector">COLLECTOR</span>
+        </h1>
+        
+        <div className="game-description">
+          Navigate through space, collect the glowing orbs, and avoid the dangerous obstacles!
+        </div>
+        
+        <div className="high-score-display">
+          <Trophy className="trophy-icon" />
+          <span>High Score: {highScore.toLocaleString()}</span>
+        </div>
+        
+        <button onClick={handleStart} className="start-button">
+          <Play size={20} />
+          START GAME
+        </button>
+        
+        <div className="instructions">
+          <h3>How to Play:</h3>
+          <ul>
+            <li>Use <strong>WASD</strong> or <strong>Arrow Keys</strong> to move</li>
+            <li>Collect <span className="collectible-demo">green orbs</span> for points</li>
+            <li>Avoid <span className="obstacle-demo">yellow obstacles</span></li>
+            <li>Difficulty increases every 1000 points</li>
+          </ul>
+        </div>
+        
+        <div className="audio-notice">
+          <Volume2 size={16} />
+          <span>Sound effects available - click anywhere to enable audio</span>
+        </div>
+      </div>
+    </div>
+  );
+}
