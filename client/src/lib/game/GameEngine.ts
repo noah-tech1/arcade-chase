@@ -3,6 +3,7 @@ import { Collectible } from "./Collectible";
 import { Obstacle } from "./Obstacle";
 import { PowerUp, PowerUpType } from "./PowerUp";
 import { ParticleSystem } from "./ParticleSystem";
+import { ScreenShake } from "./ScreenShake";
 import { checkCollision, randomInRange, distance, GAME_CONFIG } from "../utils/gameUtils";
 
 export class GameEngine {
@@ -11,6 +12,7 @@ export class GameEngine {
   obstacles: Obstacle[];
   powerUps: PowerUp[];
   particles: ParticleSystem;
+  screenShake: ScreenShake;
   canvasWidth: number;
   canvasHeight: number;
   lastSpawnTime: number;
@@ -172,12 +174,11 @@ export class GameEngine {
         scoreGained += collectible.value;
         collected++;
         
-        // Create collection particle effect
-        this.particles.createExplosion(
+        // Create enhanced collection particle effect
+        this.particles.createCollectionBurst(
           collectible.position.x,
           collectible.position.y,
-          GAME_CONFIG.COLORS.SUCCESS,
-          6
+          GAME_CONFIG.COLORS.SUCCESS
         );
         
         this.collectibles.splice(i, 1);
@@ -192,11 +193,10 @@ export class GameEngine {
         powerUpCollected = powerUp.type;
         
         // Create power-up collection particle effect
-        this.particles.createExplosion(
+        this.particles.createPowerUpEffect(
           powerUp.position.x,
           powerUp.position.y,
-          powerUp.color,
-          8
+          powerUp.color
         );
         
         this.powerUps.splice(i, 1);
@@ -243,28 +243,50 @@ export class GameEngine {
   }
 
   render(ctx: CanvasRenderingContext2D) {
-    // Clear canvas with background
-    ctx.fillStyle = GAME_CONFIG.COLORS.BACKGROUND;
+    // Create animated starfield background
+    const time = Date.now() * 0.001;
+    
+    // Gradient background
+    const gradient = ctx.createLinearGradient(0, 0, this.canvasWidth, this.canvasHeight);
+    gradient.addColorStop(0, '#1a1a2e');
+    gradient.addColorStop(0.5, GAME_CONFIG.COLORS.BACKGROUND);
+    gradient.addColorStop(1, '#16213e');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
     
-    // Draw grid pattern
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.lineWidth = 1;
-    const gridSize = 50;
+    // Animated stars
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    for (let i = 0; i < 100; i++) {
+      const x = (i * 37) % this.canvasWidth;
+      const y = (i * 71) % this.canvasHeight;
+      const twinkle = Math.sin(time * 2 + i * 0.5) * 0.5 + 0.5;
+      ctx.globalAlpha = twinkle * 0.6 + 0.2;
+      const size = Math.sin(i) * 1.5 + 1;
+      ctx.fillRect(x, y, size, size);
+    }
     
-    for (let x = 0; x <= this.canvasWidth; x += gridSize) {
+    // Moving grid pattern
+    ctx.globalAlpha = 0.1;
+    ctx.strokeStyle = 'rgba(78, 205, 196, 0.3)';
+    ctx.lineWidth = 1;
+    const gridSize = 60;
+    const offset = (time * 20) % gridSize;
+    
+    for (let x = -offset; x <= this.canvasWidth + gridSize; x += gridSize) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, this.canvasHeight);
       ctx.stroke();
     }
     
-    for (let y = 0; y <= this.canvasHeight; y += gridSize) {
+    for (let y = -offset; y <= this.canvasHeight + gridSize; y += gridSize) {
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(this.canvasWidth, y);
       ctx.stroke();
     }
+    
+    ctx.globalAlpha = 1;
     
     // Render particles (behind everything)
     this.particles.render(ctx);

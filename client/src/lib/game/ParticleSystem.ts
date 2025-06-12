@@ -19,7 +19,27 @@ export class ParticleSystem {
   createExplosion(x: number, y: number, color: string, count: number = 8) {
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count + randomInRange(-0.3, 0.3);
-      const speed = randomInRange(2, 6);
+      const speed = randomInRange(3, 8);
+      
+      this.particles.push({
+        position: { x: x + randomInRange(-2, 2), y: y + randomInRange(-2, 2) },
+        velocity: {
+          x: Math.cos(angle) * speed,
+          y: Math.sin(angle) * speed
+        },
+        life: randomInRange(40, 80),
+        maxLife: randomInRange(40, 80),
+        size: randomInRange(2, 6),
+        color
+      });
+    }
+  }
+
+  createCollectionBurst(x: number, y: number, color: string) {
+    // Create sparkle burst effect for collectibles
+    for (let i = 0; i < 12; i++) {
+      const angle = randomInRange(0, Math.PI * 2);
+      const speed = randomInRange(4, 10);
       
       this.particles.push({
         position: { x, y },
@@ -27,10 +47,30 @@ export class ParticleSystem {
           x: Math.cos(angle) * speed,
           y: Math.sin(angle) * speed
         },
-        life: 60,
-        maxLife: 60,
+        life: 45,
+        maxLife: 45,
+        size: randomInRange(1, 4),
+        color: i % 3 === 0 ? '#ffffff' : color
+      });
+    }
+  }
+
+  createPowerUpEffect(x: number, y: number, color: string) {
+    // Create special effect for power-up collection
+    for (let i = 0; i < 15; i++) {
+      const angle = randomInRange(0, Math.PI * 2);
+      const speed = randomInRange(2, 12);
+      
+      this.particles.push({
+        position: { x, y },
+        velocity: {
+          x: Math.cos(angle) * speed,
+          y: Math.sin(angle) * speed
+        },
+        life: 90,
+        maxLife: 90,
         size: randomInRange(3, 8),
-        color
+        color: i % 4 === 0 ? '#ffffff' : color
       });
     }
   }

@@ -206,6 +206,93 @@
   z-index: 10;
 }
 
+/* Combo System */
+.combo-display {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  background: linear-gradient(45deg, var(--accent), #3498db);
+  border-radius: 20px;
+  border: 2px solid #fff;
+  animation: comboGlow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes comboGlow {
+  0% { transform: scale(1); box-shadow: 0 0 10px var(--accent); }
+  100% { transform: scale(1.05); box-shadow: 0 0 20px var(--accent); }
+}
+
+.combo-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  color: white;
+  text-shadow: 0 0 5px var(--accent);
+}
+
+.combo-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  margin-top: 0.3rem;
+  overflow: hidden;
+}
+
+.combo-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #fff, var(--success));
+  border-radius: 2px;
+  transition: width 0.1s ease-out;
+}
+
+/* Power-ups Display */
+.ui-middle {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+}
+
+.power-ups-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.power-up-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 20px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: white;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid;
+  pointer-events: all;
+  animation: powerUpPulse 2s ease-in-out infinite;
+}
+
+@keyframes powerUpPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.power-up-item.shield {
+  border-color: var(--powerup-shield, #9B59B6);
+  box-shadow: 0 0 15px rgba(155, 89, 182, 0.5);
+}
+
+.power-up-item.speed {
+  border-color: var(--powerup-speed, #F39C12);
+  box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
+}
+
+.power-up-item.magnet {
+  border-color: var(--powerup-magnet, #E74C3C);
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+}
+
 .ui-top {
   position: absolute;
   top: 1rem;
