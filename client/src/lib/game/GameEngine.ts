@@ -23,9 +23,11 @@ export class GameEngine {
     this.player = new Player(canvasWidth / 2, canvasHeight / 2);
     this.collectibles = [];
     this.obstacles = [];
+    this.powerUps = [];
     this.particles = new ParticleSystem();
     this.lastSpawnTime = 0;
     this.lastObstacleSpawn = 0;
+    this.lastPowerUpSpawn = 0;
     
     // Spawn initial collectibles
     this.spawnInitialCollectibles();
@@ -94,17 +96,58 @@ export class GameEngine {
     this.obstacles.push(new Obstacle(x, y, vx, vy));
   }
 
-  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, level: number): { scoreGained: number; hit: boolean; collected: number } {
+  spawnPowerUp() {
+    let x, y;
+    let attempts = 0;
+    
+    do {
+      x = randomInRange(50, this.canvasWidth - 50);
+      y = randomInRange(50, this.canvasHeight - 50);
+      attempts++;
+    } while (
+      attempts < 50 && 
+      checkCollision(this.player.position, { x, y }, this.player.size, GAME_CONFIG.COLLECTIBLE_SIZE + 4)
+    );
+    
+    const powerUpTypes: PowerUpType[] = ['shield', 'speed', 'magnet'];
+    const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+    
+    this.powerUps.push(new PowerUp(x, y, randomType));
+  }
+
+  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, level: number, activePowerUps: any, magnetActive: boolean = false): { scoreGained: number; hit: boolean; collected: number; powerUpCollected?: string } {
     let scoreGained = 0;
     let hit = false;
     let collected = 0;
+    let powerUpCollected: string | undefined;
+    
+    // Update player shield status and speed boost
+    this.player.shieldActive = activePowerUps.shield > 0;
+    const speedBoost = activePowerUps.speed > 0 ? 1.8 : 1;
     
     // Update player
-    this.player.update(input, gameSpeed, this.canvasWidth, this.canvasHeight);
+    this.player.update(input, gameSpeed, this.canvasWidth, this.canvasHeight, speedBoost);
     
     // Update collectibles
     for (const collectible of this.collectibles) {
       collectible.update();
+      
+      // Magnet effect - attract collectibles to player
+      if (magnetActive && distance(this.player.position, collectible.position) < 100) {
+        const dx = this.player.position.x - collectible.position.x;
+        const dy = this.player.position.y - collectible.position.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 0) {
+          const pullStrength = 3;
+          collectible.position.x += (dx / dist) * pullStrength;
+          collectible.position.y += (dy / dist) * pullStrength;
+        }
+      }
+    }
+    
+    // Update power-ups
+    for (const powerUp of this.powerUps) {
+      powerUp.update();
     }
     
     // Update obstacles
@@ -142,6 +185,24 @@ export class GameEngine {
       }
     }
     
+    // Check power-up collisions
+    for (let i = this.powerUps.length - 1; i >= 0; i--) {
+      const powerUp = this.powerUps[i];
+      if (checkCollision(this.player.position, powerUp.position, this.player.size, powerUp.size)) {
+        powerUpCollected = powerUp.type;
+        
+        // Create power-up collection particle effect
+        this.particles.createExplosion(
+          powerUp.position.x,
+          powerUp.position.y,
+          powerUp.color,
+          8
+        );
+        
+        this.powerUps.splice(i, 1);
+      }
+    }
+    
     // Check obstacle collisions
     for (const obstacle of this.obstacles) {
       if (checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
@@ -160,19 +221,25 @@ export class GameEngine {
     
     // Spawn new collectibles periodically
     const now = Date.now();
-    if (now - this.lastSpawnTime > 3000 && this.collectibles.length < 8) {
+    if (now - this.lastSpawnTime > 2500 && this.collectibles.length < 10) {
       this.spawnCollectible();
       this.lastSpawnTime = now;
     }
     
     // Spawn obstacles based on level
-    const obstacleSpawnRate = GAME_CONFIG.OBSTACLE_SPAWN_RATE * (1 + level * 0.5);
-    if (now - this.lastObstacleSpawn > 2000 && Math.random() < obstacleSpawnRate) {
+    const obstacleSpawnRate = GAME_CONFIG.OBSTACLE_SPAWN_RATE * (1 + level * 0.4);
+    if (now - this.lastObstacleSpawn > 1800 && Math.random() < obstacleSpawnRate) {
       this.spawnObstacle(gameSpeed);
       this.lastObstacleSpawn = now;
     }
     
-    return { scoreGained, hit, collected };
+    // Spawn power-ups occasionally
+    if (now - this.lastPowerUpSpawn > 15000 && this.powerUps.length < 2 && Math.random() < GAME_CONFIG.POWERUP_SPAWN_RATE) {
+      this.spawnPowerUp();
+      this.lastPowerUpSpawn = now;
+    }
+    
+    return { scoreGained, hit, collected, powerUpCollected };
   }
 
   render(ctx: CanvasRenderingContext2D) {
@@ -205,6 +272,11 @@ export class GameEngine {
     // Render collectibles
     for (const collectible of this.collectibles) {
       collectible.render(ctx);
+    }
+    
+    // Render power-ups
+    for (const powerUp of this.powerUps) {
+      powerUp.render(ctx);
     }
     
     // Render obstacles

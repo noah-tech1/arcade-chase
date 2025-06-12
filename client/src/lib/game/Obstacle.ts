@@ -42,14 +42,33 @@ export class Obstacle {
     ctx.translate(this.position.x, this.position.y);
     ctx.rotate(this.rotation);
     
-    // Draw warning glow
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 20;
-    ctx.fillStyle = this.color;
-    ctx.strokeStyle = '#ff0000';
-    ctx.lineWidth = 2;
+    // Draw intense warning glow with multiple layers
+    ctx.shadowColor = '#ff4444';
+    ctx.shadowBlur = 25;
     
-    // Draw diamond shape
+    // Outer danger aura
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = '#ff4444';
+    const auraSize = this.size * 0.8;
+    ctx.beginPath();
+    ctx.moveTo(0, -auraSize);
+    ctx.lineTo(auraSize, 0);
+    ctx.lineTo(0, auraSize);
+    ctx.lineTo(-auraSize, 0);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Main obstacle with gradient effect
+    ctx.globalAlpha = 1;
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size / 2);
+    gradient.addColorStop(0, '#ffff44');
+    gradient.addColorStop(0.7, this.color);
+    gradient.addColorStop(1, '#cc8800');
+    ctx.fillStyle = gradient;
+    ctx.strokeStyle = '#ff4444';
+    ctx.lineWidth = 3;
+    
+    // Draw diamond shape with inner details
     const halfSize = this.size / 2;
     ctx.beginPath();
     ctx.moveTo(0, -halfSize);
@@ -60,7 +79,12 @@ export class Obstacle {
     ctx.fill();
     ctx.stroke();
     
-    ctx.shadowBlur = 0;
+    // Add warning symbol in center
+    ctx.fillStyle = '#cc0000';
+    ctx.globalAlpha = 0.8;
+    const symbolSize = this.size * 0.2;
+    ctx.fillRect(-symbolSize/2, -symbolSize/2, symbolSize, symbolSize);
+    
     ctx.restore();
   }
 }

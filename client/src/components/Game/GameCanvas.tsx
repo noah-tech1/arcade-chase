@@ -18,7 +18,11 @@ export default function GameCanvas() {
   const animationFrameRef = useRef<number>(0);
   const inputRef = useRef<InputState>({ left: false, right: false, up: false, down: false });
   
-  const { phase, score, level, gameSpeed, addScore, loseLife, end } = useGame();
+  const { 
+    phase, score, level, gameSpeed, activePowerUps, combo,
+    addScore, loseLife, end, addCombo, resetCombo, updateComboTimer, 
+    activatePowerUp, updatePowerUps 
+  } = useGame();
   const { playHit, playSuccess } = useAudio();
   const { updateHighScore } = useHighScore();
 
@@ -85,18 +89,30 @@ export default function GameCanvas() {
     if (!gameEngineRef.current || phase !== 'playing') return;
 
     const engine = gameEngineRef.current;
-    const result = engine.update(inputRef.current, gameSpeed, level);
+    const magnetActive = activePowerUps?.magnet > 0;
+    const result = engine.update(inputRef.current, gameSpeed, level, activePowerUps || { shield: 0, speed: 0, magnet: 0 }, magnetActive);
 
-    // Handle scoring
+    // Update power-up timers
+    updatePowerUps();
+    updateComboTimer();
+
+    // Handle scoring with combo system
     if (result.scoreGained > 0) {
       addScore(result.scoreGained);
+      addCombo();
       playSuccess();
+    }
+
+    // Handle power-up collection
+    if (result.powerUpCollected) {
+      activatePowerUp(result.powerUpCollected as 'shield' | 'speed' | 'magnet');
     }
 
     // Handle player hit
     if (result.hit) {
       playHit();
       loseLife();
+      resetCombo();
     }
 
     // Render
@@ -109,7 +125,7 @@ export default function GameCanvas() {
     }
 
     animationFrameRef.current = requestAnimationFrame(gameLoop);
-  }, [phase, gameSpeed, level, addScore, loseLife, playHit, playSuccess]);
+  }, [phase, gameSpeed, level, activePowerUps, addScore, loseLife, playHit, playSuccess, addCombo, resetCombo, updateComboTimer, activatePowerUp, updatePowerUps]);
 
   // Initialize game
   useEffect(() => {

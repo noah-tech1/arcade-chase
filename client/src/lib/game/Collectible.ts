@@ -24,28 +24,45 @@ export class Collectible {
   }
 
   render(ctx: CanvasRenderingContext2D) {
-    // Draw glow effect
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 15;
-    ctx.fillStyle = this.color;
+    ctx.save();
     
-    // Draw outer ring
-    ctx.globalAlpha = 0.5;
+    // Draw multiple glow layers for better effect
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 20;
+    
+    // Outer glow ring
+    ctx.globalAlpha = 0.3 + Math.sin(this.pulsePhase) * 0.2;
+    ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, this.size / 2 + 3, 0, Math.PI * 2);
+    ctx.arc(this.position.x, this.position.y, this.size / 2 + 6, 0, Math.PI * 2);
     ctx.fill();
     
-    // Draw main collectible
+    // Middle ring
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.position.x, this.position.y, this.size / 2 + 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Main collectible with animated sparkle
     ctx.globalAlpha = 1;
     ctx.fillStyle = this.color;
     ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
     
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.size / 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     
-    ctx.shadowBlur = 0;
+    // Add sparkle effect
+    const sparkleSize = 2 + Math.sin(this.pulsePhase * 2) * 1;
+    ctx.fillStyle = '#fff';
+    ctx.globalAlpha = 0.8 + Math.sin(this.pulsePhase * 3) * 0.2;
+    ctx.beginPath();
+    ctx.arc(this.position.x - 2, this.position.y - 2, sparkleSize, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
   }
 }
