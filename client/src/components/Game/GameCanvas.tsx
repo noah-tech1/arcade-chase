@@ -8,26 +8,58 @@ export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameEngineRef = useRef<GameEngine | null>(null);
   const animationFrameRef = useRef<number>();
+  const inputRef = useRef({ left: false, right: false, up: false, down: false });
 
   const { 
     phase, 
+    gameSpeed,
+    level,
     activePowerUps, 
     addScore, 
     loseLife, 
-    addCombo, 
-    updateCombo, 
-    updatePowerUps 
+    addCombo,
+    updateCombo,
+    updatePowerUps,
+    activatePowerUp
   } = useGame();
   const { playSound } = useAudio();
 
   const gameLoop = useCallback(() => {
-    if (!gameEngineRef.current || !canvasRef.current) return;
+    if (!gameEngineRef.current || !canvasRef.current || phase !== "playing") return;
 
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
+    // Clear canvas
+    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
     // Update game state
-    gameEngineRef.current.update();
+    const result = gameEngineRef.current.update(
+      inputRef.current,
+      gameSpeed,
+      level,
+      activePowerUps,
+      activePowerUps.magnet > 0
+    );
+
+    // Handle game events
+    if (result.scoreGained > 0) {
+      addScore(result.scoreGained);
+      if (result.collected > 0) {
+        addCombo();
+        playSound('success');
+      }
+    }
+
+    if (result.hit) {
+      loseLife();
+      playSound('hit');
+    }
+
+    if (result.powerUpCollected) {
+      activatePowerUp(result.powerUpCollected as 'shield' | 'speed' | 'magnet');
+      playSound('success');
+    }
     
     // Render
     gameEngineRef.current.render(ctx);
@@ -35,7 +67,7 @@ export default function GameCanvas() {
     if (phase === "playing") {
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     }
-  }, [phase]);
+  }, [phase, gameSpeed, level, activePowerUps, addScore, loseLife, addCombo, activatePowerUp, playSound]);
 
   // Initialize canvas and game engine once
   useEffect(() => {
@@ -49,27 +81,67 @@ export default function GameCanvas() {
     canvas.width = 800;
     canvas.height = 600;
 
-    // Initialize game engine with safe defaults
-    const safePowerUps = activePowerUps || {
-      shield: 0,
-      speed: 0,
-      magnet: 0
+    // Initialize game engine with canvas dimensions
+    gameEngineRef.current = new GameEngine(800, 600);
+
+    // Add keyboard event listeners
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key.toLowerCase()) {
+        case 'w':
+        case 'arrowup':
+          inputRef.current.up = true;
+          e.preventDefault();
+          break;
+        case 's':
+        case 'arrowdown':
+          inputRef.current.down = true;
+          e.preventDefault();
+          break;
+        case 'a':
+        case 'arrowleft':
+          inputRef.current.left = true;
+          e.preventDefault();
+          break;
+        case 'd':
+        case 'arrowright':
+          inputRef.current.right = true;
+          e.preventDefault();
+          break;
+      }
     };
 
-    gameEngineRef.current = new GameEngine({
-      onScore: addScore,
-      onHit: loseLife,
-      onCombo: addCombo,
-      onSound: playSound,
-      activePowerUps: safePowerUps
-    });
+    const handleKeyUp = (e: KeyboardEvent) => {
+      switch (e.key.toLowerCase()) {
+        case 'w':
+        case 'arrowup':
+          inputRef.current.up = false;
+          break;
+        case 's':
+        case 'arrowdown':
+          inputRef.current.down = false;
+          break;
+        case 'a':
+        case 'arrowleft':
+          inputRef.current.left = false;
+          break;
+        case 'd':
+        case 'arrowright':
+          inputRef.current.right = false;
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
 
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [addScore, loseLife, addCombo, playSound]);
+  }, []);
 
   // Handle game loop
   useEffect(() => {
@@ -88,13 +160,6 @@ export default function GameCanvas() {
     };
   }, [phase, gameLoop]);
 
-  // Update power-ups in game engine
-  useEffect(() => {
-    if (gameEngineRef.current && activePowerUps) {
-      gameEngineRef.current.updatePowerUps(activePowerUps);
-    }
-  }, [activePowerUps]);
-
   // Handle combo and power-up updates separately to avoid infinite loops
   useEffect(() => {
     if (phase !== "playing") return;
@@ -105,7 +170,7 @@ export default function GameCanvas() {
     }, 16); // ~60fps
 
     return () => clearInterval(interval);
-  }, [phase]);
+  }, [phase, updateCombo, updatePowerUps]);
 
   return (
     <canvas
