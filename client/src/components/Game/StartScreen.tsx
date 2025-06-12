@@ -9,7 +9,11 @@ export default function StartScreen() {
 
   const handleStart = () => {
     resetGame();
-    start();
+    if (!playerName) {
+      start(); // This will trigger name entry
+    } else {
+      start();
+    }
   };
 
   return (

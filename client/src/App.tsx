@@ -55,7 +55,8 @@ function GameApp() {
 
   return (
     <div className="game-container">
-      {phase === "ready" && <NameEntryScreen />}
+      {phase === "ready" && <StartScreen />}
+      {phase === "name-entry" && <NameEntryScreen />}
       {phase === "playing" && (
         <>
           <GameCanvas />

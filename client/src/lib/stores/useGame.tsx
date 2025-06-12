@@ -1,8 +1,7 @@
-
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
-export type GamePhase = "nameEntry" | "ready" | "playing" | "ended";
+export type GamePhase = "ready" | "name-entry" | "playing" | "ended";
 
 interface GameState {
   phase: GamePhase;
@@ -50,7 +49,7 @@ interface GameState {
 
 export const useGame = create<GameState>()(
   subscribeWithSelector((set, get) => ({
-    phase: "nameEntry",
+    phase: "ready",
     score: 0,
     level: 1,
     lives: 3,
@@ -145,7 +144,7 @@ export const useGame = create<GameState>()(
 
         const newLives = state.lives - 1;
         console.log(`Life lost! Lives remaining: ${newLives}`);
-        
+
         if (newLives <= 0) {
           return { 
             lives: 0, 
