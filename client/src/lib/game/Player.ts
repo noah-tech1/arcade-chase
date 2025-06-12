@@ -7,6 +7,8 @@ export class Player {
   color: string;
   trail: Vector2[];
   maxTrailLength: number;
+  shieldActive: boolean;
+  shieldPulse: number;
 
   constructor(x: number, y: number) {
     this.position = { x, y };
@@ -15,10 +17,12 @@ export class Player {
     this.color = GAME_CONFIG.COLORS.PLAYER;
     this.trail = [];
     this.maxTrailLength = 15;
+    this.shieldActive = false;
+    this.shieldPulse = 0;
   }
 
-  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, canvasWidth: number, canvasHeight: number) {
-    const adjustedSpeed = this.speed * gameSpeed;
+  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, canvasWidth: number, canvasHeight: number, speedBoost: number = 1) {
+    const adjustedSpeed = this.speed * gameSpeed * speedBoost;
     
     // Handle movement input
     if (input.left) {
@@ -43,6 +47,11 @@ export class Player {
     if (this.trail.length > this.maxTrailLength) {
       this.trail.shift();
     }
+    
+    // Update shield pulse
+    if (this.shieldActive) {
+      this.shieldPulse += 0.2;
+    }
   }
 
   render(ctx: CanvasRenderingContext2D) {
@@ -55,6 +64,22 @@ export class Player {
       const trailSize = this.size * (i / this.trail.length) * 0.8;
       ctx.beginPath();
       ctx.arc(this.trail[i].x, this.trail[i].y, trailSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Draw shield if active
+    if (this.shieldActive) {
+      ctx.globalAlpha = 0.3 + Math.sin(this.shieldPulse) * 0.2;
+      ctx.strokeStyle = GAME_CONFIG.COLORS.POWERUP_SHIELD;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(this.position.x, this.position.y, this.size / 2 + 8, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      ctx.globalAlpha = 0.1;
+      ctx.fillStyle = GAME_CONFIG.COLORS.POWERUP_SHIELD;
+      ctx.beginPath();
+      ctx.arc(this.position.x, this.position.y, this.size / 2 + 8, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -71,7 +96,7 @@ export class Player {
 
     // Add a glowing effect
     ctx.shadowColor = this.color;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 15;
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.size / 4, 0, Math.PI * 2);
     ctx.fill();

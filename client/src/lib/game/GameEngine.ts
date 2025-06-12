@@ -1,18 +1,21 @@
 import { Player } from "./Player";
 import { Collectible } from "./Collectible";
 import { Obstacle } from "./Obstacle";
+import { PowerUp, PowerUpType } from "./PowerUp";
 import { ParticleSystem } from "./ParticleSystem";
-import { checkCollision, randomInRange, GAME_CONFIG } from "../utils/gameUtils";
+import { checkCollision, randomInRange, distance, GAME_CONFIG } from "../utils/gameUtils";
 
 export class GameEngine {
   player: Player;
   collectibles: Collectible[];
   obstacles: Obstacle[];
+  powerUps: PowerUp[];
   particles: ParticleSystem;
   canvasWidth: number;
   canvasHeight: number;
   lastSpawnTime: number;
   lastObstacleSpawn: number;
+  lastPowerUpSpawn: number;
 
   constructor(canvasWidth: number, canvasHeight: number) {
     this.canvasWidth = canvasWidth;
