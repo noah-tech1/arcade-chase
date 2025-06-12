@@ -2,10 +2,11 @@ import { useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useGame } from "./lib/stores/useGame";
 import { useAudio } from "./lib/stores/useAudio";
-import GameCanvas from "./components/Game/GameCanvas";
+import NameEntryScreen from "./components/Game/NameEntryScreen";
 import StartScreen from "./components/Game/StartScreen";
-import GameOverScreen from "./components/Game/GameOverScreen";
+import GameCanvas from "./components/Game/GameCanvas";
 import GameUI from "./components/Game/GameUI";
+import GameOverScreen from "./components/Game/GameOverScreen";
 import TouchControls from "./components/Game/TouchControls";
 import "./index.css";
 
@@ -23,10 +24,10 @@ function GameApp() {
         // Create audio elements for sound effects
         const hitAudio = new Audio();
         hitAudio.src = "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+Hyvmw=";
-        
+
         const successAudio = new Audio();
         successAudio.src = "data:audio/wav;base64,UklGRqIGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+Hyvmz=";
-        
+
         setHitSound(hitAudio);
         setSuccessSound(successAudio);
         audioInitialized.current = true;
@@ -54,7 +55,7 @@ function GameApp() {
 
   return (
     <div className="game-container">
-      {phase === "ready" && <StartScreen />}
+      {phase === "ready" && <NameEntryScreen />}
       {phase === "playing" && (
         <>
           <GameCanvas />
