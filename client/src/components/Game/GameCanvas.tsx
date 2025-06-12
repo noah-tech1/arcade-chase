@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useCallback } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useAudio } from "../../lib/stores/useAudio";
@@ -8,7 +9,15 @@ export default function GameCanvas() {
   const gameEngineRef = useRef<GameEngine | null>(null);
   const animationFrameRef = useRef<number>();
 
-  const { phase, activePowerUps, addScore, loseLife, addCombo, updateCombo, updatePowerUps } = useGame();
+  const { 
+    phase, 
+    activePowerUps, 
+    addScore, 
+    loseLife, 
+    addCombo, 
+    updateCombo, 
+    updatePowerUps 
+  } = useGame();
   const { playSound } = useAudio();
 
   const gameLoop = useCallback(() => {
@@ -19,14 +28,24 @@ export default function GameCanvas() {
 
     // Update game state
     gameEngineRef.current.update();
-    updateCombo();
-    updatePowerUps();
-
+    
     // Render
     gameEngineRef.current.render(ctx);
 
     if (phase === "playing") {
       animationFrameRef.current = requestAnimationFrame(gameLoop);
+    }
+  }, [phase]);
+
+  // Separate effect for updating combo and power-ups
+  useEffect(() => {
+    if (phase === "playing") {
+      const interval = setInterval(() => {
+        updateCombo();
+        updatePowerUps();
+      }, 16); // ~60fps
+
+      return () => clearInterval(interval);
     }
   }, [phase, updateCombo, updatePowerUps]);
 
@@ -47,7 +66,11 @@ export default function GameCanvas() {
       onHit: loseLife,
       onCombo: addCombo,
       onSound: playSound,
-      activePowerUps
+      activePowerUps: activePowerUps || {
+        shield: 0,
+        speed: 0,
+        magnet: 0
+      }
     });
 
     return () => {
