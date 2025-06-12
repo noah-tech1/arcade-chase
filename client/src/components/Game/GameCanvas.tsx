@@ -18,11 +18,16 @@ export default function GameCanvas() {
     addScore, 
     loseLife, 
     addCombo,
-    updateCombo,
-    updatePowerUps,
     activatePowerUp
   } = useGame();
   const { playSound } = useAudio();
+
+  // Ensure activePowerUps has default values
+  const safePowerUps = activePowerUps || {
+    shield: 0,
+    speed: 0,
+    magnet: 0
+  };
 
   const gameLoop = useCallback(() => {
     if (!gameEngineRef.current || !canvasRef.current || phase !== "playing") return;
@@ -38,8 +43,8 @@ export default function GameCanvas() {
       inputRef.current,
       gameSpeed,
       level,
-      activePowerUps,
-      activePowerUps.magnet > 0
+      safePowerUps,
+      safePowerUps.magnet > 0
     );
 
     // Handle game events
@@ -47,18 +52,30 @@ export default function GameCanvas() {
       addScore(result.scoreGained);
       if (result.collected > 0) {
         addCombo();
-        playSound('success');
+        try {
+          playSound('success');
+        } catch (e) {
+          console.log('Success sound skipped (muted)');
+        }
       }
     }
 
     if (result.hit) {
       loseLife();
-      playSound('hit');
+      try {
+        playSound('hit');
+      } catch (e) {
+        console.log('Hit sound skipped (muted)');
+      }
     }
 
     if (result.powerUpCollected) {
       activatePowerUp(result.powerUpCollected as 'shield' | 'speed' | 'magnet');
-      playSound('success');
+      try {
+        playSound('success');
+      } catch (e) {
+        console.log('Success sound skipped (muted)');
+      }
     }
     
     // Render
@@ -67,7 +84,7 @@ export default function GameCanvas() {
     if (phase === "playing") {
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     }
-  }, [phase, gameSpeed, level, activePowerUps, addScore, loseLife, addCombo, activatePowerUp, playSound]);
+  }, [phase, gameSpeed, level, safePowerUps.shield, safePowerUps.speed, safePowerUps.magnet, addScore, loseLife, addCombo, activatePowerUp]);
 
   // Initialize canvas and game engine once
   useEffect(() => {
@@ -160,17 +177,7 @@ export default function GameCanvas() {
     };
   }, [phase, gameLoop]);
 
-  // Handle combo and power-up updates separately to avoid infinite loops
-  useEffect(() => {
-    if (phase !== "playing") return;
-
-    const interval = setInterval(() => {
-      updateCombo();
-      updatePowerUps();
-    }, 16); // ~60fps
-
-    return () => clearInterval(interval);
-  }, [phase, updateCombo, updatePowerUps]);
+  // Handle power-up and combo updates in the game store automatically
 
   return (
     <canvas
