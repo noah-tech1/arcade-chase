@@ -91,7 +91,6 @@ export const useGame = create<GameState>()(
     end: () => {
       set((state) => {
         if (state.phase === "playing") {
-          console.log(`Game ended with score: ${state.score}`);
           return { phase: "ended" };
         }
         return {};
@@ -104,15 +103,9 @@ export const useGame = create<GameState>()(
         const adjustedPoints = Math.floor(points * comboMultiplier);
         const newScore = state.score + adjustedPoints;
 
-        console.log(`Score: ${state.score} + ${adjustedPoints} = ${newScore} (combo: ${state.combo}x)`);
-
         // Level up every 1500 points
         const newLevel = Math.floor(newScore / 1500) + 1;
         const levelChanged = newLevel > state.level;
-
-        if (levelChanged) {
-          console.log(`Level up! New level: ${newLevel}`);
-        }
 
         return {
           score: newScore,
@@ -125,8 +118,7 @@ export const useGame = create<GameState>()(
     loseLife: () => {
       set((state) => {
         // Check if shield is active
-        if (state.activePowerUps?.shield > 0) {
-          console.log("Shield absorbed hit!");
+        if (state.activePowerUps.shield > 0) {
           return { 
             activePowerUps: { ...state.activePowerUps, shield: 0 },
             combo: 0,
@@ -135,8 +127,6 @@ export const useGame = create<GameState>()(
         }
 
         const newLives = state.lives - 1;
-        console.log(`Life lost! Lives remaining: ${newLives}`);
-        
         if (newLives <= 0) {
           return { 
             lives: 0, 

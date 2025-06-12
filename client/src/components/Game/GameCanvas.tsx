@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useCallback } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useAudio } from "../../lib/stores/useAudio";
@@ -11,17 +12,24 @@ export default function GameCanvas() {
   const cheatModeRef = useRef(false);
   const cheatPromptRef = useRef(false);
 
-  const phase = useGame(state => state.phase);
-  const gameSpeed = useGame(state => state.gameSpeed);
-  const level = useGame(state => state.level);
-  const activePowerUps = useGame(state => state.activePowerUps);
-  const addScore = useGame(state => state.addScore);
-  const loseLife = useGame(state => state.loseLife);
-  const addCombo = useGame(state => state.addCombo);
-  const updateCombo = useGame(state => state.updateCombo);
-  const updatePowerUps = useGame(state => state.updatePowerUps);
-  const activatePowerUp = useGame(state => state.activatePowerUp);
+  const { 
+    phase, 
+    gameSpeed,
+    level,
+    activePowerUps, 
+    addScore, 
+    loseLife, 
+    addCombo,
+    activatePowerUp
+  } = useGame();
   const { playSound } = useAudio();
+
+  // Ensure activePowerUps has default values
+  const safePowerUps = activePowerUps || {
+    shield: 0,
+    speed: 0,
+    magnet: 0
+  };
 
   const gameLoop = useCallback(() => {
     if (!gameEngineRef.current || !canvasRef.current || phase !== "playing") return;
@@ -32,16 +40,18 @@ export default function GameCanvas() {
     // Clear canvas
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-    // Safe powerups with fallback
-    const safePowerUps = activePowerUps || { shield: 0, speed: 0, magnet: 0 };
+    // Apply cheat effects
+    const cheatPowerUps = cheatModeRef.current 
+      ? { ...safePowerUps, magnet: 999999 } // Permanent magnet
+      : safePowerUps;
 
     // Update game state
     const result = gameEngineRef.current.update(
       inputRef.current,
       gameSpeed,
       level,
-      safePowerUps,
-      safePowerUps.magnet > 0
+      cheatPowerUps,
+      cheatPowerUps.magnet > 0
     );
 
     // Handle game events
@@ -49,27 +59,39 @@ export default function GameCanvas() {
       addScore(result.scoreGained);
       if (result.collected > 0) {
         addCombo();
-        if (playSound) playSound('success');
+        try {
+          playSound('success');
+        } catch (e) {
+          console.log('Success sound skipped (muted)');
+        }
       }
     }
 
     if (result.hit) {
       loseLife();
-      if (playSound) playSound('hit');
+      try {
+        playSound('hit');
+      } catch (e) {
+        console.log('Hit sound skipped (muted)');
+      }
     }
 
     if (result.powerUpCollected) {
       activatePowerUp(result.powerUpCollected as 'shield' | 'speed' | 'magnet');
-      if (playSound) playSound('success');
+      try {
+        playSound('success');
+      } catch (e) {
+        console.log('Success sound skipped (muted)');
+      }
     }
-
+    
     // Render
     gameEngineRef.current.render(ctx);
 
     if (phase === "playing") {
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     }
-  }, [phase]);
+  }, [phase, gameSpeed, level, safePowerUps.shield, safePowerUps.speed, safePowerUps.magnet, addScore, loseLife, addCombo, activatePowerUp]);
 
   // Initialize canvas and game engine once
   useEffect(() => {
@@ -168,7 +190,15 @@ export default function GameCanvas() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, [phase, gameLoop]);
+
+  // Handle power-up and combo updates in the game store automatically
 
   return (
     <canvas
