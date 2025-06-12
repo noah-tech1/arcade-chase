@@ -323,13 +323,24 @@
 }
 
 .level-display {
-  background: rgba(0, 0, 0, 0.7);
-  padding: 0.8rem 1.2rem;
-  border-radius: 8px;
-  border: 2px solid var(--accent);
   font-family: 'Press Start 2P', monospace;
-  font-size: 1rem;
-  color: var(--accent);
+  font-size: 1.2rem;
+  color: var(--secondary);
+  text-shadow: 0 0 10px var(--secondary);
+  text-align: center;
+}
+
+.cheat-indicator {
+  font-size: 0.6rem;
+  color: #ff6b6b;
+  text-shadow: 0 0 8px #ff6b6b;
+  margin-top: 0.5rem;
+  animation: cheat-pulse 1s infinite;
+}
+
+@keyframes cheat-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .controls {
@@ -569,32 +580,32 @@
   .start-content {
     padding: 1rem;
   }
-  
+
   .game-title {
     font-size: clamp(1.5rem, 10vw, 2.5rem);
   }
-  
+
   .ui-top, .ui-bottom {
     left: 0.5rem;
     right: 0.5rem;
     top: 0.5rem;
     bottom: 0.5rem;
   }
-  
+
   .score-display, .level-display, .lives-display, .instructions {
     font-size: 0.7rem;
     padding: 0.6rem 1rem;
   }
-  
+
   .touch-controls {
     bottom: 1rem;
     right: 1rem;
   }
-  
+
   .instructions {
     text-align: center;
   }
-  
+
   .instructions ul {
     text-align: left;
     display: inline-block;
@@ -605,15 +616,15 @@
   .final-stats {
     gap: 0.8rem;
   }
-  
+
   .stat {
     padding: 0.8rem;
   }
-  
+
   .stat-value {
     font-size: 1rem;
   }
-  
+
   .game-canvas-container {
     padding: 0.5rem;
   }
@@ -634,7 +645,7 @@ canvas, button, .game-ui {
   .game-canvas {
     border-width: 4px;
   }
-  
+
   .start-button, .restart-button {
     border: 2px solid white;
   }
@@ -645,7 +656,7 @@ canvas, button, .game-ui {
   .new-high-score {
     animation: none;
   }
-  
+
   .start-button:hover, .restart-button:hover {
     transform: none;
   }

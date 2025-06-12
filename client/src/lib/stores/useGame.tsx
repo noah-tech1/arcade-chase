@@ -11,6 +11,7 @@ interface GameState {
   gameSpeed: number;
   combo: number;
   comboTimer: number;
+  cheatMode: boolean;
 
   // Power-ups
   activePowerUps: {
@@ -38,6 +39,10 @@ interface GameState {
   // Power-up system
   activatePowerUp: (type: 'shield' | 'speed' | 'magnet') => void;
   updatePowerUps: () => void;
+
+  // Cheat system
+  enableCheatMode: () => void;
+  disableCheatMode: () => void;
 }
 
 export const useGame = create<GameState>()(
@@ -49,6 +54,7 @@ export const useGame = create<GameState>()(
     gameSpeed: 1,
     combo: 0,
     comboTimer: 0,
+    cheatMode: false,
     activePowerUps: {
       shield: 0,
       speed: 0,
@@ -73,6 +79,7 @@ export const useGame = create<GameState>()(
         gameSpeed: 1,
         combo: 0,
         comboTimer: 0,
+        cheatMode: false,
         activePowerUps: {
           shield: 0,
           speed: 0,
@@ -151,6 +158,7 @@ export const useGame = create<GameState>()(
         gameSpeed: 1,
         combo: 0,
         comboTimer: 0,
+        cheatMode: false,
         activePowerUps: {
           shield: 0,
           speed: 0,
@@ -210,6 +218,14 @@ export const useGame = create<GameState>()(
 
         return changed ? { activePowerUps: newPowerUps } : {};
       });
+    },
+
+    enableCheatMode: () => {
+      set(() => ({ cheatMode: true }));
+    },
+
+    disableCheatMode: () => {
+      set(() => ({ cheatMode: false }));
     }
   }))
 );

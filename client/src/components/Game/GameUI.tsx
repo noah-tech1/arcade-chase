@@ -4,7 +4,7 @@ import { useAudio } from "../../lib/stores/useAudio";
 import { Heart, Volume2, VolumeX, Shield, Zap, Magnet } from "lucide-react";
 
 export default function GameUI() {
-  const { score, level, lives, combo, comboTimer, activePowerUps } = useGame();
+  const { score, level, lives, combo, comboTimer, activePowerUps, cheatMode } = useGame();
   const { highScore } = useHighScore();
   const { isMuted, toggleMute } = useAudio();
 
@@ -29,6 +29,11 @@ export default function GameUI() {
         
         <div className="level-display">
           Level {level}
+          {cheatMode && (
+            <div className="cheat-indicator">
+              CHEAT MODE
+            </div>
+          )}
         </div>
         
         <div className="controls">

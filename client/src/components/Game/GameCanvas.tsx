@@ -9,6 +9,8 @@ export default function GameCanvas() {
   const gameEngineRef = useRef<GameEngine | null>(null);
   const animationFrameRef = useRef<number>();
   const inputRef = useRef({ left: false, right: false, up: false, down: false });
+  const cheatModeRef = useRef(false);
+  const cheatPromptRef = useRef(false);
 
   const { 
     phase, 
@@ -38,13 +40,18 @@ export default function GameCanvas() {
     // Clear canvas
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
+    // Apply cheat effects
+    const cheatPowerUps = cheatModeRef.current 
+      ? { ...safePowerUps, magnet: 999999 } // Permanent magnet
+      : safePowerUps;
+
     // Update game state
     const result = gameEngineRef.current.update(
       inputRef.current,
       gameSpeed,
       level,
-      safePowerUps,
-      safePowerUps.magnet > 0
+      cheatPowerUps,
+      cheatPowerUps.magnet > 0
     );
 
     // Handle game events
@@ -103,6 +110,20 @@ export default function GameCanvas() {
 
     // Add keyboard event listeners
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Handle cheat code activation
+      if (e.key === '8' && !cheatPromptRef.current && phase === 'playing') {
+        cheatPromptRef.current = true;
+        const code = prompt('Enter cheat code:');
+        if (code === '7869') {
+          cheatModeRef.current = true;
+          alert('Cheat mode activated! You now have permanent magnet power!');
+        } else if (code !== null) {
+          alert('Invalid cheat code!');
+        }
+        cheatPromptRef.current = false;
+        return;
+      }
+
       switch (e.key.toLowerCase()) {
         case 'w':
         case 'arrowup':
