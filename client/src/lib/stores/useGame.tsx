@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
-export type GamePhase = "ready" | "name-entry" | "playing" | "ended";
+export type GamePhase = "ready" | "playing" | "ended";
 
 interface GameState {
   phase: GamePhase;
@@ -12,7 +12,6 @@ interface GameState {
   combo: number;
   comboTimer: number;
   cheatMode: boolean;
-  playerName: string;
 
   // Power-ups
   activePowerUps: {
@@ -25,7 +24,6 @@ interface GameState {
   start: () => void;
   restart: () => void;
   end: () => void;
-  setPlayerName: (name: string) => void;
 
   // Score and progression
   addScore: (points: number) => void;
@@ -57,15 +55,10 @@ export const useGame = create<GameState>()(
     combo: 0,
     comboTimer: 0,
     cheatMode: false,
-    playerName: "",
     activePowerUps: {
       shield: 0,
       speed: 0,
       magnet: 0
-    },
-
-    setPlayerName: (name: string) => {
-      set({ playerName: name, phase: "ready" });
     },
 
     start: () => {
@@ -79,7 +72,7 @@ export const useGame = create<GameState>()(
 
     restart: () => {
       set(() => ({ 
-        phase: "nameEntry",
+        phase: "ready",
         score: 0,
         level: 1,
         lives: 3,
@@ -87,7 +80,6 @@ export const useGame = create<GameState>()(
         combo: 0,
         comboTimer: 0,
         cheatMode: false,
-        playerName: "",
         activePowerUps: {
           shield: 0,
           speed: 0,
@@ -99,7 +91,7 @@ export const useGame = create<GameState>()(
     end: () => {
       set((state) => {
         if (state.phase === "playing") {
-          console.log(`Game ended with score: ${state.score} for player: ${state.playerName}`);
+          console.log(`Game ended with score: ${state.score}`);
           return { phase: "ended" };
         }
         return {};
@@ -144,7 +136,7 @@ export const useGame = create<GameState>()(
 
         const newLives = state.lives - 1;
         console.log(`Life lost! Lives remaining: ${newLives}`);
-
+        
         if (newLives <= 0) {
           return { 
             lives: 0, 
@@ -169,7 +161,7 @@ export const useGame = create<GameState>()(
     },
 
     resetGame: () => {
-      set((state) => ({
+      set(() => ({
         score: 0,
         level: 1,
         lives: 3,

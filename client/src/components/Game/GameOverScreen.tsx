@@ -1,17 +1,10 @@
-import { useEffect } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useHighScore } from "../../lib/stores/useHighScore";
 import { RotateCcw, Trophy, Target } from "lucide-react";
 
 export default function GameOverScreen() {
-  const { score, level, playerName, restart } = useGame();
-  const { highScore, updateHighScore } = useHighScore();
-  
-  useEffect(() => {
-    if (score > 0) {
-      updateHighScore(score, level, playerName);
-    }
-  }, [score, level, playerName, updateHighScore]);
+  const { score, level, restart } = useGame();
+  const { highScore } = useHighScore();
   
   const isNewHighScore = score === highScore && score > 0;
 
