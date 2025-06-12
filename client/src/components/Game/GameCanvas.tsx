@@ -11,16 +11,10 @@ export default function GameCanvas() {
   const cheatModeRef = useRef(false);
   const cheatPromptRef = useRef(false);
 
-  const phase = useGame(state => state.phase);
-  const gameSpeed = useGame(state => state.gameSpeed);
-  const level = useGame(state => state.level);
-  const activePowerUps = useGame(state => state.activePowerUps);
-  const addScore = useGame(state => state.addScore);
-  const loseLife = useGame(state => state.loseLife);
-  const addCombo = useGame(state => state.addCombo);
-  const updateCombo = useGame(state => state.updateCombo);
-  const updatePowerUps = useGame(state => state.updatePowerUps);
-  const activatePowerUp = useGame(state => state.activatePowerUp);
+  const { 
+    phase, level, gameSpeed, addScore, loseLife, updateCombo, updatePowerUps, 
+    activatePowerUp, activePowerUps, enableCheatMode 
+  } = useGame();
   const { playSound } = useAudio();
 
   const gameLoop = useCallback(() => {
@@ -94,6 +88,7 @@ export default function GameCanvas() {
         const code = prompt('Enter cheat code:');
         if (code === '7869') {
           cheatModeRef.current = true;
+          enableCheatMode();
           alert('Cheat mode activated! You now have permanent magnet power!');
         } else if (code !== null) {
           alert('Invalid cheat code!');
