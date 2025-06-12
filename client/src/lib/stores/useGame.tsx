@@ -3,6 +3,102 @@ import { subscribeWithSelector } from "zustand/middleware";
 
 export type GamePhase = "ready" | "playing" | "ended";
 
+export interface GameState {
+  phase: GamePhase;
+  score: number;
+  level: number;
+  lives: number;
+  combo: number;
+  comboTimer: number;
+  activePowerUps: {
+    shield: number;
+    speed: number;
+    magnet: number;
+  };
+}
+
+export const useGame = create<GameState & {
+  start: () => void;
+  end: () => void;
+  resetGame: () => void;
+  addScore: (points: number) => void;
+  nextLevel: () => void;
+  loseLife: () => void;
+  addCombo: () => void;
+  updateCombo: () => void;
+  activatePowerUp: (type: 'shield' | 'speed' | 'magnet') => void;
+  updatePowerUps: () => void;
+}>()(
+  subscribeWithSelector((set, get) => ({
+    phase: "ready" as GamePhase,
+    score: 0,
+    level: 1,
+    lives: 3,
+    combo: 0,
+    comboTimer: 0,
+    activePowerUps: {
+      shield: 0,
+      speed: 0,
+      magnet: 0
+    },
+    
+    start: () => set({ phase: "playing" }),
+    end: () => set({ phase: "ended" }),
+    
+    resetGame: () => set({
+      phase: "ready",
+      score: 0,
+      level: 1,
+      lives: 3,
+      combo: 0,
+      comboTimer: 0,
+      activePowerUps: {
+        shield: 0,
+        speed: 0,
+        magnet: 0
+      }
+    }),
+    
+    addScore: (points: number) => {
+      set((state) => ({ score: state.score + points }));
+    },
+    
+    nextLevel: () => {
+      set((state) => ({ level: state.level + 1 }));
+    },
+    
+    loseLife: () => {
+      set((state) => {
+        const newLives = state.lives - 1;
+        return {
+          lives: newLives,
+          combo: 0,
+          comboTimer: 0,
+          ...(newLives <= 0 ? { phase: "ended" as GamePhase } : {})
+        };
+      });
+    },
+    
+    addCombo: () => {
+      set((state) => ({
+        combo: state.combo + 1,
+        comboTimer: 300 // 5 seconds at 60fps
+      }));
+    },
+    
+    updateCombo: () => {
+      set((state) => {
+        if (state.comboTimer > 0) {
+          const newTimer = state.comboTimer - 1;
+          if (newTimer <= 0) {
+            return { combo: 0, comboTimer: 0 };
+          }
+          return { comboTimer: newTimer };
+        }
+        return {};
+      });
+    },
+
 interface GameState {
   phase: GamePhase;
   score: number;
