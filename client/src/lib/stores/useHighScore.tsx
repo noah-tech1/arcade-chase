@@ -14,9 +14,7 @@ export const useHighScore = create<HighScoreState>()(
       
       updateHighScore: (score: number): boolean => {
         const currentHigh = get().highScore;
-        console.log(`Checking high score: ${score} vs current high: ${currentHigh}`);
         if (score > currentHigh) {
-          console.log(`New high score achieved: ${score}`);
           set({ highScore: score });
           return true; // New high score achieved
         }
