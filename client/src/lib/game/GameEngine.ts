@@ -118,15 +118,28 @@ export class GameEngine {
     this.powerUps.push(new PowerUp(x, y, randomType));
   }
 
-  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, level: number, activePowerUps: any, magnetActive: boolean = false): { scoreGained: number; hit: boolean; collected: number; powerUpCollected?: string } {
+  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, level: number, activePowerUps: any, magnetActive: boolean = false, cheatEffects?: any): { scoreGained: number; hit: boolean; collected: number; powerUpCollected?: string } {
     let scoreGained = 0;
     let hit = false;
     let collected = 0;
     let powerUpCollected: string | undefined;
     
+    // Apply cheat effects
+    const safeCheatEffects = cheatEffects || {};
+    
     // Update player shield status and speed boost
-    this.player.shieldActive = activePowerUps.shield > 0;
-    const speedBoost = activePowerUps.speed > 0 ? 1.8 : 1;
+    this.player.shieldActive = activePowerUps.shield > 0 || safeCheatEffects.godMode;
+    let speedBoost = activePowerUps.speed > 0 ? 1.8 : 1;
+    if (safeCheatEffects.superSpeed) speedBoost *= 2;
+    
+    // Apply player size effects
+    if (safeCheatEffects.bigPlayer) {
+      this.player.size = Math.max(this.player.size, 25);
+    } else if (safeCheatEffects.tinyPlayer) {
+      this.player.size = Math.min(this.player.size, 8);
+    } else {
+      this.player.size = 15; // Default size
+    }
     
     // Update player
     this.player.update(input, gameSpeed, this.canvasWidth, this.canvasHeight, speedBoost);
@@ -175,14 +188,25 @@ export class GameEngine {
     for (let i = this.collectibles.length - 1; i >= 0; i--) {
       const collectible = this.collectibles[i];
       if (checkCollision(this.player.position, collectible.position, this.player.size, collectible.size)) {
-        scoreGained += collectible.value;
+        let points = collectible.value;
+        
+        // Apply double score cheat effect
+        if (safeCheatEffects.doubleScore) {
+          points *= 2;
+        }
+        
+        scoreGained += points;
         collected++;
         
-        // Create enhanced collection particle effect
+        // Create enhanced collection particle effect with rainbow colors if cheat is active
+        const effectColor = safeCheatEffects.rainbowMode 
+          ? `hsl(${Date.now() % 360}, 100%, 50%)`
+          : GAME_CONFIG.COLORS.SUCCESS;
+          
         this.particles.createCollectionBurst(
           collectible.position.x,
           collectible.position.y,
-          GAME_CONFIG.COLORS.SUCCESS
+          effectColor
         );
         
         this.collectibles.splice(i, 1);
@@ -207,22 +231,24 @@ export class GameEngine {
       }
     }
     
-    // Check obstacle collisions
-    for (const obstacle of this.obstacles) {
-      if (checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
-        hit = true;
-        
-        // Start screen shake effect
-        this.screenShake.start(8, 20);
-        
-        // Create hit particle effect
-        this.particles.createExplosion(
-          this.player.position.x,
-          this.player.position.y,
-          GAME_CONFIG.COLORS.PRIMARY,
-          12
-        );
-        break;
+    // Check obstacle collisions (skip if god mode or no obstacles cheat is active)
+    if (!safeCheatEffects.godMode && !safeCheatEffects.noObstacles) {
+      for (const obstacle of this.obstacles) {
+        if (checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
+          hit = true;
+          
+          // Start screen shake effect
+          this.screenShake.start(8, 20);
+          
+          // Create hit particle effect
+          this.particles.createExplosion(
+            this.player.position.x,
+            this.player.position.y,
+            GAME_CONFIG.COLORS.PRIMARY,
+            12
+          );
+          break;
+        }
       }
     }
     
@@ -233,11 +259,13 @@ export class GameEngine {
       this.lastSpawnTime = now;
     }
     
-    // Spawn obstacles based on level
-    const obstacleSpawnRate = GAME_CONFIG.OBSTACLE_SPAWN_RATE * (1 + level * 0.4);
-    if (now - this.lastObstacleSpawn > 1800 && Math.random() < obstacleSpawnRate) {
-      this.spawnObstacle(gameSpeed);
-      this.lastObstacleSpawn = now;
+    // Spawn obstacles based on level (skip if no obstacles cheat is active)
+    if (!safeCheatEffects.noObstacles) {
+      const obstacleSpawnRate = GAME_CONFIG.OBSTACLE_SPAWN_RATE * (1 + level * 0.4);
+      if (now - this.lastObstacleSpawn > 1800 && Math.random() < obstacleSpawnRate) {
+        this.spawnObstacle(gameSpeed);
+        this.lastObstacleSpawn = now;
+      }
     }
     
     // Spawn power-ups occasionally

@@ -54,7 +54,13 @@ export class Player {
     }
   }
 
-  render(ctx: CanvasRenderingContext2D) {
+  render(ctx: CanvasRenderingContext2D, cheatEffects?: any) {
+    const safeCheatEffects = cheatEffects || {};
+    
+    // Dynamic color for rainbow mode
+    const playerColor = safeCheatEffects.rainbowMode 
+      ? `hsl(${Date.now() * 0.01 % 360}, 100%, 50%)`
+      : this.color;
     // Draw trail
     ctx.globalAlpha = 0.3;
     for (let i = 0; i < this.trail.length; i++) {

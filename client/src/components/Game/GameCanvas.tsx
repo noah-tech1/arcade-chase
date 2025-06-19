@@ -44,18 +44,36 @@ export default function GameCanvas() {
     // Clear canvas
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-    // Apply cheat effects
-    const cheatPowerUps = cheatModeRef.current 
-      ? { ...safePowerUps, magnet: 999999 } // Permanent magnet
-      : safePowerUps;
+    // Apply enhanced cheat effects
+    const safeCheatEffects = activeCheatEffects || {
+      godMode: false,
+      slowMotion: false,
+      doubleScore: false,
+      superSpeed: false,
+      rainbowMode: false,
+      bigPlayer: false,
+      tinyPlayer: false,
+      infiniteLives: false,
+      noObstacles: false,
+      autoCollect: false,
+    };
 
-    // Update game state
+    const effectiveGameSpeed = safeCheatEffects.slowMotion ? gameSpeed * 0.3 : 
+                              safeCheatEffects.superSpeed ? gameSpeed * 2 : gameSpeed;
+
+    const cheatPowerUps = {
+      ...safePowerUps,
+      magnet: (cheatModeRef.current || safeCheatEffects.autoCollect) ? 999999 : safePowerUps.magnet
+    };
+
+    // Update game state with cheat effects
     const result = gameEngineRef.current.update(
       inputRef.current,
-      gameSpeed,
+      effectiveGameSpeed,
       level,
       cheatPowerUps,
-      cheatPowerUps.magnet > 0
+      cheatPowerUps.magnet > 0,
+      safeCheatEffects
     );
 
     // Handle game events
