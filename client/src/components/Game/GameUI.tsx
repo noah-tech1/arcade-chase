@@ -34,9 +34,27 @@ export default function GameUI() {
         
         <div className="level-display">
           Level {level}
-          {cheatMode && (
+          {(cheatMode || activeCheatsList.length > 0) && (
             <div className="cheat-indicator">
               CHEAT MODE
+              {activeCheatsList.length > 0 && (
+                <div className="active-cheats">
+                  {activeCheatsList.map(effect => (
+                    <span key={effect} className="cheat-effect">
+                      {effect === 'godMode' && '🛡️ GOD'}
+                      {effect === 'slowMotion' && '🐌 SLOW'}
+                      {effect === 'doubleScore' && '⭐ 2X'}
+                      {effect === 'superSpeed' && '⚡ FAST'}
+                      {effect === 'rainbowMode' && '🌈 RGB'}
+                      {effect === 'bigPlayer' && '📈 BIG'}
+                      {effect === 'tinyPlayer' && '📉 TINY'}
+                      {effect === 'infiniteLives' && '♾️ LIVES'}
+                      {effect === 'noObstacles' && '🚫 OBS'}
+                      {effect === 'autoCollect' && '🧲 AUTO'}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -640,6 +640,36 @@ canvas, button, .game-ui {
   user-select: none;
 }
 
+/* Enhanced Cheat Effects Styling */
+.active-cheats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.cheat-effect {
+  font-size: 0.5rem;
+  padding: 0.1rem 0.3rem;
+  background: rgba(78, 205, 196, 0.3);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  color: var(--accent);
+  text-shadow: 0 0 3px var(--accent);
+  animation: cheatEffectGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes cheatEffectGlow {
+  0% { 
+    box-shadow: 0 0 3px var(--accent); 
+    transform: scale(1);
+  }
+  100% { 
+    box-shadow: 0 0 8px var(--accent); 
+    transform: scale(1.05);
+  }
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .game-canvas {
