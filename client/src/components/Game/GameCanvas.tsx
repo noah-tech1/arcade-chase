@@ -16,13 +16,17 @@ export default function GameCanvas() {
     phase, 
     gameSpeed,
     level,
-    activePowerUps, 
+    activePowerUps,
+    activeCheatEffects,
     addScore, 
     loseLife, 
     addCombo,
-    activatePowerUp
+    activatePowerUp,
+    activateCheatEffect,
+    toggleCheatEffect,
+    clearAllCheats
   } = useGame();
-  const { playSound } = useAudio();
+  const { playHit, playSuccess } = useAudio();
 
   // Ensure activePowerUps has default values
   const safePowerUps = activePowerUps || {
@@ -60,7 +64,7 @@ export default function GameCanvas() {
       if (result.collected > 0) {
         addCombo();
         try {
-          playSound('success');
+          playSuccess();
         } catch (e) {
           console.log('Success sound skipped (muted)');
         }
@@ -70,7 +74,7 @@ export default function GameCanvas() {
     if (result.hit) {
       loseLife();
       try {
-        playSound('hit');
+        playHit();
       } catch (e) {
         console.log('Hit sound skipped (muted)');
       }
@@ -79,7 +83,7 @@ export default function GameCanvas() {
     if (result.powerUpCollected) {
       activatePowerUp(result.powerUpCollected as 'shield' | 'speed' | 'magnet');
       try {
-        playSound('success');
+        playSuccess();
       } catch (e) {
         console.log('Success sound skipped (muted)');
       }
@@ -113,13 +117,84 @@ export default function GameCanvas() {
       // Handle cheat code activation
       if (e.key === '8' && !cheatPromptRef.current && phase === 'playing') {
         cheatPromptRef.current = true;
-        const code = prompt('Enter cheat code:');
-        if (code === '7869') {
-          cheatModeRef.current = true;
-          alert('Cheat mode activated! You now have permanent magnet power!');
+        const code = prompt('🎮 Enter cheat code:');
+        
+        const cheatCodes = {
+          'GODMODE': () => {
+            toggleCheatEffect('godMode');
+            return activeCheatEffects.godMode ? 'God Mode ON - You are invincible!' : 'God Mode OFF';
+          },
+          'SLOWMO': () => {
+            toggleCheatEffect('slowMotion');
+            return activeCheatEffects.slowMotion ? 'Slow Motion ON - Time slows down!' : 'Slow Motion OFF';
+          },
+          'DOUBLESCORE': () => {
+            toggleCheatEffect('doubleScore');
+            return activeCheatEffects.doubleScore ? 'Double Score ON - 2x points!' : 'Double Score OFF';
+          },
+          'SPEED': () => {
+            toggleCheatEffect('superSpeed');
+            return activeCheatEffects.superSpeed ? 'Super Speed ON - Lightning fast!' : 'Super Speed OFF';
+          },
+          'RAINBOW': () => {
+            toggleCheatEffect('rainbowMode');
+            return activeCheatEffects.rainbowMode ? 'Rainbow Mode ON - Psychedelic colors!' : 'Rainbow Mode OFF';
+          },
+          'BIGPLAYER': () => {
+            toggleCheatEffect('bigPlayer');
+            if (activeCheatEffects.tinyPlayer) toggleCheatEffect('tinyPlayer'); // Turn off tiny if big is on
+            return activeCheatEffects.bigPlayer ? 'Big Player ON - You are huge!' : 'Big Player OFF';
+          },
+          'TINYPLAYER': () => {
+            toggleCheatEffect('tinyPlayer');
+            if (activeCheatEffects.bigPlayer) toggleCheatEffect('bigPlayer'); // Turn off big if tiny is on
+            return activeCheatEffects.tinyPlayer ? 'Tiny Player ON - You are tiny!' : 'Tiny Player OFF';
+          },
+          'INFINITELIVES': () => {
+            toggleCheatEffect('infiniteLives');
+            return activeCheatEffects.infiniteLives ? 'Infinite Lives ON - Never die!' : 'Infinite Lives OFF';
+          },
+          'NOOBSTACLES': () => {
+            toggleCheatEffect('noObstacles');
+            return activeCheatEffects.noObstacles ? 'No Obstacles ON - Clear path!' : 'No Obstacles OFF';
+          },
+          'AUTOCOLLECT': () => {
+            toggleCheatEffect('autoCollect');
+            return activeCheatEffects.autoCollect ? 'Auto Collect ON - Items come to you!' : 'Auto Collect OFF';
+          },
+          'CLEARALL': () => {
+            clearAllCheats();
+            return 'All cheats cleared!';
+          },
+          '7869': () => {
+            cheatModeRef.current = true;
+            activateCheatEffect('autoCollect');
+            return 'Classic cheat activated! Auto-collect enabled!';
+          }
+        };
+
+        const upperCode = code?.toUpperCase();
+        if (upperCode && upperCode in cheatCodes) {
+          const message = (cheatCodes as any)[upperCode]();
+          alert(`✨ ${message}`);
+        } else if (code === 'HELP' || code === '?') {
+          alert(`🎮 Available Cheat Codes:
+GODMODE - Invincibility
+SLOWMO - Slow motion effect
+DOUBLESCORE - Double points
+SPEED - Super speed
+RAINBOW - Rainbow colors
+BIGPLAYER - Giant player
+TINYPLAYER - Tiny player
+INFINITELIVES - Never lose lives
+NOOBSTACLES - Remove obstacles
+AUTOCOLLECT - Items come to you
+CLEARALL - Clear all cheats
+7869 - Classic cheat`);
         } else if (code !== null) {
-          alert('Invalid cheat code!');
+          alert('❌ Invalid cheat code! Type "HELP" for available codes.');
         }
+        
         cheatPromptRef.current = false;
         return;
       }
