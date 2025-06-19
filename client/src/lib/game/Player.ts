@@ -66,7 +66,7 @@ export class Player {
     for (let i = 0; i < this.trail.length; i++) {
       const alpha = (i / this.trail.length) * 0.3;
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = this.color;
+      ctx.fillStyle = playerColor;
       const trailSize = this.size * (i / this.trail.length) * 0.8;
       ctx.beginPath();
       ctx.arc(this.trail[i].x, this.trail[i].y, trailSize / 2, 0, Math.PI * 2);
@@ -89,20 +89,23 @@ export class Player {
       ctx.fill();
     }
 
-    // Draw player
+    // Draw player with enhanced cheat effects
     ctx.globalAlpha = 1;
-    ctx.fillStyle = this.color;
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
+    ctx.fillStyle = playerColor;
+    ctx.strokeStyle = safeCheatEffects.rainbowMode ? 
+      `hsl(${(Date.now() * 0.01 + 180) % 360}, 100%, 80%)` : '#fff';
+    ctx.lineWidth = safeCheatEffects.bigPlayer ? 4 : safeCheatEffects.tinyPlayer ? 1 : 2;
     
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.size / 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Add a glowing effect
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 15;
+    // Add enhanced glowing effect for cheat modes
+    const glowIntensity = safeCheatEffects.godMode ? 25 : 
+                         safeCheatEffects.rainbowMode ? 20 : 15;
+    ctx.shadowColor = playerColor;
+    ctx.shadowBlur = glowIntensity;
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.size / 4, 0, Math.PI * 2);
     ctx.fill();

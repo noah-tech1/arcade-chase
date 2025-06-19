@@ -277,7 +277,7 @@ export class GameEngine {
     return { scoreGained, hit, collected, powerUpCollected };
   }
 
-  render(ctx: CanvasRenderingContext2D) {
+  render(ctx: CanvasRenderingContext2D, cheatEffects?: any) {
     // Create animated starfield background
     const time = Date.now() * 0.001;
     
@@ -347,7 +347,7 @@ export class GameEngine {
     }
     
     // Render player (on top)
-    this.player.render(ctx);
+    this.player.render(ctx, cheatEffects);
     
     ctx.restore();
   }

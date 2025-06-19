@@ -89,7 +89,7 @@ export default function GameCanvas() {
       }
     }
 
-    if (result.hit) {
+    if (result.hit && !safeCheatEffects.godMode && !safeCheatEffects.infiniteLives) {
       loseLife();
       try {
         playHit();
@@ -107,8 +107,8 @@ export default function GameCanvas() {
       }
     }
     
-    // Render
-    gameEngineRef.current.render(ctx);
+    // Render with cheat effects
+    gameEngineRef.current.render(ctx, safeCheatEffects);
 
     if (phase === "playing") {
       animationFrameRef.current = requestAnimationFrame(gameLoop);

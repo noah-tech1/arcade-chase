@@ -4,9 +4,14 @@ import { useAudio } from "../../lib/stores/useAudio";
 import { Heart, Volume2, VolumeX, Shield, Zap, Magnet } from "lucide-react";
 
 export default function GameUI() {
-  const { score, level, lives, combo, comboTimer, activePowerUps, cheatMode } = useGame();
+  const { score, level, lives, combo, comboTimer, activePowerUps, cheatMode, activeCheatEffects } = useGame();
   const { highScore } = useHighScore();
   const { isMuted, toggleMute } = useAudio();
+
+  // Get active cheat effects for display
+  const activeCheatsList = activeCheatEffects ? Object.entries(activeCheatEffects)
+    .filter(([_, active]) => active)
+    .map(([effect]) => effect) : [];
 
   return (
     <div className="game-ui">
