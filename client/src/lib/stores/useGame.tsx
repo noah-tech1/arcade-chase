@@ -13,6 +13,20 @@ interface GameState {
   comboTimer: number;
   cheatMode: boolean;
 
+  // Enhanced cheat system
+  activeCheatEffects: {
+    godMode: boolean;
+    slowMotion: boolean;
+    doubleScore: boolean;
+    superSpeed: boolean;
+    rainbowMode: boolean;
+    bigPlayer: boolean;
+    tinyPlayer: boolean;
+    infiniteLives: boolean;
+    noObstacles: boolean;
+    autoCollect: boolean;
+  };
+
   // Power-ups
   activePowerUps: {
     shield: number;
@@ -40,9 +54,13 @@ interface GameState {
   activatePowerUp: (type: 'shield' | 'speed' | 'magnet') => void;
   updatePowerUps: () => void;
 
-  // Cheat system
+  // Enhanced cheat system
   enableCheatMode: () => void;
   disableCheatMode: () => void;
+  activateCheatEffect: (effect: keyof GameState['activeCheatEffects']) => void;
+  deactivateCheatEffect: (effect: keyof GameState['activeCheatEffects']) => void;
+  toggleCheatEffect: (effect: keyof GameState['activeCheatEffects']) => void;
+  clearAllCheats: () => void;
 }
 
 export const useGame = create<GameState>()(
@@ -55,6 +73,18 @@ export const useGame = create<GameState>()(
     combo: 0,
     comboTimer: 0,
     cheatMode: false,
+    activeCheatEffects: {
+      godMode: false,
+      slowMotion: false,
+      doubleScore: false,
+      superSpeed: false,
+      rainbowMode: false,
+      bigPlayer: false,
+      tinyPlayer: false,
+      infiniteLives: false,
+      noObstacles: false,
+      autoCollect: false,
+    },
     activePowerUps: {
       shield: 0,
       speed: 0,
@@ -80,6 +110,18 @@ export const useGame = create<GameState>()(
         combo: 0,
         comboTimer: 0,
         cheatMode: false,
+        activeCheatEffects: {
+          godMode: false,
+          slowMotion: false,
+          doubleScore: false,
+          superSpeed: false,
+          rainbowMode: false,
+          bigPlayer: false,
+          tinyPlayer: false,
+          infiniteLives: false,
+          noObstacles: false,
+          autoCollect: false,
+        },
         activePowerUps: {
           shield: 0,
           speed: 0,
@@ -159,6 +201,18 @@ export const useGame = create<GameState>()(
         combo: 0,
         comboTimer: 0,
         cheatMode: false,
+        activeCheatEffects: {
+          godMode: false,
+          slowMotion: false,
+          doubleScore: false,
+          superSpeed: false,
+          rainbowMode: false,
+          bigPlayer: false,
+          tinyPlayer: false,
+          infiniteLives: false,
+          noObstacles: false,
+          autoCollect: false,
+        },
         activePowerUps: {
           shield: 0,
           speed: 0,
@@ -226,6 +280,51 @@ export const useGame = create<GameState>()(
 
     disableCheatMode: () => {
       set(() => ({ cheatMode: false }));
+    },
+
+    activateCheatEffect: (effect: keyof GameState['activeCheatEffects']) => {
+      set((state) => ({
+        activeCheatEffects: {
+          ...state.activeCheatEffects,
+          [effect]: true
+        }
+      }));
+    },
+
+    deactivateCheatEffect: (effect: keyof GameState['activeCheatEffects']) => {
+      set((state) => ({
+        activeCheatEffects: {
+          ...state.activeCheatEffects,
+          [effect]: false
+        }
+      }));
+    },
+
+    toggleCheatEffect: (effect: keyof GameState['activeCheatEffects']) => {
+      set((state) => ({
+        activeCheatEffects: {
+          ...state.activeCheatEffects,
+          [effect]: !state.activeCheatEffects[effect]
+        }
+      }));
+    },
+
+    clearAllCheats: () => {
+      set(() => ({
+        cheatMode: false,
+        activeCheatEffects: {
+          godMode: false,
+          slowMotion: false,
+          doubleScore: false,
+          superSpeed: false,
+          rainbowMode: false,
+          bigPlayer: false,
+          tinyPlayer: false,
+          infiniteLives: false,
+          noObstacles: false,
+          autoCollect: false,
+        }
+      }));
     }
   }))
 );
