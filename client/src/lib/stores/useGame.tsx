@@ -25,6 +25,14 @@ interface GameState {
     infiniteLives: boolean;
     noObstacles: boolean;
     autoCollect: boolean;
+    extraLives: boolean;
+    tripleScore: boolean;
+    maxSpeed: boolean;
+    gigaPlayer: boolean;
+    microPlayer: boolean;
+    allPowerUps: boolean;
+    scoreBoost: boolean;
+    timeFreeze: boolean;
   };
 
   // Power-ups
@@ -84,6 +92,14 @@ export const useGame = create<GameState>()(
       infiniteLives: false,
       noObstacles: false,
       autoCollect: false,
+      extraLives: false,
+      tripleScore: false,
+      maxSpeed: false,
+      gigaPlayer: false,
+      microPlayer: false,
+      allPowerUps: false,
+      scoreBoost: false,
+      timeFreeze: false,
     },
     activePowerUps: {
       shield: 0,
@@ -121,6 +137,14 @@ export const useGame = create<GameState>()(
           infiniteLives: false,
           noObstacles: false,
           autoCollect: false,
+          extraLives: false,
+          tripleScore: false,
+          maxSpeed: false,
+          gigaPlayer: false,
+          microPlayer: false,
+          allPowerUps: false,
+          scoreBoost: false,
+          timeFreeze: false,
         },
         activePowerUps: {
           shield: 0,
@@ -142,7 +166,15 @@ export const useGame = create<GameState>()(
     addScore: (points: number) => {
       set((state) => {
         const comboMultiplier = Math.min(1 + state.combo * 0.1, 3);
-        const adjustedPoints = Math.floor(points * comboMultiplier);
+        let scoreMultiplier = 1;
+        
+        // Apply cheat score multipliers
+        if (state.activeCheatEffects.tripleScore) scoreMultiplier *= 3;
+        else if (state.activeCheatEffects.doubleScore) scoreMultiplier *= 2;
+        
+        if (state.activeCheatEffects.scoreBoost) scoreMultiplier *= 1.5;
+        
+        const adjustedPoints = Math.floor(points * comboMultiplier * scoreMultiplier);
         const newScore = state.score + adjustedPoints;
 
         // Level up every 1500 points
@@ -159,10 +191,19 @@ export const useGame = create<GameState>()(
 
     loseLife: () => {
       set((state) => {
-        // Check if shield is active
+        // Check if shield is active or extra lives cheat is enabled
         if (state.activePowerUps.shield > 0) {
           return { 
             activePowerUps: { ...state.activePowerUps, shield: 0 },
+            combo: 0,
+            comboTimer: 0
+          };
+        }
+
+        // If extra lives cheat is active, add a life instead of losing one
+        if (state.activeCheatEffects.extraLives) {
+          return {
+            lives: Math.min(state.lives + 1, 9), // Cap at 9 lives
             combo: 0,
             comboTimer: 0
           };
@@ -212,6 +253,14 @@ export const useGame = create<GameState>()(
           infiniteLives: false,
           noObstacles: false,
           autoCollect: false,
+          extraLives: false,
+          tripleScore: false,
+          maxSpeed: false,
+          gigaPlayer: false,
+          microPlayer: false,
+          allPowerUps: false,
+          scoreBoost: false,
+          timeFreeze: false,
         },
         activePowerUps: {
           shield: 0,
@@ -323,6 +372,14 @@ export const useGame = create<GameState>()(
           infiniteLives: false,
           noObstacles: false,
           autoCollect: false,
+          extraLives: false,
+          tripleScore: false,
+          maxSpeed: false,
+          gigaPlayer: false,
+          microPlayer: false,
+          allPowerUps: false,
+          scoreBoost: false,
+          timeFreeze: false,
         }
       }));
     }
