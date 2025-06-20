@@ -21,8 +21,14 @@ export class Player {
     this.shieldPulse = 0;
   }
 
-  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, canvasWidth: number, canvasHeight: number, speedBoost: number = 1) {
-    const adjustedSpeed = this.speed * gameSpeed * speedBoost;
+  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, canvasWidth: number, canvasHeight: number, speedBoost: number = 1, cheatEffects?: any) {
+    let finalSpeedBoost = speedBoost;
+    
+    // Apply speed cheat effects
+    if (cheatEffects?.maxSpeed) finalSpeedBoost *= 2.5;
+    else if (cheatEffects?.superSpeed) finalSpeedBoost *= 1.8;
+    
+    const adjustedSpeed = this.speed * gameSpeed * finalSpeedBoost;
     
     // Handle movement input
     if (input.left) {
@@ -57,6 +63,15 @@ export class Player {
   render(ctx: CanvasRenderingContext2D, cheatEffects?: any) {
     const safeCheatEffects = cheatEffects || {};
     
+    // Calculate size multiplier based on cheat effects
+    let sizeMultiplier = 1;
+    if (safeCheatEffects.gigaPlayer) sizeMultiplier = 3;
+    else if (safeCheatEffects.bigPlayer) sizeMultiplier = 2;
+    else if (safeCheatEffects.tinyPlayer) sizeMultiplier = 0.5;
+    else if (safeCheatEffects.microPlayer) sizeMultiplier = 0.25;
+    
+    const renderSize = this.size * sizeMultiplier;
+    
     // Dynamic color for rainbow mode
     const playerColor = safeCheatEffects.rainbowMode 
       ? `hsl(${Date.now() * 0.01 % 360}, 100%, 50%)`
@@ -67,7 +82,7 @@ export class Player {
       const alpha = (i / this.trail.length) * 0.3;
       ctx.globalAlpha = alpha;
       ctx.fillStyle = playerColor;
-      const trailSize = this.size * (i / this.trail.length) * 0.8;
+      const trailSize = renderSize * (i / this.trail.length) * 0.8;
       ctx.beginPath();
       ctx.arc(this.trail[i].x, this.trail[i].y, trailSize / 2, 0, Math.PI * 2);
       ctx.fill();
@@ -77,15 +92,15 @@ export class Player {
     if (this.shieldActive) {
       ctx.globalAlpha = 0.3 + Math.sin(this.shieldPulse) * 0.2;
       ctx.strokeStyle = GAME_CONFIG.COLORS.POWERUP_SHIELD;
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 4 * sizeMultiplier;
       ctx.beginPath();
-      ctx.arc(this.position.x, this.position.y, this.size / 2 + 8, 0, Math.PI * 2);
+      ctx.arc(this.position.x, this.position.y, renderSize / 2 + 8 * sizeMultiplier, 0, Math.PI * 2);
       ctx.stroke();
       
       ctx.globalAlpha = 0.1;
       ctx.fillStyle = GAME_CONFIG.COLORS.POWERUP_SHIELD;
       ctx.beginPath();
-      ctx.arc(this.position.x, this.position.y, this.size / 2 + 8, 0, Math.PI * 2);
+      ctx.arc(this.position.x, this.position.y, renderSize / 2 + 8 * sizeMultiplier, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -94,20 +109,30 @@ export class Player {
     ctx.fillStyle = playerColor;
     ctx.strokeStyle = safeCheatEffects.rainbowMode ? 
       `hsl(${(Date.now() * 0.01 + 180) % 360}, 100%, 80%)` : '#fff';
-    ctx.lineWidth = safeCheatEffects.bigPlayer ? 4 : safeCheatEffects.tinyPlayer ? 1 : 2;
+    
+    let lineWidth = 2;
+    if (safeCheatEffects.gigaPlayer) lineWidth = 6;
+    else if (safeCheatEffects.bigPlayer) lineWidth = 4;
+    else if (safeCheatEffects.tinyPlayer) lineWidth = 1;
+    else if (safeCheatEffects.microPlayer) lineWidth = 0.5;
+    
+    ctx.lineWidth = lineWidth;
     
     ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, this.size / 2, 0, Math.PI * 2);
+    ctx.arc(this.position.x, this.position.y, renderSize / 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
     // Add enhanced glowing effect for cheat modes
-    const glowIntensity = safeCheatEffects.godMode ? 25 : 
-                         safeCheatEffects.rainbowMode ? 20 : 15;
+    let glowIntensity = 15;
+    if (safeCheatEffects.godMode) glowIntensity = 25;
+    else if (safeCheatEffects.rainbowMode) glowIntensity = 20;
+    else if (safeCheatEffects.gigaPlayer) glowIntensity = 30;
+    
     ctx.shadowColor = playerColor;
-    ctx.shadowBlur = glowIntensity;
+    ctx.shadowBlur = glowIntensity * sizeMultiplier;
     ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, this.size / 4, 0, Math.PI * 2);
+    ctx.arc(this.position.x, this.position.y, renderSize / 4, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
   }

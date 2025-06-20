@@ -56,14 +56,27 @@ export default function GameCanvas() {
       infiniteLives: false,
       noObstacles: false,
       autoCollect: false,
+      extraLives: false,
+      tripleScore: false,
+      maxSpeed: false,
+      gigaPlayer: false,
+      microPlayer: false,
+      allPowerUps: false,
+      scoreBoost: false,
+      timeFreeze: false,
     };
 
-    const effectiveGameSpeed = safeCheatEffects.slowMotion ? gameSpeed * 0.3 : 
-                              safeCheatEffects.superSpeed ? gameSpeed * 2 : gameSpeed;
+    let effectiveGameSpeed = gameSpeed;
+    if (safeCheatEffects.timeFreeze) effectiveGameSpeed *= 0.1;
+    else if (safeCheatEffects.slowMotion) effectiveGameSpeed *= 0.3;
+    else if (safeCheatEffects.maxSpeed) effectiveGameSpeed *= 3;
+    else if (safeCheatEffects.superSpeed) effectiveGameSpeed *= 2;
 
     const cheatPowerUps = {
       ...safePowerUps,
-      magnet: (cheatModeRef.current || safeCheatEffects.autoCollect) ? 999999 : safePowerUps.magnet
+      magnet: (cheatModeRef.current || safeCheatEffects.autoCollect) ? 999999 : safePowerUps.magnet,
+      shield: safeCheatEffects.allPowerUps ? 999999 : safePowerUps.shield,
+      speed: safeCheatEffects.allPowerUps ? 999999 : safePowerUps.speed
     };
 
     // Update game state with cheat effects
@@ -150,9 +163,26 @@ export default function GameCanvas() {
             toggleCheatEffect('doubleScore');
             return activeCheatEffects.doubleScore ? 'Double Score ON - 2x points!' : 'Double Score OFF';
           },
+          'TRIPLESCORE': () => {
+            toggleCheatEffect('tripleScore');
+            if (activeCheatEffects.doubleScore) toggleCheatEffect('doubleScore'); // Turn off double if triple is on
+            return activeCheatEffects.tripleScore ? 'Triple Score ON - 3x points!' : 'Triple Score OFF';
+          },
+          'SCOREboost': () => {
+            toggleCheatEffect('scoreBoost');
+            return activeCheatEffects.scoreBoost ? 'Score Boost ON - 1.5x points!' : 'Score Boost OFF';
+          },
           'SPEED': () => {
             toggleCheatEffect('superSpeed');
             return activeCheatEffects.superSpeed ? 'Super Speed ON - Lightning fast!' : 'Super Speed OFF';
+          },
+          'MAXSPEED': () => {
+            toggleCheatEffect('maxSpeed');
+            return activeCheatEffects.maxSpeed ? 'Max Speed ON - Ludicrous speed!' : 'Max Speed OFF';
+          },
+          'TIMEFREEZE': () => {
+            toggleCheatEffect('timeFreeze');
+            return activeCheatEffects.timeFreeze ? 'Time Freeze ON - Everything slows!' : 'Time Freeze OFF';
           },
           'RAINBOW': () => {
             toggleCheatEffect('rainbowMode');
@@ -160,17 +190,39 @@ export default function GameCanvas() {
           },
           'BIGPLAYER': () => {
             toggleCheatEffect('bigPlayer');
-            if (activeCheatEffects.tinyPlayer) toggleCheatEffect('tinyPlayer'); // Turn off tiny if big is on
+            if (activeCheatEffects.tinyPlayer) toggleCheatEffect('tinyPlayer');
+            if (activeCheatEffects.gigaPlayer) toggleCheatEffect('gigaPlayer');
+            if (activeCheatEffects.microPlayer) toggleCheatEffect('microPlayer');
             return activeCheatEffects.bigPlayer ? 'Big Player ON - You are huge!' : 'Big Player OFF';
           },
           'TINYPLAYER': () => {
             toggleCheatEffect('tinyPlayer');
-            if (activeCheatEffects.bigPlayer) toggleCheatEffect('bigPlayer'); // Turn off big if tiny is on
+            if (activeCheatEffects.bigPlayer) toggleCheatEffect('bigPlayer');
+            if (activeCheatEffects.gigaPlayer) toggleCheatEffect('gigaPlayer');
+            if (activeCheatEffects.microPlayer) toggleCheatEffect('microPlayer');
             return activeCheatEffects.tinyPlayer ? 'Tiny Player ON - You are tiny!' : 'Tiny Player OFF';
+          },
+          'GIGAPLAYER': () => {
+            toggleCheatEffect('gigaPlayer');
+            if (activeCheatEffects.bigPlayer) toggleCheatEffect('bigPlayer');
+            if (activeCheatEffects.tinyPlayer) toggleCheatEffect('tinyPlayer');
+            if (activeCheatEffects.microPlayer) toggleCheatEffect('microPlayer');
+            return activeCheatEffects.gigaPlayer ? 'Giga Player ON - You are massive!' : 'Giga Player OFF';
+          },
+          'MICROPLAYER': () => {
+            toggleCheatEffect('microPlayer');
+            if (activeCheatEffects.bigPlayer) toggleCheatEffect('bigPlayer');
+            if (activeCheatEffects.tinyPlayer) toggleCheatEffect('tinyPlayer');
+            if (activeCheatEffects.gigaPlayer) toggleCheatEffect('gigaPlayer');
+            return activeCheatEffects.microPlayer ? 'Micro Player ON - You are microscopic!' : 'Micro Player OFF';
           },
           'INFINITELIVES': () => {
             toggleCheatEffect('infiniteLives');
             return activeCheatEffects.infiniteLives ? 'Infinite Lives ON - Never die!' : 'Infinite Lives OFF';
+          },
+          'EXTRALIVES': () => {
+            toggleCheatEffect('extraLives');
+            return activeCheatEffects.extraLives ? 'Extra Lives ON - Gain lives instead of losing!' : 'Extra Lives OFF';
           },
           'NOOBSTACLES': () => {
             toggleCheatEffect('noObstacles');
@@ -180,6 +232,10 @@ export default function GameCanvas() {
             toggleCheatEffect('autoCollect');
             return activeCheatEffects.autoCollect ? 'Auto Collect ON - Items come to you!' : 'Auto Collect OFF';
           },
+          'ALLPOWERUPS': () => {
+            toggleCheatEffect('allPowerUps');
+            return activeCheatEffects.allPowerUps ? 'All Power-ups ON - Permanent abilities!' : 'All Power-ups OFF';
+          },
           'CLEARALL': () => {
             clearAllCheats();
             return 'All cheats cleared!';
@@ -188,6 +244,10 @@ export default function GameCanvas() {
             cheatModeRef.current = true;
             activateCheatEffect('autoCollect');
             return 'Classic cheat activated! Auto-collect enabled!';
+          },
+          'MORELIVES': () => {
+            activateCheatEffect('extraLives');
+            return 'More Lives activated! You gain lives when hit!';
           }
         };
 
@@ -197,16 +257,36 @@ export default function GameCanvas() {
           alert(`✨ ${message}`);
         } else if (code === 'HELP' || code === '?') {
           alert(`🎮 Available Cheat Codes:
-GODMODE - Invincibility
-SLOWMO - Slow motion effect
-DOUBLESCORE - Double points
+
+MOVEMENT & SPEED:
 SPEED - Super speed
-RAINBOW - Rainbow colors
+MAXSPEED - Ludicrous speed
+SLOWMO - Slow motion effect
+TIMEFREEZE - Everything slows
+
+PLAYER SIZE:
 BIGPLAYER - Giant player
 TINYPLAYER - Tiny player
+GIGAPLAYER - Massive player
+MICROPLAYER - Microscopic player
+
+SCORING:
+DOUBLESCORE - Double points
+TRIPLESCORE - Triple points
+SCOREBOOST - 1.5x points boost
+
+LIVES & SURVIVAL:
+GODMODE - Invincibility
 INFINITELIVES - Never lose lives
+EXTRALIVES/MORELIVES - Gain lives when hit
+
+GAMEPLAY:
 NOOBSTACLES - Remove obstacles
 AUTOCOLLECT - Items come to you
+ALLPOWERUPS - Permanent abilities
+RAINBOW - Rainbow colors
+
+UTILITY:
 CLEARALL - Clear all cheats
 7869 - Classic cheat`);
         } else if (code !== null) {

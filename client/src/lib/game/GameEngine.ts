@@ -133,16 +133,21 @@ export class GameEngine {
     if (safeCheatEffects.superSpeed) speedBoost *= 2;
     
     // Apply player size effects
-    if (safeCheatEffects.bigPlayer) {
-      this.player.size = Math.max(this.player.size, 25);
+    let baseSize = 15; // Default size
+    if (safeCheatEffects.gigaPlayer) {
+      this.player.size = baseSize * 3;
+    } else if (safeCheatEffects.bigPlayer) {
+      this.player.size = baseSize * 2;
     } else if (safeCheatEffects.tinyPlayer) {
-      this.player.size = Math.min(this.player.size, 8);
+      this.player.size = baseSize * 0.5;
+    } else if (safeCheatEffects.microPlayer) {
+      this.player.size = baseSize * 0.25;
     } else {
-      this.player.size = 15; // Default size
+      this.player.size = baseSize;
     }
     
     // Update player
-    this.player.update(input, gameSpeed, this.canvasWidth, this.canvasHeight, speedBoost);
+    this.player.update(input, gameSpeed, this.canvasWidth, this.canvasHeight, speedBoost, safeCheatEffects);
     
     // Update collectibles
     for (const collectible of this.collectibles) {
