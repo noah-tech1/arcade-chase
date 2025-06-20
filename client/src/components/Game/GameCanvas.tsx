@@ -168,7 +168,7 @@ export default function GameCanvas() {
             if (activeCheatEffects.doubleScore) toggleCheatEffect('doubleScore'); // Turn off double if triple is on
             return activeCheatEffects.tripleScore ? 'Triple Score ON - 3x points!' : 'Triple Score OFF';
           },
-          'SCOREboost': () => {
+          'SCOREBOOST': () => {
             toggleCheatEffect('scoreBoost');
             return activeCheatEffects.scoreBoost ? 'Score Boost ON - 1.5x points!' : 'Score Boost OFF';
           },
