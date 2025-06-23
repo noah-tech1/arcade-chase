@@ -28,8 +28,8 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     setEditingName(false);
   };
 
-  const handleCleanupDuplicates = () => {
-    cleanupDuplicates();
+  const handleCleanupDuplicates = async () => {
+    await cleanupDuplicates();
   };
 
   const getRankIcon = (index: number) => {
@@ -42,6 +42,13 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
   };
 
   const topScores = getTopScores(10);
+
+  // Load leaderboard from database when component mounts
+  React.useEffect(() => {
+    if (isOpen) {
+      cleanupDuplicates && cleanupDuplicates();
+    }
+  }, [isOpen, cleanupDuplicates]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
@@ -144,7 +151,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                 
                 <div className="flex-grow">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white">{entry.name}</span>
+                    <span className="font-semibold text-white">{entry.playerName || entry.name}</span>
                     <span className="font-mono text-lg font-bold text-cyan-400">
                       {entry.score.toLocaleString()}
                     </span>
@@ -152,7 +159,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                   <div className="flex items-center gap-4 text-xs text-gray-400">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {entry.date}
+                      {entry.date || (entry.createdAt ? new Date(entry.createdAt).toLocaleDateString() : 'Unknown')}
                     </div>
                     <div>Level {entry.level}</div>
                   </div>

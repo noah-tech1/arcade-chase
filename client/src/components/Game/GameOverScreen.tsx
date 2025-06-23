@@ -23,11 +23,8 @@ export default function GameOverScreen() {
       
       // Only add to leaderboard if player has a name and score is significant
       if (playerName && score >= 50) {
-        addToLeaderboard(playerName, score, level);
+        await addToLeaderboard(playerName, score, level);
       }
-      
-      // Clean up any duplicates that might exist
-      cleanupDuplicates();
     }
   }, [score, level, playerName, updatePersonalHighScore, updateAllTimeHighScore, addToLeaderboard, cleanupDuplicates]);
   
