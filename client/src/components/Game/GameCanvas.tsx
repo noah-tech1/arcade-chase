@@ -95,11 +95,11 @@ export default function GameCanvas() {
       console.log('God mode active in game canvas');
     }
 
-    // Debug input state
-    const hasInput = inputRef.current.left || inputRef.current.right || inputRef.current.up || inputRef.current.down;
-    if (hasInput) {
-      console.log('Input state:', inputRef.current);
-    }
+    // Debug input state (disabled)
+    // const hasInput = inputRef.current.left || inputRef.current.right || inputRef.current.up || inputRef.current.down;
+    // if (hasInput) {
+    //   console.log('Input state:', inputRef.current);
+    // }
 
     // Update game state with cheat effects
     const result = gameEngineRef.current.update(
@@ -200,39 +200,39 @@ export default function GameCanvas() {
         return;
       }
 
-      // Debug logging
-      console.log('Key pressed:', e.key, 'Phase:', phase);
+      // Debug logging (remove after fixing)
+      // console.log('Key pressed:', e.key, 'Phase:', phase);
       
       // Use e.key for exact arrow key matching
       if (phase === 'playing') {
-        console.log('Processing key for movement:', e.key);
+        // console.log('Processing key for movement:', e.key);
         switch (e.key) {
           case 'ArrowUp':
           case 'w':
           case 'W':
             inputRef.current.up = true;
-            console.log('UP movement set to true');
+            // console.log('UP movement set to true');
             e.preventDefault();
             break;
           case 'ArrowDown':
           case 's':
           case 'S':
             inputRef.current.down = true;
-            console.log('DOWN movement set to true');
+            // console.log('DOWN movement set to true');
             e.preventDefault();
             break;
           case 'ArrowLeft':
           case 'a':
           case 'A':
             inputRef.current.left = true;
-            console.log('LEFT movement set to true');
+            // console.log('LEFT movement set to true');
             e.preventDefault();
             break;
           case 'ArrowRight':
           case 'd':
           case 'D':
             inputRef.current.right = true;
-            console.log('RIGHT movement set to true');
+            // console.log('RIGHT movement set to true');
             e.preventDefault();
             break;
         }
@@ -240,31 +240,31 @@ export default function GameCanvas() {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      console.log('Key released:', e.key);
+      // console.log('Key released:', e.key);
       switch (e.key) {
         case 'ArrowUp':
         case 'w':
         case 'W':
           inputRef.current.up = false;
-          console.log('UP movement set to false');
+          // console.log('UP movement set to false');
           break;
         case 'ArrowDown':
         case 's':
         case 'S':
           inputRef.current.down = false;
-          console.log('DOWN movement set to false');
+          // console.log('DOWN movement set to false');
           break;
         case 'ArrowLeft':
         case 'a':
         case 'A':
           inputRef.current.left = false;
-          console.log('LEFT movement set to false');
+          // console.log('LEFT movement set to false');
           break;
         case 'ArrowRight':
         case 'd':
         case 'D':
           inputRef.current.right = false;
-          console.log('RIGHT movement set to false');
+          // console.log('RIGHT movement set to false');
           break;
       }
     };
