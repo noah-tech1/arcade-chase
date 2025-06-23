@@ -206,6 +206,37 @@
   z-index: 10;
 }
 
+/* Leaderboard Button */
+.leaderboard-button {
+  background: linear-gradient(135deg, var(--warning), #e67e22);
+  border: none;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+}
+
+.leaderboard-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(241, 196, 15, 0.4);
+}
+
+.score-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
 /* Combo System */
 .combo-display {
   margin-top: 0.5rem;

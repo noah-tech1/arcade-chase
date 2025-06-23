@@ -1,3 +1,4 @@
+import React from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useHighScore } from "../../lib/stores/useHighScore";
 import { RotateCcw, Trophy, Target } from "lucide-react";
@@ -6,8 +7,15 @@ export default function GameOverScreen() {
   const { score, level, restart } = useGame();
   const { personalHighScore, allTimeHighScore, updatePersonalHighScore } = useHighScore();
   
-  const isNewPersonalHigh = updatePersonalHighScore(score, level);
-  const isNewAllTimeHigh = score === allTimeHighScore && score > 0;
+  // Check if this is a new high score when component mounts
+  React.useEffect(() => {
+    if (score > 0) {
+      updatePersonalHighScore(score, level);
+    }
+  }, [score, level, updatePersonalHighScore]);
+  
+  const isNewPersonalHigh = score > 0 && score === personalHighScore;
+  const isNewAllTimeHigh = score > 0 && score === allTimeHighScore;
 
   return (
     <div className="game-over-screen">

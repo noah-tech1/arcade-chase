@@ -1,10 +1,13 @@
+import React, { useState } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useHighScore } from "../../lib/stores/useHighScore";
-import { Play, Trophy, Volume2 } from "lucide-react";
+import { Play, Trophy, Volume2, List } from "lucide-react";
+import Leaderboard from "./Leaderboard";
 
 export default function StartScreen() {
   const { start, resetGame } = useGame();
   const { personalHighScore, allTimeHighScore } = useHighScore();
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
 
   const handleStart = () => {
     resetGame();
@@ -36,6 +39,14 @@ export default function StartScreen() {
           START GAME
         </button>
         
+        <button 
+          className="leaderboard-button"
+          onClick={() => setLeaderboardOpen(true)}
+        >
+          <List size={16} />
+          LEADERBOARD
+        </button>
+        
         <div className="instructions">
           <h3>How to Play:</h3>
           <ul>
@@ -51,6 +62,11 @@ export default function StartScreen() {
           <span>Sound effects available - click anywhere to enable audio</span>
         </div>
       </div>
+      
+      <Leaderboard 
+        isOpen={leaderboardOpen} 
+        onClose={() => setLeaderboardOpen(false)} 
+      />
     </div>
   );
 }
