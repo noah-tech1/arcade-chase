@@ -152,147 +152,11 @@ export default function GameCanvas() {
         cheatPromptRef.current = true;
         const passcode = prompt('🔒 Enter passcode:');
         
-        const cheatCodes = {
-          'GODMODE': () => {
-            toggleCheatEffect('godMode');
-            return activeCheatEffects.godMode ? 'God Mode ON - You are invincible!' : 'God Mode OFF';
-          },
-          'SLOWMO': () => {
-            toggleCheatEffect('slowMotion');
-            return activeCheatEffects.slowMotion ? 'Slow Motion ON - Time slows down!' : 'Slow Motion OFF';
-          },
-          'DOUBLESCORE': () => {
-            toggleCheatEffect('doubleScore');
-            return activeCheatEffects.doubleScore ? 'Double Score ON - 2x points!' : 'Double Score OFF';
-          },
-          'TRIPLESCORE': () => {
-            toggleCheatEffect('tripleScore');
-            if (activeCheatEffects.doubleScore) toggleCheatEffect('doubleScore'); // Turn off double if triple is on
-            return activeCheatEffects.tripleScore ? 'Triple Score ON - 3x points!' : 'Triple Score OFF';
-          },
-          'SCOREBOOST': () => {
-            toggleCheatEffect('scoreBoost');
-            return activeCheatEffects.scoreBoost ? 'Score Boost ON - 1.5x points!' : 'Score Boost OFF';
-          },
-          'SPEED': () => {
-            toggleCheatEffect('superSpeed');
-            return activeCheatEffects.superSpeed ? 'Super Speed ON - Lightning fast!' : 'Super Speed OFF';
-          },
-          'MAXSPEED': () => {
-            toggleCheatEffect('maxSpeed');
-            return activeCheatEffects.maxSpeed ? 'Max Speed ON - Ludicrous speed!' : 'Max Speed OFF';
-          },
-          'TIMEFREEZE': () => {
-            toggleCheatEffect('timeFreeze');
-            return activeCheatEffects.timeFreeze ? 'Time Freeze ON - Everything slows!' : 'Time Freeze OFF';
-          },
-          'RAINBOW': () => {
-            toggleCheatEffect('rainbowMode');
-            return activeCheatEffects.rainbowMode ? 'Rainbow Mode ON - Psychedelic colors!' : 'Rainbow Mode OFF';
-          },
-          'BIGPLAYER': () => {
-            toggleCheatEffect('bigPlayer');
-            if (activeCheatEffects.tinyPlayer) toggleCheatEffect('tinyPlayer');
-            if (activeCheatEffects.gigaPlayer) toggleCheatEffect('gigaPlayer');
-            if (activeCheatEffects.microPlayer) toggleCheatEffect('microPlayer');
-            return activeCheatEffects.bigPlayer ? 'Big Player ON - You are huge!' : 'Big Player OFF';
-          },
-          'TINYPLAYER': () => {
-            toggleCheatEffect('tinyPlayer');
-            if (activeCheatEffects.bigPlayer) toggleCheatEffect('bigPlayer');
-            if (activeCheatEffects.gigaPlayer) toggleCheatEffect('gigaPlayer');
-            if (activeCheatEffects.microPlayer) toggleCheatEffect('microPlayer');
-            return activeCheatEffects.tinyPlayer ? 'Tiny Player ON - You are tiny!' : 'Tiny Player OFF';
-          },
-          'GIGAPLAYER': () => {
-            toggleCheatEffect('gigaPlayer');
-            if (activeCheatEffects.bigPlayer) toggleCheatEffect('bigPlayer');
-            if (activeCheatEffects.tinyPlayer) toggleCheatEffect('tinyPlayer');
-            if (activeCheatEffects.microPlayer) toggleCheatEffect('microPlayer');
-            return activeCheatEffects.gigaPlayer ? 'Giga Player ON - You are massive!' : 'Giga Player OFF';
-          },
-          'MICROPLAYER': () => {
-            toggleCheatEffect('microPlayer');
-            if (activeCheatEffects.bigPlayer) toggleCheatEffect('bigPlayer');
-            if (activeCheatEffects.tinyPlayer) toggleCheatEffect('tinyPlayer');
-            if (activeCheatEffects.gigaPlayer) toggleCheatEffect('gigaPlayer');
-            return activeCheatEffects.microPlayer ? 'Micro Player ON - You are microscopic!' : 'Micro Player OFF';
-          },
-          'INFINITELIVES': () => {
-            toggleCheatEffect('infiniteLives');
-            return activeCheatEffects.infiniteLives ? 'Infinite Lives ON - Never die!' : 'Infinite Lives OFF';
-          },
-          'EXTRALIVES': () => {
-            toggleCheatEffect('extraLives');
-            return activeCheatEffects.extraLives ? 'Extra Lives ON - Gain lives instead of losing!' : 'Extra Lives OFF';
-          },
-          'NOOBSTACLES': () => {
-            toggleCheatEffect('noObstacles');
-            return activeCheatEffects.noObstacles ? 'No Obstacles ON - Clear path!' : 'No Obstacles OFF';
-          },
-          'AUTOCOLLECT': () => {
-            toggleCheatEffect('autoCollect');
-            return activeCheatEffects.autoCollect ? 'Auto Collect ON - Items come to you!' : 'Auto Collect OFF';
-          },
-          'ALLPOWERUPS': () => {
-            toggleCheatEffect('allPowerUps');
-            return activeCheatEffects.allPowerUps ? 'All Power-ups ON - Permanent abilities!' : 'All Power-ups OFF';
-          },
-          'CLEARALL': () => {
-            clearAllCheats();
-            return 'All cheats cleared!';
-          },
-          '7869': () => {
-            cheatModeRef.current = true;
-            activateCheatEffect('autoCollect');
-            return 'Classic cheat activated! Auto-collect enabled!';
-          },
-          'MORELIVES': () => {
-            activateCheatEffect('extraLives');
-            return 'More Lives activated! You gain lives when hit!';
-          }
-        };
-
-        const upperCode = code?.toUpperCase();
-        if (upperCode && upperCode in cheatCodes) {
-          const message = (cheatCodes as any)[upperCode]();
-          alert(`✨ ${message}`);
-        } else if (code === 'HELP' || code === '?') {
-          alert(`🎮 Available Cheat Codes:
-
-MOVEMENT & SPEED:
-SPEED - Super speed
-MAXSPEED - Ludicrous speed
-SLOWMO - Slow motion effect
-TIMEFREEZE - Everything slows
-
-PLAYER SIZE:
-BIGPLAYER - Giant player
-TINYPLAYER - Tiny player
-GIGAPLAYER - Massive player
-MICROPLAYER - Microscopic player
-
-SCORING:
-DOUBLESCORE - Double points
-TRIPLESCORE - Triple points
-SCOREBOOST - 1.5x points boost
-
-LIVES & SURVIVAL:
-GODMODE - Invincibility
-INFINITELIVES - Never lose lives
-EXTRALIVES/MORELIVES - Gain lives when hit
-
-GAMEPLAY:
-NOOBSTACLES - Remove obstacles
-AUTOCOLLECT - Items come to you
-ALLPOWERUPS - Permanent abilities
-RAINBOW - Rainbow colors
-
-UTILITY:
-CLEARALL - Clear all cheats
-7869 - Classic cheat`);
-        } else if (code !== null) {
-          alert('❌ Invalid cheat code! Type "HELP" for available codes.');
+        // Check passcode (you can change these to any passcode you want)
+        if (passcode === '1234' || passcode === 'CHEAT' || passcode === 'ADMIN') {
+          setCheatMenuOpen(true);
+        } else if (passcode !== null) {
+          alert('❌ Invalid passcode!');
         }
         
         cheatPromptRef.current = false;
@@ -376,10 +240,16 @@ CLEARALL - Clear all cheats
   // Handle power-up and combo updates in the game store automatically
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="block mx-auto border-2 border-gray-600 rounded-lg"
-      style={{ background: 'linear-gradient(45deg, #2C3E50, #34495E)' }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="block mx-auto border-2 border-gray-600 rounded-lg"
+        style={{ background: 'linear-gradient(45deg, #2C3E50, #34495E)' }}
+      />
+      <CheatMenu 
+        isOpen={cheatMenuOpen} 
+        onClose={() => setCheatMenuOpen(false)} 
+      />
+    </>
   );
 }
