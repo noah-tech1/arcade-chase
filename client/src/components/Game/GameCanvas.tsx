@@ -88,10 +88,6 @@ export default function GameCanvas() {
       speed: (safeCheatEffects.allPowerUps || safeCheatEffects.superSpeed || safeCheatEffects.maxSpeed) ? 999999 : safePowerUps.speed
     };
 
-    // Update power-up timers
-    updatePowerUps();
-    updateCombo();
-
     // Debug log for cheat effects (remove in production)
     if (hasActiveCheat) {
       console.log('Active cheats:', Object.entries(safeCheatEffects).filter(([_, active]) => active).map(([name]) => name));
@@ -149,6 +145,18 @@ export default function GameCanvas() {
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     }
   }, [phase, gameSpeed, level, safePowerUps.shield, safePowerUps.speed, safePowerUps.magnet, addScore, loseLife, addCombo, activatePowerUp]);
+
+  // Power-up timer system - runs independently of game loop
+  useEffect(() => {
+    if (phase !== "playing") return;
+
+    const powerUpTimer = setInterval(() => {
+      updatePowerUps();
+      updateCombo();
+    }, 1000 / 60); // 60fps
+
+    return () => clearInterval(powerUpTimer);
+  }, [phase, updatePowerUps, updateCombo]);
 
   // Initialize canvas and game engine once
   useEffect(() => {
