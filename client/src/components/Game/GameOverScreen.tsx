@@ -17,16 +17,20 @@ export default function GameOverScreen() {
   
   // Check if this is a new high score when component mounts
   React.useEffect(() => {
-    if (score > 0) {
-      updatePersonalHighScore(score, level);
-      updateAllTimeHighScore(score, playerName || "Player", level);
-      
-      // Only add to leaderboard if player has a name and score is significant
-      if (playerName && score >= 50) {
-        await addToLeaderboard(playerName, score, level);
+    const handleScoreUpdate = async () => {
+      if (score > 0) {
+        updatePersonalHighScore(score, level);
+        updateAllTimeHighScore(score, playerName || "Player", level);
+        
+        // Only add to leaderboard if player has a name and score is significant
+        if (playerName && score >= 50) {
+          await addToLeaderboard(playerName, score, level);
+        }
       }
-    }
-  }, [score, level, playerName, updatePersonalHighScore, updateAllTimeHighScore, addToLeaderboard, cleanupDuplicates]);
+    };
+    
+    handleScoreUpdate();
+  }, [score, level, playerName, updatePersonalHighScore, updateAllTimeHighScore, addToLeaderboard]);
   
   const isNewPersonalHigh = score > 0 && score === personalHighScore;
   const isNewAllTimeHigh = score > 0 && score === allTimeHighScore;

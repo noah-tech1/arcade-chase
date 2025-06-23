@@ -118,6 +118,10 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Cleaned up debug logging for production readiness
 - Fixed leaderboard duplicate entries - players now have single entry with their highest score
 - Added cleanup function to remove existing duplicates from leaderboard
+- Implemented PostgreSQL database integration for persistent leaderboard storage
+- Created API endpoints for leaderboard operations (GET, POST, cleanup)
+- Added database service layer with Drizzle ORM for type-safe database operations
+- Enhanced leaderboard with fallback to localStorage for offline functionality
 
 ## User Preferences
 

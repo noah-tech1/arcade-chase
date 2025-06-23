@@ -15,7 +15,8 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     playerName, 
     setPlayerName,
     getTopScores,
-    cleanupDuplicates 
+    cleanupDuplicates,
+    loadLeaderboard 
   } = useHighScore();
   
   const [editingName, setEditingName] = useState(false);
@@ -45,10 +46,14 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
   // Load leaderboard from database when component mounts
   React.useEffect(() => {
-    if (isOpen) {
-      cleanupDuplicates && cleanupDuplicates();
-    }
-  }, [isOpen, cleanupDuplicates]);
+    const loadData = async () => {
+      if (isOpen && loadLeaderboard) {
+        await loadLeaderboard();
+      }
+    };
+    
+    loadData();
+  }, [isOpen, loadLeaderboard]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
