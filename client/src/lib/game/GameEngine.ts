@@ -129,9 +129,12 @@ export class GameEngine {
     
     // Update player shield status and speed boost
     this.player.shieldActive = activePowerUps.shield > 0 || safeCheatEffects.godMode;
-    let speedBoost = activePowerUps.speed > 0 ? 1.8 : 1;
-    if (safeCheatEffects.maxSpeed) speedBoost *= 2.5;
-    else if (safeCheatEffects.superSpeed) speedBoost *= 2;
+    let speedBoost = 1;
+    
+    // Apply speed boost from power-ups or cheats
+    if (activePowerUps.speed > 0) speedBoost = 1.8;
+    if (safeCheatEffects.maxSpeed) speedBoost = 2.5;
+    else if (safeCheatEffects.superSpeed) speedBoost = 2;
     
     // Apply player size effects
     let baseSize = 15; // Default size

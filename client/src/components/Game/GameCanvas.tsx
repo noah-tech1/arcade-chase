@@ -81,7 +81,6 @@ export default function GameCanvas() {
     }
 
     const cheatPowerUps = {
-      ...safePowerUps,
       magnet: (cheatModeRef.current || safeCheatEffects.autoCollect || safeCheatEffects.allPowerUps) ? 999999 : safePowerUps.magnet,
       shield: (safeCheatEffects.allPowerUps || safeCheatEffects.godMode) ? 999999 : safePowerUps.shield,
       speed: (safeCheatEffects.allPowerUps || safeCheatEffects.superSpeed || safeCheatEffects.maxSpeed) ? 999999 : safePowerUps.speed
