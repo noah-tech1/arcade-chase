@@ -3,7 +3,10 @@ import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { useGame } from "../../lib/stores/useGame";
 
 export default function TouchControls() {
-  const { phase, tabletMode, toggleTabletMode } = useGame();
+  const { phase, joystickMode, toggleJoystickMode } = useGame();
+  const [joystickPosition, setJoystickPosition] = React.useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = React.useState(false);
+  const joystickRef = React.useRef<HTMLDivElement>(null);
 
   const handleTouch = (direction: string, pressed: boolean) => {
     // Create and dispatch keyboard events to simulate key presses
@@ -26,85 +29,119 @@ export default function TouchControls() {
     window.dispatchEvent(event);
   };
 
-  const handleTabletTouch = (event: React.TouchEvent) => {
-    if (!tabletMode) return;
+  const handleJoystickMove = (event: React.TouchEvent | React.MouseEvent) => {
+    if (!joystickMode || !joystickRef.current) return;
+
+    const rect = joystickRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
     
-    const touch = event.touches[0];
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    // Determine direction based on touch position
-    const deltaX = x - centerX;
-    const deltaY = y - centerY;
-    
-    // Prioritize the larger delta to avoid diagonal movement
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      // Horizontal movement
-      if (deltaX > 50) {
-        handleTouch('right', true);
-      } else if (deltaX < -50) {
-        handleTouch('left', true);
-      }
+    let clientX, clientY;
+    if ('touches' in event) {
+      if (event.touches.length === 0) return;
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
     } else {
-      // Vertical movement
-      if (deltaY > 50) {
-        handleTouch('down', true);
-      } else if (deltaY < -50) {
-        handleTouch('up', true);
+      clientX = event.clientX;
+      clientY = event.clientY;
+    }
+
+    const deltaX = clientX - centerX;
+    const deltaY = clientY - centerY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const maxDistance = 40; // Maximum joystick travel distance
+
+    let x = deltaX;
+    let y = deltaY;
+
+    // Constrain to circle
+    if (distance > maxDistance) {
+      x = (deltaX / distance) * maxDistance;
+      y = (deltaY / distance) * maxDistance;
+    }
+
+    setJoystickPosition({ x, y });
+
+    // Convert joystick position to keyboard events
+    const threshold = 15;
+    
+    // Stop all current movement
+    ['left', 'right', 'up', 'down'].forEach(direction => {
+      handleTouch(direction, false);
+    });
+
+    // Start movement based on joystick position
+    if (Math.abs(x) > threshold || Math.abs(y) > threshold) {
+      if (Math.abs(x) > Math.abs(y)) {
+        // Horizontal movement
+        if (x > threshold) {
+          handleTouch('right', true);
+        } else if (x < -threshold) {
+          handleTouch('left', true);
+        }
+      } else {
+        // Vertical movement
+        if (y > threshold) {
+          handleTouch('down', true);
+        } else if (y < -threshold) {
+          handleTouch('up', true);
+        }
       }
     }
   };
 
-  const handleTabletTouchEnd = () => {
-    if (!tabletMode) return;
+  const handleJoystickStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleJoystickEnd = () => {
+    setIsDragging(false);
+    setJoystickPosition({ x: 0, y: 0 });
     
-    // Stop all movement when touch ends
+    // Stop all movement when joystick is released
     ['left', 'right', 'up', 'down'].forEach(direction => {
       handleTouch(direction, false);
     });
   };
 
-  // Tablet mode overlay
-  if (tabletMode) {
+  // Joystick mode overlay
+  if (joystickMode) {
     return (
-      <>
-        {/* Tablet mode touch zones */}
+      <div className="fixed bottom-8 left-8 z-50">
+        {/* Joystick base */}
         <div 
-          className="fixed inset-0 z-40 pointer-events-auto"
-          onTouchStart={handleTabletTouch}
-          onTouchEnd={handleTabletTouchEnd}
+          ref={joystickRef}
+          className="relative w-24 h-24 bg-gray-800/80 border-2 border-cyan-400 rounded-full flex items-center justify-center"
+          onTouchStart={handleJoystickStart}
+          onTouchMove={handleJoystickMove}
+          onTouchEnd={handleJoystickEnd}
+          onMouseDown={handleJoystickStart}
+          onMouseMove={isDragging ? handleJoystickMove : undefined}
+          onMouseUp={handleJoystickEnd}
+          onMouseLeave={handleJoystickEnd}
+          style={{ touchAction: 'none' }}
         >
-          {/* Visual indicators for touch zones */}
-          <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 opacity-20">
-            {/* Top row */}
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-2xl">↖</div>
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-3xl">↑</div>
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-2xl">↗</div>
-            
-            {/* Middle row */}
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-3xl">←</div>
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-sm">TAP</div>
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-3xl">→</div>
-            
-            {/* Bottom row */}
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-2xl">↙</div>
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-3xl">↓</div>
-            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-2xl">↘</div>
-          </div>
+          {/* Joystick knob */}
+          <div 
+            className="absolute w-8 h-8 bg-cyan-400 rounded-full shadow-lg transition-all duration-100 ease-out"
+            style={{
+              transform: `translate(${joystickPosition.x}px, ${joystickPosition.y}px)`,
+              backgroundColor: isDragging ? '#06b6d4' : '#22d3ee'
+            }}
+          />
+          
+          {/* Center dot */}
+          <div className="w-2 h-2 bg-cyan-200 rounded-full opacity-50" />
         </div>
 
-        {/* Tablet mode toggle button */}
+        {/* Joystick mode toggle button */}
         <button
-          onClick={toggleTabletMode}
-          className="fixed top-4 right-4 z-50 px-3 py-1 bg-purple-500/80 text-white rounded text-sm font-bold shadow-lg pointer-events-auto"
+          onClick={toggleJoystickMode}
+          className="absolute -top-12 left-0 px-3 py-1 bg-purple-500/80 text-white rounded text-sm font-bold shadow-lg"
         >
-          Exit Tablet Mode
+          Exit Joystick
         </button>
-      </>
+      </div>
     );
   }
 
@@ -227,13 +264,13 @@ export default function TouchControls() {
         </button>
       </div>
 
-      {/* Tablet mode toggle button */}
+      {/* Joystick mode toggle button */}
       <div className="fixed bottom-4 left-4 z-50">
         <button
-          onClick={toggleTabletMode}
+          onClick={toggleJoystickMode}
           className="px-3 py-1 bg-purple-500/80 text-white rounded text-sm font-bold shadow-lg"
         >
-          Tablet Mode
+          Joystick Mode
         </button>
       </div>
     </div>
