@@ -154,27 +154,23 @@ export class GameEngine {
     for (const collectible of this.collectibles) {
       collectible.update();
       
-      // Magnet effect - attract collectibles to player
-      if (magnetActive && distance(this.player.position, collectible.position) < 120) {
-        const dx = this.player.position.x - collectible.position.x;
-        const dy = this.player.position.y - collectible.position.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > 0) {
-          const pullStrength = safeCheatEffects.autoCollect ? 5 : 3;
-          collectible.position.x += (dx / dist) * pullStrength;
-          collectible.position.y += (dy / dist) * pullStrength;
-        }
-      }
+      // Check if any magnet effect should be active
+      const hasAnyMagnetEffect = magnetActive || safeCheatEffects.autoCollect;
       
-      // Auto-collect cheat - stronger attraction
-      if (safeCheatEffects.autoCollect && distance(this.player.position, collectible.position) < 150) {
-        const dx = this.player.position.x - collectible.position.x;
-        const dy = this.player.position.y - collectible.position.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > 0) {
-          const pullStrength = 4;
-          collectible.position.x += (dx / dist) * pullStrength;
-          collectible.position.y += (dy / dist) * pullStrength;
+      // Magnet effect - attract collectibles to player
+      if (hasAnyMagnetEffect) {
+        const magnetRange = safeCheatEffects.autoCollect ? 200 : 120;
+        const distanceToPlayer = distance(this.player.position, collectible.position);
+        
+        if (distanceToPlayer < magnetRange) {
+          const dx = this.player.position.x - collectible.position.x;
+          const dy = this.player.position.y - collectible.position.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > 0) {
+            const pullStrength = safeCheatEffects.autoCollect ? 6 : (magnetActive ? 3 : 2);
+            collectible.position.x += (dx / dist) * pullStrength;
+            collectible.position.y += (dy / dist) * pullStrength;
+          }
         }
       }
     }

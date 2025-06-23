@@ -107,6 +107,7 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Implemented personal high score system saved in cookies/localStorage
 - Added all-time high score tracking and leaderboard with top 10 scores
 - Created player name editing functionality and enhanced game over notifications
+- Fixed auto-collect cheat to work independently with enhanced range and pull strength
 
 ## User Preferences
 
