@@ -722,3 +722,27 @@ canvas, button, .game-ui {
     transform: none;
   }
 }
+
+/* Mobile App Button */
+.mobile-app-button {
+  @apply px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-500 hover:to-emerald-500 transform hover:scale-105 transition-all duration-200 flex items-center gap-2;
+}
+
+/* Joystick Mode Button */
+.joystick-mode-button {
+  @apply px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:from-purple-500 hover:to-pink-500 transform hover:scale-105 transition-all duration-200;
+}
+
+.joystick-mode-button.active {
+  @apply from-purple-500 to-pink-500 ring-2 ring-purple-300 shadow-purple-400/50;
+  animation: pulse-purple 2s infinite;
+}
+
+@keyframes pulse-purple {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(168, 85, 247, 0);
+  }
+}
