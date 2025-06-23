@@ -6,7 +6,47 @@ export default function TouchControls() {
   const { phase, joystickMode, toggleJoystickMode } = useGame();
   const [joystickPosition, setJoystickPosition] = React.useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = React.useState(false);
+  const [joystickSize, setJoystickSize] = React.useState(96);
+  const [joystickOpacity, setJoystickOpacity] = React.useState(0.8);
+  const [currentMovement, setCurrentMovement] = React.useState({ direction: '', intensity: 0 });
   const joystickRef = React.useRef<HTMLDivElement>(null);
+  const lastMovementRef = React.useRef({ left: false, right: false, up: false, down: false });
+
+  // Adaptive joystick sizing based on screen size
+  React.useEffect(() => {
+    const updateJoystickSize = () => {
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const minDimension = Math.min(screenWidth, screenHeight);
+      
+      // Scale joystick size based on screen size
+      if (minDimension < 480) {
+        setJoystickSize(80); // Small phones
+      } else if (minDimension < 768) {
+        setJoystickSize(96); // Regular phones
+      } else if (minDimension < 1024) {
+        setJoystickSize(112); // Tablets
+      } else {
+        setJoystickSize(128); // Large screens
+      }
+    };
+
+    updateJoystickSize();
+    window.addEventListener('resize', updateJoystickSize);
+    return () => window.removeEventListener('resize', updateJoystickSize);
+  }, []);
+
+  // Haptic feedback function
+  const triggerHapticFeedback = (intensity: 'light' | 'medium' | 'heavy' = 'light') => {
+    if ('vibrate' in navigator) {
+      const patterns = {
+        light: 25,
+        medium: 50,
+        heavy: 100
+      };
+      navigator.vibrate(patterns[intensity]);
+    }
+  };
 
   const handleTouch = (direction: string, pressed: boolean) => {
     // Create and dispatch keyboard events to simulate key presses
@@ -30,7 +70,7 @@ export default function TouchControls() {
   };
 
   const handleJoystickMove = (event: React.TouchEvent | React.MouseEvent) => {
-    if (!joystickMode || !joystickRef.current) return;
+    if (!joystickMode || !joystickRef.current || !isDragging) return;
 
     const rect = joystickRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -49,7 +89,7 @@ export default function TouchControls() {
     const deltaX = clientX - centerX;
     const deltaY = clientY - centerY;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    const maxDistance = 40; // Maximum joystick travel distance
+    const maxDistance = (joystickSize / 2) - 16; // Dynamic max distance based on joystick size
 
     let x = deltaX;
     let y = deltaY;
@@ -62,56 +102,98 @@ export default function TouchControls() {
 
     setJoystickPosition({ x, y });
 
-    // Convert joystick position to keyboard events
-    const threshold = 15;
-    
-    // Stop all current movement
-    ['left', 'right', 'up', 'down'].forEach(direction => {
-      handleTouch(direction, false);
-    });
+    // Calculate angle and intensity for precise analog movement
+    const angle = Math.atan2(y, x);
+    const intensity = Math.min(distance / maxDistance, 1);
+    const threshold = 0.2; // 20% deadzone
 
-    // Start movement based on joystick position
-    if (Math.abs(x) > threshold || Math.abs(y) > threshold) {
+    // Determine movement direction and intensity
+    const newMovement = { left: false, right: false, up: false, down: false };
+    
+    if (intensity > threshold) {
+      // Convert angle to 8-directional movement with analog precision
+      const normalizedAngle = ((angle + Math.PI) / (2 * Math.PI)) * 8;
+      
+      // Horizontal movement with analog intensity
       if (Math.abs(x) > Math.abs(y)) {
-        // Horizontal movement
-        if (x > threshold) {
-          handleTouch('right', true);
-        } else if (x < -threshold) {
-          handleTouch('left', true);
+        if (x > 0) {
+          newMovement.right = true;
+          setCurrentMovement({ direction: 'right', intensity });
+        } else {
+          newMovement.left = true;
+          setCurrentMovement({ direction: 'left', intensity });
         }
       } else {
-        // Vertical movement
-        if (y > threshold) {
-          handleTouch('down', true);
-        } else if (y < -threshold) {
-          handleTouch('up', true);
+        // Vertical movement with analog intensity  
+        if (y > 0) {
+          newMovement.down = true;
+          setCurrentMovement({ direction: 'down', intensity });
+        } else {
+          newMovement.up = true;
+          setCurrentMovement({ direction: 'up', intensity });
         }
       }
+
+      // Haptic feedback based on intensity
+      if (intensity > 0.8) {
+        triggerHapticFeedback('heavy');
+      } else if (intensity > 0.5) {
+        triggerHapticFeedback('medium');
+      }
+    } else {
+      setCurrentMovement({ direction: '', intensity: 0 });
     }
+
+    // Update keyboard events only when movement changes
+    Object.keys(newMovement).forEach(direction => {
+      const isPressed = newMovement[direction as keyof typeof newMovement];
+      const wasPressed = lastMovementRef.current[direction as keyof typeof lastMovementRef.current];
+      
+      if (isPressed !== wasPressed) {
+        handleTouch(direction, isPressed);
+        lastMovementRef.current[direction as keyof typeof lastMovementRef.current] = isPressed;
+      }
+    });
   };
 
-  const handleJoystickStart = () => {
+  const handleJoystickStart = (event: React.TouchEvent | React.MouseEvent) => {
+    event.preventDefault();
     setIsDragging(true);
+    triggerHapticFeedback('medium');
+    
+    // Reduce opacity when actively being used
+    setJoystickOpacity(0.9);
   };
 
   const handleJoystickEnd = () => {
     setIsDragging(false);
     setJoystickPosition({ x: 0, y: 0 });
+    setCurrentMovement({ direction: '', intensity: 0 });
+    triggerHapticFeedback('light');
+    
+    // Restore opacity
+    setJoystickOpacity(0.8);
     
     // Stop all movement when joystick is released
-    ['left', 'right', 'up', 'down'].forEach(direction => {
-      handleTouch(direction, false);
+    Object.keys(lastMovementRef.current).forEach(direction => {
+      if (lastMovementRef.current[direction as keyof typeof lastMovementRef.current]) {
+        handleTouch(direction, false);
+        lastMovementRef.current[direction as keyof typeof lastMovementRef.current] = false;
+      }
     });
   };
 
   // Joystick mode overlay
   if (joystickMode) {
+    const knobSize = Math.max(joystickSize * 0.3, 24);
+    const baseOpacity = joystickOpacity;
+    
     return (
       <div className="fixed bottom-8 left-8 z-50">
         {/* Joystick base */}
         <div 
           ref={joystickRef}
-          className="relative w-24 h-24 bg-gray-800/80 border-2 border-cyan-400 rounded-full flex items-center justify-center"
+          className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 border-2 border-cyan-400/60 rounded-full flex items-center justify-center transition-all duration-200 shadow-2xl"
           onTouchStart={handleJoystickStart}
           onTouchMove={handleJoystickMove}
           onTouchEnd={handleJoystickEnd}
@@ -119,28 +201,109 @@ export default function TouchControls() {
           onMouseMove={isDragging ? handleJoystickMove : undefined}
           onMouseUp={handleJoystickEnd}
           onMouseLeave={handleJoystickEnd}
-          style={{ touchAction: 'none' }}
+          style={{ 
+            width: joystickSize,
+            height: joystickSize,
+            touchAction: 'none',
+            opacity: baseOpacity,
+            boxShadow: isDragging 
+              ? '0 0 30px rgba(34, 211, 238, 0.6), inset 0 0 20px rgba(34, 211, 238, 0.1)' 
+              : '0 0 20px rgba(34, 211, 238, 0.3), inset 0 0 15px rgba(34, 211, 238, 0.05)'
+          }}
         >
-          {/* Joystick knob */}
+          {/* Outer ring indicator */}
           <div 
-            className="absolute w-8 h-8 bg-cyan-400 rounded-full shadow-lg transition-all duration-100 ease-out"
+            className="absolute border border-cyan-300/30 rounded-full"
             style={{
-              transform: `translate(${joystickPosition.x}px, ${joystickPosition.y}px)`,
-              backgroundColor: isDragging ? '#06b6d4' : '#22d3ee'
+              width: joystickSize * 0.8,
+              height: joystickSize * 0.8,
             }}
           />
           
-          {/* Center dot */}
-          <div className="w-2 h-2 bg-cyan-200 rounded-full opacity-50" />
+          {/* Inner deadzone indicator */}
+          <div 
+            className="absolute border border-gray-500/40 rounded-full"
+            style={{
+              width: joystickSize * 0.4,
+              height: joystickSize * 0.4,
+            }}
+          />
+
+          {/* Joystick knob */}
+          <div 
+            className="absolute rounded-full shadow-xl transition-all duration-100 ease-out border-2"
+            style={{
+              width: knobSize,
+              height: knobSize,
+              transform: `translate(${joystickPosition.x}px, ${joystickPosition.y}px)`,
+              background: isDragging 
+                ? 'radial-gradient(circle at 30% 30%, #38bdf8, #0891b2, #0e7490)' 
+                : 'radial-gradient(circle at 30% 30%, #22d3ee, #06b6d4, #0891b2)',
+              borderColor: isDragging ? '#0891b2' : '#22d3ee',
+              boxShadow: isDragging 
+                ? '0 0 20px rgba(34, 211, 238, 0.8), inset 0 2px 8px rgba(255, 255, 255, 0.3)' 
+                : '0 0 15px rgba(34, 211, 238, 0.5), inset 0 2px 6px rgba(255, 255, 255, 0.2)',
+              scale: isDragging ? '1.1' : '1.0'
+            }}
+          />
+          
+          {/* Center reference dot */}
+          <div 
+            className="absolute bg-cyan-200/60 rounded-full"
+            style={{
+              width: joystickSize * 0.04,
+              height: joystickSize * 0.04,
+            }}
+          />
+
+          {/* Direction indicators */}
+          {currentMovement.direction && (
+            <div 
+              className="absolute text-cyan-300 font-bold pointer-events-none"
+              style={{
+                fontSize: joystickSize * 0.1,
+                opacity: currentMovement.intensity
+              }}
+            >
+              {currentMovement.direction === 'up' && '↑'}
+              {currentMovement.direction === 'down' && '↓'}
+              {currentMovement.direction === 'left' && '←'}
+              {currentMovement.direction === 'right' && '→'}
+            </div>
+          )}
         </div>
 
-        {/* Joystick mode toggle button */}
-        <button
-          onClick={toggleJoystickMode}
-          className="absolute -top-12 left-0 px-3 py-1 bg-purple-500/80 text-white rounded text-sm font-bold shadow-lg"
-        >
-          Exit Joystick
-        </button>
+        {/* Joystick controls panel */}
+        <div className="absolute -top-16 left-0 bg-black/80 rounded-lg p-2 text-xs text-white min-w-32">
+          <div className="flex justify-between items-center mb-1">
+            <span>Opacity:</span>
+            <input
+              type="range"
+              min="0.3"
+              max="1"
+              step="0.1"
+              value={joystickOpacity}
+              onChange={(e) => setJoystickOpacity(parseFloat(e.target.value))}
+              className="w-16 ml-2"
+            />
+          </div>
+          <button
+            onClick={toggleJoystickMode}
+            className="w-full px-2 py-1 bg-purple-500/80 text-white rounded text-xs font-bold"
+          >
+            Exit Joystick
+          </button>
+        </div>
+
+        {/* Movement intensity indicator */}
+        {currentMovement.intensity > 0 && (
+          <div 
+            className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-cyan-400/80 text-black text-xs px-2 py-1 rounded"
+            style={{ opacity: currentMovement.intensity }}
+          >
+            {Math.round(currentMovement.intensity * 100)}%
+          </div>
+        )}
       </div>
     );
   }
