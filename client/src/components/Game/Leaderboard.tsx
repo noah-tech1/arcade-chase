@@ -46,10 +46,10 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
   // Load leaderboard from database when component mounts
   React.useEffect(() => {
-    if (isOpen && loadLeaderboard) {
+    if (isOpen) {
       loadLeaderboard();
     }
-  }, [isOpen, loadLeaderboard]);
+  }, [isOpen]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">

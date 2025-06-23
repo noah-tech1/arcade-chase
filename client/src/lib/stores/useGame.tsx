@@ -391,6 +391,8 @@ export const useGame = create<GameState>()(
           timeFreeze: false,
         }
       }));
-    }
+    },
+    
+    toggleTabletMode: () => set((state) => ({ tabletMode: !state.tabletMode })),
   }))
 );
