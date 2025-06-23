@@ -15,12 +15,13 @@ export default function StartScreen() {
   console.log('StartScreen render, qrCodeOpen:', qrCodeOpen);
 
   useEffect(() => {
-    // Generate QR code for the current web app URL
+    // Generate QR code for APK download
     const generateQRCode = async () => {
       try {
-        const currentUrl = window.location.href;
-        console.log('Generating QR code for:', currentUrl);
-        const qrDataUrl = await QRCode.toDataURL(currentUrl, {
+        // Point to the APK download endpoint
+        const apkDownloadUrl = `${window.location.origin}/download/arcade-collector.apk`;
+        console.log('Generating QR code for APK download:', apkDownloadUrl);
+        const qrDataUrl = await QRCode.toDataURL(apkDownloadUrl, {
           width: 200,
           margin: 2,
           color: {
@@ -145,19 +146,30 @@ export default function StartScreen() {
             
             <div className="space-y-4 mb-6">
               <p className="text-gray-300">
-                Scan the QR code with your phone camera to play the game on mobile
+                Scan the QR code with your phone to download the APK file
               </p>
               
               <div className="text-sm text-gray-400 space-y-1">
-                <p>✓ Full game experience on mobile</p>
-                <p>✓ Touch controls and virtual joystick</p>
-                <p>✓ Same features as desktop version</p>
-                <p>✓ Works in any mobile browser</p>
+                <p>✓ Offline mobile app (APK)</p>
+                <p>✓ Install directly on Android</p>
+                <p>✓ No internet required after download</p>
+                <p>✓ Full game features included</p>
+              </div>
+              
+              <div className="flex gap-3 justify-center">
+                <a 
+                  href={`${window.location.origin}/download/arcade-collector.apk`}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  download="arcade-collector.apk"
+                >
+                  <Download size={16} />
+                  Download APK
+                </a>
               </div>
               
               <div className="text-xs text-gray-500 border-t border-gray-700 pt-3">
-                <p>Or manually navigate to:</p>
-                <p className="font-mono break-all text-cyan-400">{window.location.href}</p>
+                <p>Direct link:</p>
+                <p className="font-mono break-all text-cyan-400">{window.location.origin}/download/arcade-collector.apk</p>
               </div>
             </div>
             

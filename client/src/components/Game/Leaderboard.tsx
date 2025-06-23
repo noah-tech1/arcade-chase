@@ -44,13 +44,6 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
   const topScores = getTopScores(10);
 
-  // Load leaderboard from database when component mounts
-  React.useEffect(() => {
-    if (isOpen) {
-      loadLeaderboard();
-    }
-  }, [isOpen]);
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
       <div className="bg-gray-900 border-2 border-cyan-400 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
