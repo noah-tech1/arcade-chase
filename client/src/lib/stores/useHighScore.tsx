@@ -19,6 +19,8 @@ interface HighScoreState {
   resetPersonalHighScore: () => void;
   setPlayerName: (name: string) => void;
   getTopScores: (limit?: number) => LeaderboardEntry[];
+  clearPlayerFromLeaderboard: (playerName: string) => void;
+  cleanupDuplicates: () => void;
 }
 
 export const useHighScore = create<HighScoreState>()(
@@ -58,23 +60,53 @@ export const useHighScore = create<HighScoreState>()(
       },
       
       addToLeaderboard: (name: string, score: number, level: number) => {
-        const state = get();
-        const newEntry: LeaderboardEntry = {
-          name: name || "Player",
-          score,
-          level,
-          date: new Date().toLocaleDateString()
-        };
-        
-        const updatedLeaderboard = [...state.leaderboard, newEntry]
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 10); // Keep only top 10
+        set((state) => {
+          // Find existing player entry (case-insensitive)
+          const existingIndex = state.leaderboard.findIndex(entry => 
+            entry.name.toLowerCase() === name.toLowerCase()
+          );
           
-        set({ leaderboard: updatedLeaderboard });
+          if (existingIndex !== -1) {
+            // Only update if new score is higher
+            if (score > state.leaderboard[existingIndex].score) {
+              state.leaderboard[existingIndex] = {
+                name,
+                score,
+                level,
+                date: new Date().toLocaleDateString()
+              };
+            }
+            // Don't add duplicate entry if score is not higher
+          } else {
+            // Add new player entry
+            const newEntry: LeaderboardEntry = {
+              name: name || "Player",
+              score,
+              level,
+              date: new Date().toLocaleDateString()
+            };
+            state.leaderboard.push(newEntry);
+          }
+          
+          // Sort by score (highest first) and keep top 10
+          state.leaderboard.sort((a, b) => b.score - a.score);
+          state.leaderboard = state.leaderboard.slice(0, 10);
+          
+          return state;
+        });
       },
       
       resetPersonalHighScore: () => {
         set({ personalHighScore: 0 });
+      },
+      
+      clearPlayerFromLeaderboard: (playerName: string) => {
+        set((state) => ({
+          ...state,
+          leaderboard: state.leaderboard.filter(entry => 
+            entry.name.toLowerCase() !== playerName.toLowerCase()
+          )
+        }));
       },
       
       setPlayerName: (name: string) => {

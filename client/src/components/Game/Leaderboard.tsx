@@ -27,6 +27,10 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     setEditingName(false);
   };
 
+  const handleCleanupDuplicates = () => {
+    cleanupDuplicates();
+  };
+
   const getRankIcon = (index: number) => {
     switch (index) {
       case 0: return <Trophy className="w-5 h-5 text-yellow-400" />;

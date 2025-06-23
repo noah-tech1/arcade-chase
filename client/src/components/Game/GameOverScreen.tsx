@@ -5,14 +5,31 @@ import { RotateCcw, Trophy, Target } from "lucide-react";
 
 export default function GameOverScreen() {
   const { score, level, restart } = useGame();
-  const { personalHighScore, allTimeHighScore, updatePersonalHighScore } = useHighScore();
+  const { 
+    personalHighScore, 
+    allTimeHighScore, 
+    playerName, 
+    updatePersonalHighScore, 
+    updateAllTimeHighScore,
+    addToLeaderboard,
+    cleanupDuplicates 
+  } = useHighScore();
   
   // Check if this is a new high score when component mounts
   React.useEffect(() => {
     if (score > 0) {
       updatePersonalHighScore(score, level);
+      updateAllTimeHighScore(score, playerName || "Player", level);
+      
+      // Only add to leaderboard if player has a name and score is significant
+      if (playerName && score >= 50) {
+        addToLeaderboard(playerName, score, level);
+      }
+      
+      // Clean up any duplicates that might exist
+      cleanupDuplicates();
     }
-  }, [score, level, updatePersonalHighScore]);
+  }, [score, level, playerName, updatePersonalHighScore, updateAllTimeHighScore, addToLeaderboard, cleanupDuplicates]);
   
   const isNewPersonalHigh = score > 0 && score === personalHighScore;
   const isNewAllTimeHigh = score > 0 && score === allTimeHighScore;
