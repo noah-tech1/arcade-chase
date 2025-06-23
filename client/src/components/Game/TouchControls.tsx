@@ -107,32 +107,48 @@ export default function TouchControls() {
     const intensity = Math.min(distance / maxDistance, 1);
     const threshold = 0.2; // 20% deadzone
 
-    // Determine movement direction and intensity
+    // Determine movement direction and intensity - support diagonal movement
     const newMovement = { left: false, right: false, up: false, down: false };
     
     if (intensity > threshold) {
-      // Convert angle to 8-directional movement with analog precision
-      const normalizedAngle = ((angle + Math.PI) / (2 * Math.PI)) * 8;
+      // Calculate individual axis intensities
+      const xIntensity = Math.abs(x) / maxDistance;
+      const yIntensity = Math.abs(y) / maxDistance;
       
-      // Horizontal movement with analog intensity
-      if (Math.abs(x) > Math.abs(y)) {
+      // Enable diagonal movement by checking both axes independently
+      if (xIntensity > threshold) {
         if (x > 0) {
           newMovement.right = true;
-          setCurrentMovement({ direction: 'right', intensity });
         } else {
           newMovement.left = true;
-          setCurrentMovement({ direction: 'left', intensity });
-        }
-      } else {
-        // Vertical movement with analog intensity  
-        if (y > 0) {
-          newMovement.down = true;
-          setCurrentMovement({ direction: 'down', intensity });
-        } else {
-          newMovement.up = true;
-          setCurrentMovement({ direction: 'up', intensity });
         }
       }
+      
+      if (yIntensity > threshold) {
+        if (y > 0) {
+          newMovement.down = true;
+        } else {
+          newMovement.up = true;
+        }
+      }
+      
+      // Set direction display for primary movement
+      let primaryDirection = '';
+      if (Math.abs(x) > Math.abs(y)) {
+        primaryDirection = x > 0 ? 'right' : 'left';
+      } else {
+        primaryDirection = y > 0 ? 'down' : 'up';
+      }
+      
+      // Show diagonal if both axes are strong enough
+      if (xIntensity > threshold && yIntensity > threshold) {
+        if (x > 0 && y < 0) primaryDirection = '↗';
+        else if (x > 0 && y > 0) primaryDirection = '↘';
+        else if (x < 0 && y < 0) primaryDirection = '↖';
+        else if (x < 0 && y > 0) primaryDirection = '↙';
+      }
+      
+      setCurrentMovement({ direction: primaryDirection, intensity });
 
       // Haptic feedback based on intensity
       if (intensity > 0.8) {
@@ -256,12 +272,12 @@ export default function TouchControls() {
             }}
           />
 
-          {/* Direction indicators */}
+          {/* Direction indicators - now supports diagonals */}
           {currentMovement.direction && (
             <div 
               className="absolute text-cyan-300 font-bold pointer-events-none"
               style={{
-                fontSize: joystickSize * 0.1,
+                fontSize: joystickSize * 0.12,
                 opacity: currentMovement.intensity
               }}
             >
@@ -269,6 +285,11 @@ export default function TouchControls() {
               {currentMovement.direction === 'down' && '↓'}
               {currentMovement.direction === 'left' && '←'}
               {currentMovement.direction === 'right' && '→'}
+              {/* Diagonal indicators */}
+              {currentMovement.direction === '↗' && '↗'}
+              {currentMovement.direction === '↘' && '↘'}
+              {currentMovement.direction === '↖' && '↖'}
+              {currentMovement.direction === '↙' && '↙'}
             </div>
           )}
         </div>
