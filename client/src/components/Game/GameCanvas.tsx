@@ -88,7 +88,10 @@ export default function GameCanvas() {
       speed: (safeCheatEffects.allPowerUps || safeCheatEffects.superSpeed || safeCheatEffects.maxSpeed) ? 999999 : safePowerUps.speed
     };
 
-    // Production-ready: removed debug logs
+    // Debug god mode (temporary)
+    if (safeCheatEffects.godMode) {
+      console.log('God mode active:', safeCheatEffects.godMode);
+    }
 
     // Update game state with cheat effects
     const result = gameEngineRef.current.update(

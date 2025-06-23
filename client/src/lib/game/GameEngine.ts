@@ -129,6 +129,11 @@ export class GameEngine {
     
     // Update player shield status and speed boost
     this.player.shieldActive = activePowerUps.shield > 0 || safeCheatEffects.godMode;
+    
+    // Debug god mode shield
+    if (safeCheatEffects.godMode) {
+      console.log('God mode setting shield active:', this.player.shieldActive);
+    }
     let speedBoost = 1;
     
     // Apply speed boost from power-ups or cheats
@@ -256,6 +261,11 @@ export class GameEngine {
     
     // Check obstacle collisions (skip if god mode, no obstacles cheat, or shield is active)
     const isInvulnerable = safeCheatEffects.godMode || safeCheatEffects.noObstacles || this.player.shieldActive;
+    
+    // Debug invulnerability
+    if (safeCheatEffects.godMode) {
+      console.log('God mode invulnerable check:', isInvulnerable, 'godMode:', safeCheatEffects.godMode);
+    }
     
     if (!isInvulnerable) {
       for (const obstacle of this.obstacles) {
