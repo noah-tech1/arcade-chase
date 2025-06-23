@@ -49,7 +49,9 @@ export default function GameCanvas() {
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
     // Apply enhanced cheat effects
-    const safeCheatEffects = activeCheatEffects || {
+    // Get fresh cheat effects directly from store to ensure latest state
+    const currentCheatEffects = useGame.getState().activeCheatEffects;
+    const safeCheatEffects = currentCheatEffects || {
       godMode: false,
       slowMotion: false,
       doubleScore: false,
@@ -88,8 +90,8 @@ export default function GameCanvas() {
       speed: (safeCheatEffects.allPowerUps || safeCheatEffects.superSpeed || safeCheatEffects.maxSpeed) ? 999999 : safePowerUps.speed
     };
 
-    // Debug all cheat effects received
-    console.log('Active cheat effects in game canvas:', safeCheatEffects);
+    // Debug cheat state flow
+    console.log('God mode status - from prop:', activeCheatEffects?.godMode, 'from store:', currentCheatEffects?.godMode, 'safe:', safeCheatEffects.godMode);
 
     // Update game state with cheat effects
     const result = gameEngineRef.current.update(
@@ -146,7 +148,7 @@ export default function GameCanvas() {
     if (phase === "playing") {
       animationFrameRef.current = requestAnimationFrame(gameLoop);
     }
-  }, [phase, gameSpeed, level, safePowerUps.shield, safePowerUps.speed, safePowerUps.magnet, addScore, loseLife, addCombo, activatePowerUp]);
+  }, [phase, gameSpeed, level, safePowerUps.shield, safePowerUps.speed, safePowerUps.magnet, addScore, loseLife, addCombo, activatePowerUp, activeCheatEffects]);
 
   // Power-up timer system - runs independently of game loop
   useEffect(() => {

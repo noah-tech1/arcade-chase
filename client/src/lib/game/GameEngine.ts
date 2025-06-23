@@ -262,10 +262,7 @@ export class GameEngine {
     // Check obstacle collisions (skip if god mode, no obstacles cheat, or shield is active)
     const isInvulnerable = safeCheatEffects.godMode || safeCheatEffects.noObstacles || this.player.shieldActive;
     
-    // Debug invulnerability
-    if (safeCheatEffects.godMode) {
-      console.log('God mode invulnerable check:', isInvulnerable, 'godMode:', safeCheatEffects.godMode);
-    }
+    // Remove debug
     
     if (!isInvulnerable) {
       for (const obstacle of this.obstacles) {

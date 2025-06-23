@@ -87,14 +87,15 @@ export default function CheatMenu({ isOpen, onClose }: CheatMenuProps) {
     enableCheatMode();
     
     // Debug cheat activation
-    console.log('Cheat activated:', cheatKey, 'Current state:', activeCheatEffects[cheatKey as keyof typeof activeCheatEffects]);
+    console.log('handleCheatToggle called for:', cheatKey, 'Current state:', activeCheatEffects[cheatKey as keyof typeof activeCheatEffects]);
     
     toggleCheatEffect(cheatKey as keyof typeof activeCheatEffects);
     
     // Log new state after toggle
     setTimeout(() => {
       const newState = useGame.getState().activeCheatEffects;
-      console.log('After toggle - cheat state:', cheatKey, newState[cheatKey as keyof typeof newState]);
+      console.log('After toggle - cheat state for', cheatKey, ':', newState[cheatKey as keyof typeof newState]);
+      console.log('Full new state:', newState);
     }, 100);
   };
 
@@ -127,10 +128,15 @@ export default function CheatMenu({ isOpen, onClose }: CheatMenuProps) {
               <div className="space-y-2">
                 {category.cheats.map((cheat) => {
                   const isActive = activeCheatEffects[cheat.key as keyof typeof activeCheatEffects];
+                  
+
                   return (
                     <button
                       key={cheat.key}
-                      onClick={() => handleCheatToggle(cheat.key)}
+                      onClick={() => {
+                        console.log('Button clicked for:', cheat.key);
+                        handleCheatToggle(cheat.key);
+                      }}
                       className={`w-full text-left p-3 rounded border transition-all ${
                         isActive
                           ? 'bg-cyan-600 border-cyan-400 text-white'
