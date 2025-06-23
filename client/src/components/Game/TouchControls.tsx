@@ -6,8 +6,6 @@ export default function TouchControls() {
   const { phase } = useGame();
 
   const handleTouch = (direction: string, pressed: boolean) => {
-    console.log(`Touch control: ${direction} ${pressed ? 'pressed' : 'released'}`);
-    
     // Create and dispatch keyboard events to simulate key presses
     const keyMap = {
       'up': 'ArrowUp',

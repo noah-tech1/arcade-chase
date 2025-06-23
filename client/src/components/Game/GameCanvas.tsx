@@ -90,10 +90,7 @@ export default function GameCanvas() {
       speed: (safeCheatEffects.allPowerUps || safeCheatEffects.superSpeed || safeCheatEffects.maxSpeed) ? 999999 : safePowerUps.speed
     };
 
-    // Debug god mode only when active
-    if (safeCheatEffects.godMode) {
-      console.log('God mode active in game canvas');
-    }
+    // Remove debug logging for production
 
     // Debug input state (disabled)
     // const hasInput = inputRef.current.left || inputRef.current.right || inputRef.current.up || inputRef.current.down;
@@ -205,7 +202,6 @@ export default function GameCanvas() {
       
       // Use e.key for exact arrow key matching
       if (phase === 'playing') {
-        // console.log('Processing key for movement:', e.key);
         switch (e.key) {
           case 'ArrowUp':
           case 'w':

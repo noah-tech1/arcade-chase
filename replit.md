@@ -126,6 +126,12 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Implemented touch gesture controls for mobile gameplay
 - Added mobile-optimized UI and performance optimizations
 - Configured app store deployment pipeline with EAS Build
+- Enhanced mobile app with 60fps gameplay, haptic feedback, and smooth touch controls
+- Added comprehensive power-up system (shield, magnet, double score)
+- Implemented auto-pause, high score persistence, and offline functionality
+- Added combo system, level progression, and enhanced visual effects
+- Optimized web version for better mobile performance and touch responsiveness
+- Created production-ready APK build system with detailed deployment guide
 
 ## User Preferences
 
