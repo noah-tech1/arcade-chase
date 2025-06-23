@@ -90,8 +90,10 @@ export default function GameCanvas() {
       speed: (safeCheatEffects.allPowerUps || safeCheatEffects.superSpeed || safeCheatEffects.maxSpeed) ? 999999 : safePowerUps.speed
     };
 
-    // Debug cheat state flow
-    console.log('God mode status - from prop:', activeCheatEffects?.godMode, 'from store:', currentCheatEffects?.godMode, 'safe:', safeCheatEffects.godMode);
+    // Debug god mode only when active
+    if (safeCheatEffects.godMode) {
+      console.log('God mode active in game canvas');
+    }
 
     // Update game state with cheat effects
     const result = gameEngineRef.current.update(
@@ -119,10 +121,7 @@ export default function GameCanvas() {
     // Only take damage if not protected by any invincibility
     const isProtected = safeCheatEffects.godMode || safeCheatEffects.infiniteLives || cheatPowerUps.shield > 0;
     
-    // Debug protection
-    if (result.hit) {
-      console.log('Hit result, protected:', isProtected, 'godMode:', safeCheatEffects.godMode, 'shield:', cheatPowerUps.shield);
-    }
+
     
     if (result.hit && !isProtected) {
       loseLife();

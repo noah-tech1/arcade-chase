@@ -262,15 +262,17 @@ export class GameEngine {
     // Check obstacle collisions (skip if god mode, no obstacles cheat, or shield is active)
     const isInvulnerable = safeCheatEffects.godMode || safeCheatEffects.noObstacles || this.player.shieldActive;
     
-    // Remove debug
+    // Debug god mode shield
+    if (safeCheatEffects.godMode) {
+      console.log('God mode setting shield active:', this.player.shieldActive);
+    }
     
     if (!isInvulnerable) {
       for (const obstacle of this.obstacles) {
         if (checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
           hit = true;
           
-          // Debug collision
-          console.log('Collision detected, invulnerable:', isInvulnerable, 'godMode:', safeCheatEffects.godMode);
+
           
           // Start screen shake effect
           this.screenShake.start(8, 20);
@@ -284,11 +286,6 @@ export class GameEngine {
           );
           break;
         }
-      }
-    } else {
-      // Debug no collision check
-      if (safeCheatEffects.godMode) {
-        console.log('Collision skipped due to god mode');
       }
     }
     
