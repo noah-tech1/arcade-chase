@@ -1,8 +1,9 @@
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useAudio } from "../../lib/stores/useAudio";
 import { GameEngine } from "../../lib/game/GameEngine";
+import CheatMenu from "./CheatMenu";
 
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -11,6 +12,7 @@ export default function GameCanvas() {
   const inputRef = useRef({ left: false, right: false, up: false, down: false });
   const cheatModeRef = useRef(false);
   const cheatPromptRef = useRef(false);
+  const [cheatMenuOpen, setCheatMenuOpen] = useState(false);
 
   const { 
     phase, 
@@ -145,10 +147,10 @@ export default function GameCanvas() {
 
     // Add keyboard event listeners
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Handle cheat code activation
+      // Handle cheat menu activation
       if (e.key === '8' && !cheatPromptRef.current && phase === 'playing') {
         cheatPromptRef.current = true;
-        const code = prompt('🎮 Enter cheat code:');
+        const passcode = prompt('🔒 Enter passcode:');
         
         const cheatCodes = {
           'GODMODE': () => {
