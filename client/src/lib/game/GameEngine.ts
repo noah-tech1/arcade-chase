@@ -272,6 +272,9 @@ export class GameEngine {
         if (checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
           hit = true;
           
+          // Debug collision
+          console.log('Collision detected, invulnerable:', isInvulnerable, 'godMode:', safeCheatEffects.godMode);
+          
           // Start screen shake effect
           this.screenShake.start(8, 20);
           
@@ -284,6 +287,11 @@ export class GameEngine {
           );
           break;
         }
+      }
+    } else {
+      // Debug no collision check
+      if (safeCheatEffects.godMode) {
+        console.log('Collision skipped due to god mode');
       }
     }
     

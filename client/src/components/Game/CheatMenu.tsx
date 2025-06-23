@@ -86,7 +86,16 @@ export default function CheatMenu({ isOpen, onClose }: CheatMenuProps) {
     // Enable cheat mode when any cheat is activated
     enableCheatMode();
     
+    // Debug cheat activation
+    console.log('Cheat activated:', cheatKey, 'Current state:', activeCheatEffects[cheatKey as keyof typeof activeCheatEffects]);
+    
     toggleCheatEffect(cheatKey as keyof typeof activeCheatEffects);
+    
+    // Log new state after toggle
+    setTimeout(() => {
+      const newState = useGame.getState().activeCheatEffects;
+      console.log('After toggle - cheat state:', cheatKey, newState[cheatKey as keyof typeof newState]);
+    }, 100);
   };
 
   return (
