@@ -5,7 +5,7 @@ import { Heart, Volume2, VolumeX, Shield, Zap, Magnet } from "lucide-react";
 
 export default function GameUI() {
   const { score, level, lives, combo, comboTimer, activePowerUps, cheatMode, activeCheatEffects } = useGame();
-  const { highScore } = useHighScore();
+  const { personalHighScore } = useHighScore();
   const { isMuted, toggleMute } = useAudio();
 
   // Get active cheat effects for display
@@ -18,7 +18,7 @@ export default function GameUI() {
       <div className="ui-top">
         <div className="score-display">
           <div className="score">Score: {score.toLocaleString()}</div>
-          <div className="high-score">High: {highScore.toLocaleString()}</div>
+          <div className="high-score">Personal Best: {personalHighScore.toLocaleString()}</div>
           {combo > 0 && (
             <div className="combo-display">
               <span className="combo-text">COMBO x{combo}</span>

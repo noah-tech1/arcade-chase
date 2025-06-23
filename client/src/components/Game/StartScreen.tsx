@@ -4,7 +4,7 @@ import { Play, Trophy, Volume2 } from "lucide-react";
 
 export default function StartScreen() {
   const { start, resetGame } = useGame();
-  const { highScore } = useHighScore();
+  const { personalHighScore, allTimeHighScore } = useHighScore();
 
   const handleStart = () => {
     resetGame();
@@ -25,7 +25,10 @@ export default function StartScreen() {
         
         <div className="high-score-display">
           <Trophy className="trophy-icon" />
-          <span>High Score: {highScore.toLocaleString()}</span>
+          <div className="score-info">
+            <div>Personal Best: {personalHighScore.toLocaleString()}</div>
+            <div>All-Time Record: {allTimeHighScore.toLocaleString()}</div>
+          </div>
         </div>
         
         <button onClick={handleStart} className="start-button">

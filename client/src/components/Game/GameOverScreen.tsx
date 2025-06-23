@@ -4,19 +4,20 @@ import { RotateCcw, Trophy, Target } from "lucide-react";
 
 export default function GameOverScreen() {
   const { score, level, restart } = useGame();
-  const { highScore } = useHighScore();
+  const { personalHighScore, allTimeHighScore, updatePersonalHighScore } = useHighScore();
   
-  const isNewHighScore = score === highScore && score > 0;
+  const isNewPersonalHigh = updatePersonalHighScore(score, level);
+  const isNewAllTimeHigh = score === allTimeHighScore && score > 0;
 
   return (
     <div className="game-over-screen">
       <div className="game-over-content">
         <h1 className="game-over-title">GAME OVER</h1>
         
-        {isNewHighScore && (
+        {(isNewPersonalHigh || isNewAllTimeHigh) && (
           <div className="new-high-score">
             <Trophy className="trophy-icon" />
-            <span>NEW HIGH SCORE!</span>
+            <span>{isNewAllTimeHigh ? 'NEW ALL-TIME RECORD!' : 'NEW PERSONAL BEST!'}</span>
           </div>
         )}
         
