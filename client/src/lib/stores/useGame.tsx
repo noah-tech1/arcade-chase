@@ -298,12 +298,17 @@ export const useGame = create<GameState>()(
     },
 
     activatePowerUp: (type: 'shield' | 'speed' | 'magnet') => {
-      set((state) => ({
-        activePowerUps: {
-          ...state.activePowerUps,
-          [type]: 480 // 8 seconds at 60fps
-        }
-      }));
+      set((state) => {
+        // Shield lasts 5 seconds, others last 8 seconds
+        const duration = type === 'shield' ? 300 : 480; // 5 seconds = 300 frames, 8 seconds = 480 frames at 60fps
+        
+        return {
+          activePowerUps: {
+            ...state.activePowerUps,
+            [type]: duration
+          }
+        };
+      });
     },
 
     updatePowerUps: () => {

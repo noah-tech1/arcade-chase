@@ -26,7 +26,9 @@ export default function GameCanvas() {
     activatePowerUp,
     activateCheatEffect,
     toggleCheatEffect,
-    clearAllCheats
+    clearAllCheats,
+    updatePowerUps,
+    updateCombo
   } = useGame();
   const { playHit, playSuccess } = useAudio();
 
@@ -85,6 +87,10 @@ export default function GameCanvas() {
       shield: (safeCheatEffects.allPowerUps || safeCheatEffects.godMode) ? 999999 : safePowerUps.shield,
       speed: (safeCheatEffects.allPowerUps || safeCheatEffects.superSpeed || safeCheatEffects.maxSpeed) ? 999999 : safePowerUps.speed
     };
+
+    // Update power-up timers
+    updatePowerUps();
+    updateCombo();
 
     // Debug log for cheat effects (remove in production)
     if (hasActiveCheat) {

@@ -110,6 +110,7 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Fixed auto-collect cheat to work independently with enhanced range and pull strength
 - Resolved cheat power-up system to work immediately without requiring legitimate power-ups first
 - Fixed invincibility system for both legitimate shields and cheat effects (god mode, infinite lives)
+- Fixed power-up duration system: shields last 5 seconds, other power-ups last 8 seconds
 
 ## User Preferences
 
