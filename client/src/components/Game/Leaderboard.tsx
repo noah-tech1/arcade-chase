@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHighScore } from '../../lib/stores/useHighScore';
-import { Trophy, Medal, Award, User, Calendar, Target, X } from 'lucide-react';
+import { Trophy, Medal, Award, User, Calendar, Target, X, Trash2 } from 'lucide-react';
 
 interface LeaderboardProps {
   isOpen: boolean;
@@ -14,7 +14,8 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     leaderboard, 
     playerName, 
     setPlayerName,
-    getTopScores 
+    getTopScores,
+    cleanupDuplicates 
   } = useHighScore();
   
   const [editingName, setEditingName] = useState(false);
@@ -161,8 +162,17 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
           )}
         </div>
 
-        {/* Close Button */}
-        <div className="flex justify-center mt-6">
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center mt-6">
+          <button 
+            onClick={() => cleanupDuplicates()}
+            className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded text-sm font-bold transition-colors flex items-center gap-2"
+            title="Remove duplicate entries for same players"
+          >
+            <Trash2 size={16} />
+            CLEANUP DUPLICATES
+          </button>
+          
           <button
             onClick={onClose}
             className="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded font-mono transition-colors"

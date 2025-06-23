@@ -115,6 +115,30 @@ export const useHighScore = create<HighScoreState>()(
       
       getTopScores: (limit = 5) => {
         return get().leaderboard.slice(0, limit);
+      },
+
+      // Clean up duplicate entries (keep highest score for each player)
+      cleanupDuplicates: () => {
+        set((state) => {
+          const playerBest = new Map<string, LeaderboardEntry>();
+          
+          // Find the best score for each player (case-insensitive)
+          state.leaderboard.forEach(entry => {
+            const normalizedName = entry.name.toLowerCase();
+            const existing = playerBest.get(normalizedName);
+            
+            if (!existing || entry.score > existing.score) {
+              playerBest.set(normalizedName, entry);
+            }
+          });
+          
+          // Convert back to array and sort
+          const cleanedLeaderboard = Array.from(playerBest.values())
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+          
+          return { ...state, leaderboard: cleanedLeaderboard };
+        });
       }
     }),
     {

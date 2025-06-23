@@ -116,6 +116,8 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Implemented proper error handling and audio fallbacks
 - Fixed god mode cheat by ensuring real-time state retrieval from store instead of stale props
 - Cleaned up debug logging for production readiness
+- Fixed leaderboard duplicate entries - players now have single entry with their highest score
+- Added cleanup function to remove existing duplicates from leaderboard
 
 ## User Preferences
 
