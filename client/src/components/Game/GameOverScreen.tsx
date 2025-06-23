@@ -61,10 +61,10 @@ export default function GameOverScreen() {
         </button>
         
         <div className="encouragement">
-          {isNewHighScore ? (
+          {(isNewPersonalHigh || isNewAllTimeHigh) ? (
             "Incredible! You've set a new record!"
-          ) : score >= highScore * 0.8 ? (
-            "So close to the high score! Try again!"
+          ) : score >= personalHighScore * 0.8 ? (
+            "So close to your personal best! Try again!"
           ) : (
             "Keep practicing to improve your score!"
           )}
