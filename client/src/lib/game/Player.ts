@@ -10,7 +10,6 @@ export class Player {
   shieldActive: boolean;
   shieldPulse: number;
   invulnerabilityFrames: number;
-  invulnerabilityFrames: number;
 
   constructor(x: number, y: number) {
     this.position = { x, y };
@@ -112,36 +111,53 @@ export class Player {
       ctx.fill();
     }
 
-    // Draw player with enhanced cheat effects
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = playerColor;
-    ctx.strokeStyle = safeCheatEffects.rainbowMode ? 
-      `hsl(${(Date.now() * 0.01 + 180) % 360}, 100%, 80%)` : '#fff';
+    // Flash during invulnerability frames
+    const isFlashing = this.invulnerabilityFrames > 0 && Math.floor(this.invulnerabilityFrames / 5) % 2 === 0;
     
-    let lineWidth = 2;
-    if (safeCheatEffects.gigaPlayer) lineWidth = 6;
-    else if (safeCheatEffects.bigPlayer) lineWidth = 4;
-    else if (safeCheatEffects.tinyPlayer) lineWidth = 1;
-    else if (safeCheatEffects.microPlayer) lineWidth = 0.5;
-    
-    ctx.lineWidth = lineWidth;
-    
-    ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, renderSize / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+    // Draw player with enhanced cheat effects (skip if flashing and invisible)
+    if (!isFlashing) {
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = playerColor;
+      ctx.strokeStyle = safeCheatEffects.rainbowMode ? 
+        `hsl(${(Date.now() * 0.01 + 180) % 360}, 100%, 80%)` : '#fff';
+      
+      let lineWidth = 2;
+      if (safeCheatEffects.gigaPlayer) lineWidth = 6;
+      else if (safeCheatEffects.bigPlayer) lineWidth = 4;
+      else if (safeCheatEffects.tinyPlayer) lineWidth = 1;
+      else if (safeCheatEffects.microPlayer) lineWidth = 0.5;
+      
+      ctx.lineWidth = lineWidth;
+      
+      ctx.beginPath();
+      ctx.arc(this.position.x, this.position.y, renderSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
 
-    // Add enhanced glowing effect for cheat modes
-    let glowIntensity = 15;
-    if (safeCheatEffects.godMode) glowIntensity = 25;
-    else if (safeCheatEffects.rainbowMode) glowIntensity = 20;
-    else if (safeCheatEffects.gigaPlayer) glowIntensity = 30;
+      // Add enhanced glowing effect for cheat modes
+      let glowIntensity = 15;
+      if (safeCheatEffects.godMode) glowIntensity = 25;
+      else if (safeCheatEffects.rainbowMode) glowIntensity = 20;
+      else if (safeCheatEffects.gigaPlayer) glowIntensity = 30;
+      
+      ctx.shadowColor = playerColor;
+      ctx.shadowBlur = glowIntensity * sizeMultiplier;
+      ctx.beginPath();
+      ctx.arc(this.position.x, this.position.y, renderSize / 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
     
-    ctx.shadowColor = playerColor;
-    ctx.shadowBlur = glowIntensity * sizeMultiplier;
-    ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, renderSize / 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
+    // Draw invulnerability indicator (red flashing outline)
+    if (this.invulnerabilityFrames > 0 && !this.shieldActive) {
+      const alpha = 0.4 + Math.sin(this.invulnerabilityFrames * 0.5) * 0.3;
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = `rgba(255, 100, 100, ${alpha})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(this.position.x, this.position.y, renderSize / 2 + 4, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
   }
 }

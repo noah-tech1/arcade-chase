@@ -46,13 +46,9 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
   // Load leaderboard from database when component mounts
   React.useEffect(() => {
-    const loadData = async () => {
-      if (isOpen && loadLeaderboard) {
-        await loadLeaderboard();
-      }
-    };
-    
-    loadData();
+    if (isOpen && loadLeaderboard) {
+      loadLeaderboard();
+    }
   }, [isOpen, loadLeaderboard]);
 
   return (
