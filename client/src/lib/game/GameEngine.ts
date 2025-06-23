@@ -259,32 +259,32 @@ export class GameEngine {
       }
     }
     
-    // Check obstacle collisions (skip if god mode, no obstacles cheat, or shield is active)
-    const isInvulnerable = safeCheatEffects.godMode || safeCheatEffects.noObstacles || this.player.shieldActive;
-    
-    // Debug god mode shield
-    if (safeCheatEffects.godMode) {
-      console.log('God mode setting shield active:', this.player.shieldActive);
-    }
+    // Check obstacle collisions with invulnerability frames
+    const isInvulnerable = safeCheatEffects.godMode || safeCheatEffects.noObstacles || this.player.shieldActive || this.player.invulnerabilityFrames > 0;
     
     if (!isInvulnerable) {
-      for (const obstacle of this.obstacles) {
+      for (let i = this.obstacles.length - 1; i >= 0; i--) {
+        const obstacle = this.obstacles[i];
         if (checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
           hit = true;
           
-
+          // Add invulnerability frames to prevent multiple hits
+          this.player.invulnerabilityFrames = 60; // 1 second at 60fps
+          
+          // Remove the obstacle that was hit
+          this.obstacles.splice(i, 1);
           
           // Start screen shake effect
-          this.screenShake.start(8, 20);
+          this.screenShake.start(8, 300);
           
           // Create hit particle effect
           this.particles.createExplosion(
-            this.player.position.x,
-            this.player.position.y,
+            obstacle.position.x,
+            obstacle.position.y,
             GAME_CONFIG.COLORS.PRIMARY,
             12
           );
-          break;
+          break; // Only process one collision per frame
         }
       }
     }

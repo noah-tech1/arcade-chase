@@ -10,6 +10,7 @@ export class Player {
   shieldActive: boolean;
   shieldPulse: number;
   invulnerabilityFrames: number;
+  invulnerabilityFrames: number;
 
   constructor(x: number, y: number) {
     this.position = { x, y };
@@ -20,6 +21,7 @@ export class Player {
     this.maxTrailLength = 15;
     this.shieldActive = false;
     this.shieldPulse = 0;
+    this.invulnerabilityFrames = 0;
   }
 
   update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, canvasWidth: number, canvasHeight: number, speedBoost: number = 1, cheatEffects?: any) {
@@ -48,6 +50,11 @@ export class Player {
     // Keep player within canvas bounds
     this.position.x = clamp(this.position.x, this.size / 2, canvasWidth - this.size / 2);
     this.position.y = clamp(this.position.y, this.size / 2, canvasHeight - this.size / 2);
+    
+    // Update invulnerability frames
+    if (this.invulnerabilityFrames > 0) {
+      this.invulnerabilityFrames--;
+    }
 
     // Update trail
     this.trail.push({ x: this.position.x, y: this.position.y });
