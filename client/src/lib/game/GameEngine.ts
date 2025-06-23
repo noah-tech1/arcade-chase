@@ -130,7 +130,8 @@ export class GameEngine {
     // Update player shield status and speed boost
     this.player.shieldActive = activePowerUps.shield > 0 || safeCheatEffects.godMode;
     let speedBoost = activePowerUps.speed > 0 ? 1.8 : 1;
-    if (safeCheatEffects.superSpeed) speedBoost *= 2;
+    if (safeCheatEffects.maxSpeed) speedBoost *= 2.5;
+    else if (safeCheatEffects.superSpeed) speedBoost *= 2;
     
     // Apply player size effects
     let baseSize = 15; // Default size
@@ -154,12 +155,24 @@ export class GameEngine {
       collectible.update();
       
       // Magnet effect - attract collectibles to player
-      if (magnetActive && distance(this.player.position, collectible.position) < 100) {
+      if (magnetActive && distance(this.player.position, collectible.position) < 120) {
         const dx = this.player.position.x - collectible.position.x;
         const dy = this.player.position.y - collectible.position.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist > 0) {
-          const pullStrength = 3;
+          const pullStrength = safeCheatEffects.autoCollect ? 5 : 3;
+          collectible.position.x += (dx / dist) * pullStrength;
+          collectible.position.y += (dy / dist) * pullStrength;
+        }
+      }
+      
+      // Auto-collect cheat - stronger attraction
+      if (safeCheatEffects.autoCollect && distance(this.player.position, collectible.position) < 150) {
+        const dx = this.player.position.x - collectible.position.x;
+        const dy = this.player.position.y - collectible.position.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 0) {
+          const pullStrength = 4;
           collectible.position.x += (dx / dist) * pullStrength;
           collectible.position.y += (dy / dist) * pullStrength;
         }
@@ -195,9 +208,15 @@ export class GameEngine {
       if (checkCollision(this.player.position, collectible.position, this.player.size, collectible.size)) {
         let points = collectible.value;
         
-        // Apply double score cheat effect
-        if (safeCheatEffects.doubleScore) {
+        // Apply score cheat effects
+        if (safeCheatEffects.tripleScore) {
+          points *= 3;
+        } else if (safeCheatEffects.doubleScore) {
           points *= 2;
+        }
+        
+        if (safeCheatEffects.scoreBoost) {
+          points = Math.floor(points * 1.5);
         }
         
         scoreGained += points;

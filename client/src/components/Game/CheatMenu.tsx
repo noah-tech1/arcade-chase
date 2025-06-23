@@ -64,6 +64,8 @@ export default function CheatMenu({ isOpen, onClose }: CheatMenuProps) {
   ];
 
   const handleCheatToggle = (cheatKey: string) => {
+    const { enableCheatMode } = useGame.getState();
+    
     // Handle mutually exclusive cheats
     if (cheatKey === 'tripleScore' && activeCheatEffects.doubleScore) {
       toggleCheatEffect('doubleScore');
@@ -81,6 +83,9 @@ export default function CheatMenu({ isOpen, onClose }: CheatMenuProps) {
       });
     }
 
+    // Enable cheat mode when any cheat is activated
+    enableCheatMode();
+    
     toggleCheatEffect(cheatKey as keyof typeof activeCheatEffects);
   };
 

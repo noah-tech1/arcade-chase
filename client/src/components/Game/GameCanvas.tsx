@@ -74,12 +74,24 @@ export default function GameCanvas() {
     else if (safeCheatEffects.maxSpeed) effectiveGameSpeed *= 3;
     else if (safeCheatEffects.superSpeed) effectiveGameSpeed *= 2;
 
+    // Enable cheat mode if any cheat effects are active
+    const hasActiveCheat = Object.values(safeCheatEffects).some(Boolean);
+    if (hasActiveCheat) {
+      cheatModeRef.current = true;
+    }
+
     const cheatPowerUps = {
       ...safePowerUps,
       magnet: (cheatModeRef.current || safeCheatEffects.autoCollect) ? 999999 : safePowerUps.magnet,
       shield: safeCheatEffects.allPowerUps ? 999999 : safePowerUps.shield,
       speed: safeCheatEffects.allPowerUps ? 999999 : safePowerUps.speed
     };
+
+    // Debug log for cheat effects (remove in production)
+    if (hasActiveCheat) {
+      console.log('Active cheats:', Object.entries(safeCheatEffects).filter(([_, active]) => active).map(([name]) => name));
+      console.log('Cheat power-ups:', cheatPowerUps);
+    }
 
     // Update game state with cheat effects
     const result = gameEngineRef.current.update(
@@ -155,6 +167,11 @@ export default function GameCanvas() {
         // Check passcode (you can change these to any passcode you want)
         if (passcode === '1234' || passcode === 'CHEAT' || passcode === 'ADMIN') {
           setCheatMenuOpen(true);
+        } else if (passcode === '7869') {
+          // Classic cheat - auto-collect
+          cheatModeRef.current = true;
+          activateCheatEffect('autoCollect');
+          alert('✨ Classic cheat activated! Auto-collect enabled!');
         } else if (passcode !== null) {
           alert('❌ Invalid passcode!');
         }
