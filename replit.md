@@ -122,6 +122,10 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Created API endpoints for leaderboard operations (GET, POST, cleanup)
 - Added database service layer with Drizzle ORM for type-safe database operations
 - Enhanced leaderboard with fallback to localStorage for offline functionality
+- Created React Native mobile app version using Expo for iOS/Android deployment
+- Implemented touch gesture controls for mobile gameplay
+- Added mobile-optimized UI and performance optimizations
+- Configured app store deployment pipeline with EAS Build
 
 ## User Preferences
 
