@@ -97,7 +97,15 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 
 ## Changelog
 - June 19, 2025. Initial setup
+- June 23, 2025. Enhanced cheat system with GUI menu and passcode protection
+
+## Recent Changes
+- Added comprehensive cheat menu with passcode protection (7456660641)
+- Enhanced cheat effects including extra lives, size variations, and scoring multipliers
+- Fixed cheat system implementation to ensure all effects work properly
+- Integrated auto-collect magnet functionality with visual feedback
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Cheat system: GUI menu preferred over text commands, protected with custom passcode.

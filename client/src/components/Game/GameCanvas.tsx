@@ -164,14 +164,9 @@ export default function GameCanvas() {
         cheatPromptRef.current = true;
         const passcode = prompt('🔒 Enter passcode:');
         
-        // Check passcode (you can change these to any passcode you want)
-        if (passcode === '1234' || passcode === 'CHEAT' || passcode === 'ADMIN') {
+        // Check passcode
+        if (passcode === '7456660641') {
           setCheatMenuOpen(true);
-        } else if (passcode === '7869') {
-          // Classic cheat - auto-collect
-          cheatModeRef.current = true;
-          activateCheatEffect('autoCollect');
-          alert('✨ Classic cheat activated! Auto-collect enabled!');
         } else if (passcode !== null) {
           alert('❌ Invalid passcode!');
         }
