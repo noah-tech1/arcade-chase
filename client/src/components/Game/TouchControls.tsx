@@ -427,13 +427,13 @@ export default function TouchControls() {
         </button>
       </div>
 
-      {/* Joystick mode toggle button */}
-      <div className="fixed bottom-4 left-4 z-50">
+      {/* Joystick mode toggle button - moved to right side */}
+      <div className="fixed bottom-20 right-4 z-50">
         <button
           onClick={toggleJoystickMode}
           className="px-3 py-1 bg-purple-500/80 text-white rounded text-sm font-bold shadow-lg"
         >
-          Joystick Mode
+          Joystick
         </button>
       </div>
     </div>

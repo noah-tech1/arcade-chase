@@ -1,13 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useHighScore } from "../../lib/stores/useHighScore";
-import { Play, Trophy, Volume2, List } from "lucide-react";
+import { Play, Trophy, Volume2, List, QrCode, Download } from "lucide-react";
 import Leaderboard from "./Leaderboard";
+import QRCode from 'qrcode';
 
 export default function StartScreen() {
   const { start, resetGame, joystickMode, toggleJoystickMode } = useGame();
   const { personalHighScore, allTimeHighScore } = useHighScore();
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [qrCodeOpen, setQrCodeOpen] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+
+  useEffect(() => {
+    // Generate QR code for the current web app URL
+    const generateQRCode = async () => {
+      try {
+        const currentUrl = window.location.href;
+        const qrDataUrl = await QRCode.toDataURL(currentUrl, {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+          }
+        });
+        setQrCodeDataUrl(qrDataUrl);
+      } catch (error) {
+        console.error('Error generating QR code:', error);
+      }
+    };
+
+    if (qrCodeOpen) {
+      generateQRCode();
+    }
+  }, [qrCodeOpen]);
 
   const handleStart = () => {
     resetGame();
@@ -47,12 +74,22 @@ export default function StartScreen() {
           LEADERBOARD
         </button>
         
-        <button
-          onClick={toggleJoystickMode}
-          className={`joystick-mode-button ${joystickMode ? 'active' : ''}`}
-        >
-          {joystickMode ? 'JOYSTICK: ON' : 'JOYSTICK: OFF'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={toggleJoystickMode}
+            className={`joystick-mode-button ${joystickMode ? 'active' : ''}`}
+          >
+            {joystickMode ? 'JOYSTICK: ON' : 'JOYSTICK: OFF'}
+          </button>
+          
+          <button 
+            className="mobile-app-button"
+            onClick={() => setQrCodeOpen(true)}
+          >
+            <Download size={16} />
+            MOBILE APP
+          </button>
+        </div>
         
         <div className="instructions">
           <h3>How to Play:</h3>
