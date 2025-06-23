@@ -8,11 +8,11 @@ Your web game has been converted to a React Native mobile app using Expo, allowi
 2. Create an Expo account at https://expo.dev
 3. Install Expo Go app on your phone for testing
 
-## Development Setup
+## Quick Start (Simplified Version)
 
-### 1. Navigate to Mobile App Directory
+### 1. Navigate to Simple Mobile App Directory
 ```bash
-cd mobile-app
+cd mobile-app-simple
 ```
 
 ### 2. Install Dependencies
@@ -28,6 +28,13 @@ npm start
 ### 4. Test on Device
 - Scan the QR code with Expo Go app (Android) or Camera app (iOS)
 - The game will load on your phone
+
+## Game Features in Mobile Version
+- Touch controls: Drag to move your character
+- Same cheat code system (passcode: 7456660641)
+- Score tracking and lives system
+- Collectibles (blue circles) and obstacles (red diamonds)
+- God mode visualization (player turns gold when active)
 
 ## Building for Production
 

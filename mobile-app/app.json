@@ -11,25 +11,20 @@
       "resizeMode": "contain",
       "backgroundColor": "#2C3E50"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.arcadecollector.game"
+      "bundleIdentifier": "com.yourname.arcadecollector"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2C3E50"
       },
-      "package": "com.arcadecollector.game"
+      "package": "com.yourname.arcadecollector"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-screen-orientation"
-    ]
+    }
   }
 }
