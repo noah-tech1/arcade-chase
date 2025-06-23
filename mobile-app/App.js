@@ -25,7 +25,7 @@ export default function App() {
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
   const [highScore, setHighScore] = useState(0);
-  const [player, setPlayer] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT - 100 });
+  const [player, setPlayer] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT - 100, invulnerable: false });
   const [collectibles, setCollectibles] = useState([]);
   const [obstacles, setObstacles] = useState([]);
   const [cheatMode, setCheatMode] = useState(false);
@@ -90,7 +90,7 @@ export default function App() {
     setGameSpeed(1);
     setCombo(0);
     setActivePowerUp(null);
-    setPlayer({ x: GAME_WIDTH / 2, y: GAME_HEIGHT - 100 });
+    setPlayer({ x: GAME_WIDTH / 2, y: GAME_HEIGHT - 100, invulnerable: false });
     setCollectibles([]);
     setObstacles([]);
     setPowerUps([]);
@@ -255,59 +255,92 @@ export default function App() {
     const playerRadius = cheatMode ? 40 : 20;
     
     // Check collectible collisions
-    collectibles.forEach(collectible => {
-      const distance = Math.sqrt(
-        Math.pow(player.x - collectible.x, 2) + 
-        Math.pow(player.y - collectible.y, 2)
-      );
+    setCollectibles(prev => {
+      const remaining = [];
+      let pointsGained = 0;
+      let comboIncrease = 0;
       
-      if (distance < (collectible.size || 15) + playerRadius) {
-        const points = (collectible.value || 10) * (activePowerUp === 'double' ? 2 : 1);
-        setScore(prev => prev + points);
-        setCombo(prev => prev + 1);
-        setCollectibles(prev => prev.filter(item => item.id !== collectible.id));
+      prev.forEach(collectible => {
+        const distance = Math.sqrt(
+          Math.pow(player.x - collectible.x, 2) + 
+          Math.pow(player.y - collectible.y, 2)
+        );
         
-        // Haptic feedback
-        Vibration.vibrate(50);
+        if (distance < (collectible.size || 15) + playerRadius) {
+          const points = (collectible.value || 10) * (activePowerUp === 'double' ? 2 : 1);
+          pointsGained += points;
+          comboIncrease++;
+          Vibration.vibrate(50);
+        } else {
+          remaining.push(collectible);
+        }
+      });
+      
+      if (pointsGained > 0) {
+        setScore(prev => prev + pointsGained);
+        setCombo(prev => prev + comboIncrease);
       }
+      
+      return remaining;
     });
     
     // Check power-up collisions
-    powerUps.forEach(powerUp => {
-      const distance = Math.sqrt(
-        Math.pow(player.x - powerUp.x, 2) + 
-        Math.pow(player.y - powerUp.y, 2)
-      );
+    setPowerUps(prev => {
+      const remaining = [];
       
-      if (distance < 25 + playerRadius) {
-        activatePowerUp(powerUp.type);
-        setPowerUps(prev => prev.filter(item => item.id !== powerUp.id));
-        Vibration.vibrate([100, 50, 100]);
-      }
-    });
-    
-    // Check obstacle collisions (skip if cheat mode or shield)
-    if (!cheatMode && activePowerUp !== 'shield') {
-      obstacles.forEach(obstacle => {
+      prev.forEach(powerUp => {
         const distance = Math.sqrt(
-          Math.pow(player.x - obstacle.x, 2) + 
-          Math.pow(player.y - obstacle.y, 2)
+          Math.pow(player.x - powerUp.x, 2) + 
+          Math.pow(player.y - powerUp.y, 2)
         );
         
         if (distance < 25 + playerRadius) {
-          setLives(prev => {
-            const newLives = prev - 1;
-            if (newLives <= 0) {
-              endGame();
-            }
-            return newLives;
-          });
-          setCombo(0); // Reset combo on hit
-          setObstacles(prev => prev.filter(item => item.id !== obstacle.id));
-          
-          // Strong haptic feedback for collision
-          Vibration.vibrate([200, 100, 200]);
+          activatePowerUp(powerUp.type);
+          Vibration.vibrate([100, 50, 100]);
+        } else {
+          remaining.push(powerUp);
         }
+      });
+      
+      return remaining;
+    });
+    
+    // Check obstacle collisions with invulnerability frames
+    if (!cheatMode && activePowerUp !== 'shield' && !player.invulnerable) {
+      setObstacles(prev => {
+        const remaining = [];
+        let hitDetected = false;
+        
+        prev.forEach(obstacle => {
+          const distance = Math.sqrt(
+            Math.pow(player.x - obstacle.x, 2) + 
+            Math.pow(player.y - obstacle.y, 2)
+          );
+          
+          if (distance < 25 + playerRadius && !hitDetected) {
+            hitDetected = true;
+            setLives(prev => {
+              const newLives = prev - 1;
+              if (newLives <= 0) {
+                endGame();
+              }
+              return newLives;
+            });
+            setCombo(0); // Reset combo on hit
+            
+            // Add invulnerability frames
+            setPlayer(prev => ({ ...prev, invulnerable: true }));
+            setTimeout(() => {
+              setPlayer(prev => ({ ...prev, invulnerable: false }));
+            }, 1000); // 1 second of invulnerability
+            
+            Vibration.vibrate([200, 100, 200]);
+          } else {
+            remaining.push(obstacle);
+          }
+        });
+        
+        return remaining;
       });
     }
   };
@@ -464,6 +497,7 @@ export default function App() {
                             activePowerUp === 'magnet' ? '#FF00FF' :
                             activePowerUp === 'double' ? '#FF8800' : '#00FFFF',
               shadowOpacity: cheatMode ? 0.8 : 0.5,
+              opacity: player.invulnerable ? 0.5 : 1.0,
             }
           ]}
         >

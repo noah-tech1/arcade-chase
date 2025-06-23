@@ -9,6 +9,7 @@ export class Player {
   maxTrailLength: number;
   shieldActive: boolean;
   shieldPulse: number;
+  invulnerabilityFrames: number;
 
   constructor(x: number, y: number) {
     this.position = { x, y };
