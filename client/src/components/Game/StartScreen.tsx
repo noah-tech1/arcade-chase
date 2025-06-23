@@ -12,11 +12,14 @@ export default function StartScreen() {
   const [qrCodeOpen, setQrCodeOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
 
+  console.log('StartScreen render, qrCodeOpen:', qrCodeOpen);
+
   useEffect(() => {
     // Generate QR code for the current web app URL
     const generateQRCode = async () => {
       try {
         const currentUrl = window.location.href;
+        console.log('Generating QR code for:', currentUrl);
         const qrDataUrl = await QRCode.toDataURL(currentUrl, {
           width: 200,
           margin: 2,
@@ -25,6 +28,7 @@ export default function StartScreen() {
             light: '#FFFFFF'
           }
         });
+        console.log('QR code generated successfully');
         setQrCodeDataUrl(qrDataUrl);
       } catch (error) {
         console.error('Error generating QR code:', error);
@@ -32,6 +36,7 @@ export default function StartScreen() {
     };
 
     if (qrCodeOpen) {
+      console.log('QR code modal should open, generating QR code...');
       generateQRCode();
     }
   }, [qrCodeOpen]);
@@ -84,7 +89,10 @@ export default function StartScreen() {
           
           <button 
             className="mobile-app-button"
-            onClick={() => setQrCodeOpen(true)}
+            onClick={() => {
+              console.log('Mobile app button clicked');
+              setQrCodeOpen(true);
+            }}
           >
             <Download size={16} />
             MOBILE APP
