@@ -68,6 +68,46 @@ export default function TouchControls() {
     });
   };
 
+  // Tablet mode overlay
+  if (tabletMode) {
+    return (
+      <>
+        {/* Tablet mode touch zones */}
+        <div 
+          className="fixed inset-0 z-40 pointer-events-auto"
+          onTouchStart={handleTabletTouch}
+          onTouchEnd={handleTabletTouchEnd}
+        >
+          {/* Visual indicators for touch zones */}
+          <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 opacity-20">
+            {/* Top row */}
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-2xl">↖</div>
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-3xl">↑</div>
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-2xl">↗</div>
+            
+            {/* Middle row */}
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-3xl">←</div>
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-sm">TAP</div>
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-3xl">→</div>
+            
+            {/* Bottom row */}
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-2xl">↙</div>
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-3xl">↓</div>
+            <div className="border border-cyan-300 flex items-center justify-center text-cyan-300 text-2xl">↘</div>
+          </div>
+        </div>
+
+        {/* Tablet mode toggle button */}
+        <button
+          onClick={toggleTabletMode}
+          className="fixed top-4 right-4 z-50 px-3 py-1 bg-purple-500/80 text-white rounded text-sm font-bold shadow-lg pointer-events-auto"
+        >
+          Exit Tablet Mode
+        </button>
+      </>
+    );
+  }
+
   // Only show when game is playing
   if (phase !== "playing") return null;
 
@@ -184,6 +224,16 @@ export default function TouchControls() {
           style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
         >
           <ChevronRight size={28} />
+        </button>
+      </div>
+
+      {/* Tablet mode toggle button */}
+      <div className="fixed bottom-4 left-4 z-50">
+        <button
+          onClick={toggleTabletMode}
+          className="px-3 py-1 bg-purple-500/80 text-white rounded text-sm font-bold shadow-lg"
+        >
+          Tablet Mode
         </button>
       </div>
     </div>

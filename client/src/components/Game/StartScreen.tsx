@@ -5,7 +5,7 @@ import { Play, Trophy, Volume2, List } from "lucide-react";
 import Leaderboard from "./Leaderboard";
 
 export default function StartScreen() {
-  const { start, resetGame } = useGame();
+  const { start, resetGame, tabletMode, toggleTabletMode } = useGame();
   const { personalHighScore, allTimeHighScore } = useHighScore();
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
 
@@ -45,6 +45,13 @@ export default function StartScreen() {
         >
           <List size={16} />
           LEADERBOARD
+        </button>
+        
+        <button
+          onClick={toggleTabletMode}
+          className={`tablet-mode-button ${tabletMode ? 'active' : ''}`}
+        >
+          {tabletMode ? 'TABLET MODE: ON' : 'TABLET MODE: OFF'}
         </button>
         
         <div className="instructions">

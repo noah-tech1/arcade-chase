@@ -34,6 +34,8 @@ interface GameState {
     scoreBoost: boolean;
     timeFreeze: boolean;
   };
+  
+  tabletMode: boolean;
 
   // Power-ups
   activePowerUps: {
@@ -69,6 +71,7 @@ interface GameState {
   deactivateCheatEffect: (effect: keyof GameState['activeCheatEffects']) => void;
   toggleCheatEffect: (effect: keyof GameState['activeCheatEffects']) => void;
   clearAllCheats: () => void;
+  toggleTabletMode: () => void;
 }
 
 export const useGame = create<GameState>()(
@@ -81,6 +84,7 @@ export const useGame = create<GameState>()(
     combo: 0,
     comboTimer: 0,
     cheatMode: false,
+    tabletMode: false,
     activeCheatEffects: {
       godMode: false,
       slowMotion: false,
