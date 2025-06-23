@@ -49,8 +49,8 @@ export default function GameOverScreen() {
           <div className="stat">
             <Trophy className="stat-icon" />
             <div className="stat-info">
-              <div className="stat-label">High Score</div>
-              <div className="stat-value">{highScore.toLocaleString()}</div>
+              <div className="stat-label">Personal Best</div>
+              <div className="stat-value">{personalHighScore.toLocaleString()}</div>
             </div>
           </div>
         </div>

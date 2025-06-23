@@ -104,6 +104,9 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Enhanced cheat effects including extra lives, size variations, and scoring multipliers
 - Fixed cheat system implementation to ensure all effects work properly
 - Integrated auto-collect magnet functionality with visual feedback
+- Implemented personal high score system saved in cookies/localStorage
+- Added all-time high score tracking and leaderboard with top 10 scores
+- Created player name editing functionality and enhanced game over notifications
 
 ## User Preferences
 
