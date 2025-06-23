@@ -34,7 +34,6 @@ export const useAudio = create<AudioState>((set, get) => ({
     // Just update the muted state
     set({ isMuted: newMutedState });
 
-    // Log the change
     // Sound state toggled
   },
 
