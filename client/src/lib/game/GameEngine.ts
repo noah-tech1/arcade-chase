@@ -254,8 +254,10 @@ export class GameEngine {
       }
     }
     
-    // Check obstacle collisions (skip if god mode or no obstacles cheat is active)
-    if (!safeCheatEffects.godMode && !safeCheatEffects.noObstacles) {
+    // Check obstacle collisions (skip if god mode, no obstacles cheat, or shield is active)
+    const isInvulnerable = safeCheatEffects.godMode || safeCheatEffects.noObstacles || this.player.shieldActive;
+    
+    if (!isInvulnerable) {
       for (const obstacle of this.obstacles) {
         if (checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
           hit = true;

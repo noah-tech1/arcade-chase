@@ -115,7 +115,10 @@ export default function GameCanvas() {
       }
     }
 
-    if (result.hit && !safeCheatEffects.godMode && !safeCheatEffects.infiniteLives) {
+    // Only take damage if not protected by any invincibility
+    const isProtected = safeCheatEffects.godMode || safeCheatEffects.infiniteLives || cheatPowerUps.shield > 0;
+    
+    if (result.hit && !isProtected) {
       loseLife();
       try {
         playHit();
