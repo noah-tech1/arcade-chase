@@ -88,11 +88,7 @@ export default function GameCanvas() {
       speed: (safeCheatEffects.allPowerUps || safeCheatEffects.superSpeed || safeCheatEffects.maxSpeed) ? 999999 : safePowerUps.speed
     };
 
-    // Debug log for cheat effects (remove in production)
-    if (hasActiveCheat) {
-      console.log('Active cheats:', Object.entries(safeCheatEffects).filter(([_, active]) => active).map(([name]) => name));
-      console.log('Cheat power-ups:', cheatPowerUps);
-    }
+    // Production-ready: removed debug logs
 
     // Update game state with cheat effects
     const result = gameEngineRef.current.update(
@@ -112,7 +108,7 @@ export default function GameCanvas() {
         try {
           playSuccess();
         } catch (e) {
-          console.log('Success sound skipped (muted)');
+          // Audio disabled or unavailable
         }
       }
     }
@@ -125,7 +121,7 @@ export default function GameCanvas() {
       try {
         playHit();
       } catch (e) {
-        console.log('Hit sound skipped (muted)');
+        // Audio disabled or unavailable
       }
     }
 
@@ -134,7 +130,7 @@ export default function GameCanvas() {
       try {
         playSuccess();
       } catch (e) {
-        console.log('Success sound skipped (muted)');
+        // Audio disabled or unavailable
       }
     }
     
