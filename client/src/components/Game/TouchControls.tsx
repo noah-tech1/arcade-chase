@@ -3,7 +3,7 @@ import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { useGame } from "../../lib/stores/useGame";
 
 export default function TouchControls() {
-  const { phase } = useGame();
+  const { phase, tabletMode, toggleTabletMode } = useGame();
 
   const handleTouch = (direction: string, pressed: boolean) => {
     // Create and dispatch keyboard events to simulate key presses
@@ -24,6 +24,48 @@ export default function TouchControls() {
     
     // Dispatch to window to ensure the GameCanvas keyboard handlers catch it
     window.dispatchEvent(event);
+  };
+
+  const handleTabletTouch = (event: React.TouchEvent) => {
+    if (!tabletMode) return;
+    
+    const touch = event.touches[0];
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Determine direction based on touch position
+    const deltaX = x - centerX;
+    const deltaY = y - centerY;
+    
+    // Prioritize the larger delta to avoid diagonal movement
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Horizontal movement
+      if (deltaX > 50) {
+        handleTouch('right', true);
+      } else if (deltaX < -50) {
+        handleTouch('left', true);
+      }
+    } else {
+      // Vertical movement
+      if (deltaY > 50) {
+        handleTouch('down', true);
+      } else if (deltaY < -50) {
+        handleTouch('up', true);
+      }
+    }
+  };
+
+  const handleTabletTouchEnd = () => {
+    if (!tabletMode) return;
+    
+    // Stop all movement when touch ends
+    ['left', 'right', 'up', 'down'].forEach(direction => {
+      handleTouch(direction, false);
+    });
   };
 
   // Only show when game is playing
