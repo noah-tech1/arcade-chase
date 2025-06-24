@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useHighScore } from "../../lib/stores/useHighScore";
-import { Play, Trophy, Volume2, List, QrCode, Download } from "lucide-react";
+import { Play, Trophy, Volume2, VolumeX, List, QrCode, Download, Settings, Smartphone } from "lucide-react";
 import Leaderboard from "./Leaderboard";
 import QRCode from 'qrcode';
 
 export default function StartScreen() {
   const { start, resetGame, joystickMode, toggleJoystickMode } = useGame();
   const { personalHighScore, allTimeHighScore, playerName, hasSetName, setPlayerName } = useHighScore();
+  const { isMuted, toggleMute, volume, setVolume, initializeAudio } = useAudio();
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [qrCodeOpen, setQrCodeOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   console.log('StartScreen render, qrCodeOpen:', qrCodeOpen);
 
@@ -44,6 +46,9 @@ export default function StartScreen() {
   }, [qrCodeOpen]);
 
   const handleStart = () => {
+    // Initialize audio on first interaction
+    initializeAudio();
+    
     // If user hasn't set a name yet, prompt for it before starting
     if (!hasSetName || !playerName.trim()) {
       setShowNamePrompt(true);
@@ -94,6 +99,14 @@ export default function StartScreen() {
           <List size={16} />
           LEADERBOARD
         </button>
+
+        <button 
+          className="settings-button"
+          onClick={() => setShowSettings(true)}
+        >
+          <Settings size={16} />
+          SETTINGS
+        </button>
         
         <div className="flex gap-3">
           <button
@@ -126,8 +139,14 @@ export default function StartScreen() {
         </div>
         
         <div className="audio-notice">
-          <Volume2 size={16} />
-          <span>Sound effects available - click anywhere to enable audio</span>
+          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          <span>Audio: {isMuted ? 'Muted' : 'Enabled'}</span>
+          <button 
+            onClick={toggleMute}
+            className="ml-2 px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs transition-colors"
+          >
+            {isMuted ? 'Unmute' : 'Mute'}
+          </button>
         </div>
       </div>
       
@@ -228,6 +247,98 @@ export default function StartScreen() {
                 Start Game
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="bg-gray-900 p-8 rounded-xl border border-cyan-400 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Settings className="text-cyan-400" size={24} />
+                Settings
+              </h2>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Audio Settings */}
+              <div>
+                <h3 className="text-lg font-bold text-white mb-3">Audio</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Sound Effects</span>
+                    <button
+                      onClick={toggleMute}
+                      className={`px-4 py-2 rounded-lg transition-colors ${
+                        isMuted 
+                          ? 'bg-red-600 hover:bg-red-500 text-white' 
+                          : 'bg-green-600 hover:bg-green-500 text-white'
+                      }`}
+                    >
+                      {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                      <span className="ml-2">{isMuted ? 'Muted' : 'Enabled'}</span>
+                    </button>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-gray-300 mb-2">Volume: {Math.round(volume * 100)}%</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={volume}
+                      onChange={(e) => setVolume(parseFloat(e.target.value))}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Controls Settings */}
+              <div>
+                <h3 className="text-lg font-bold text-white mb-3">Controls</h3>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Mobile Joystick</span>
+                  <button
+                    onClick={toggleJoystickMode}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      joystickMode 
+                        ? 'bg-purple-600 hover:bg-purple-500 text-white' 
+                        : 'bg-gray-600 hover:bg-gray-500 text-white'
+                    }`}
+                  >
+                    <Smartphone size={16} />
+                    <span className="ml-2">{joystickMode ? 'Enabled' : 'Disabled'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Performance Settings */}
+              <div>
+                <h3 className="text-lg font-bold text-white mb-3">Performance</h3>
+                <div className="text-sm text-gray-400 space-y-2">
+                  <p>• Enable hardware acceleration in your browser for better performance</p>
+                  <p>• Close other tabs to free up memory</p>
+                  <p>• For mobile: Use landscape mode for best experience</p>
+                </div>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => setShowSettings(false)}
+              className="mt-6 w-full px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-bold"
+            >
+              Apply Settings
+            </button>
           </div>
         </div>
       )}

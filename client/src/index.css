@@ -728,6 +728,33 @@ canvas, button, .game-ui {
   @apply px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-500 hover:to-emerald-500 transform hover:scale-105 transition-all duration-200 flex items-center gap-2;
 }
 
+/* Settings Button */
+.settings-button {
+  @apply px-6 py-2 bg-gradient-to-r from-gray-600 to-slate-600 text-white font-bold rounded-lg shadow-lg hover:from-gray-500 hover:to-slate-500 transform hover:scale-105 transition-all duration-200 flex items-center gap-2;
+}
+
+/* Custom Slider */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #06b6d4, #3b82f6);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #06b6d4, #3b82f6);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
 /* Joystick Mode Button */
 .joystick-mode-button {
   @apply px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:from-purple-500 hover:to-pink-500 transform hover:scale-105 transition-all duration-200;

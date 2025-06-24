@@ -4,17 +4,35 @@ interface AudioState {
   backgroundMusic: HTMLAudioElement | null;
   hitSound: HTMLAudioElement | null;
   successSound: HTMLAudioElement | null;
+  powerUpSound: HTMLAudioElement | null;
+  collectSound: HTMLAudioElement | null;
+  gameOverSound: HTMLAudioElement | null;
+  levelUpSound: HTMLAudioElement | null;
+  highScoreSound: HTMLAudioElement | null;
   isMuted: boolean;
+  volume: number;
 
   // Setter functions
   setBackgroundMusic: (music: HTMLAudioElement) => void;
   setHitSound: (sound: HTMLAudioElement) => void;
   setSuccessSound: (sound: HTMLAudioElement) => void;
+  setPowerUpSound: (sound: HTMLAudioElement) => void;
+  setCollectSound: (sound: HTMLAudioElement) => void;
+  setGameOverSound: (sound: HTMLAudioElement) => void;
+  setLevelUpSound: (sound: HTMLAudioElement) => void;
+  setHighScoreSound: (sound: HTMLAudioElement) => void;
 
   // Control functions
   toggleMute: () => void;
+  setVolume: (volume: number) => void;
   playHit: () => void;
   playSuccess: () => void;
+  playPowerUp: () => void;
+  playCollect: () => void;
+  playGameOver: () => void;
+  playLevelUp: () => void;
+  playHighScore: () => void;
+  initializeAudio: () => void;
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
