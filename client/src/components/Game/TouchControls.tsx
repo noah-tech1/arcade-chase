@@ -115,7 +115,7 @@ export default function TouchControls() {
       const xIntensity = Math.abs(x) / maxDistance;
       const yIntensity = Math.abs(y) / maxDistance;
       
-      // Enable diagonal movement by checking both axes independently
+      // Enable diagonal movement by checking both axes independently with improved sensitivity
       if (xIntensity > threshold) {
         if (x > 0) {
           newMovement.right = true;
@@ -150,11 +150,13 @@ export default function TouchControls() {
       
       setCurrentMovement({ direction: primaryDirection, intensity });
 
-      // Haptic feedback based on intensity
-      if (intensity > 0.8) {
+      // Enhanced haptic feedback with more responsive thresholds
+      if (intensity > 0.7) {
         triggerHapticFeedback('heavy');
-      } else if (intensity > 0.5) {
+      } else if (intensity > 0.4) {
         triggerHapticFeedback('medium');
+      } else if (intensity > threshold) {
+        triggerHapticFeedback('light');
       }
     } else {
       setCurrentMovement({ direction: '', intensity: 0 });
@@ -272,13 +274,17 @@ export default function TouchControls() {
             }}
           />
 
-          {/* Direction indicators - now supports diagonals */}
+          {/* Enhanced direction indicators with better visibility */}
           {currentMovement.direction && (
             <div 
-              className="absolute text-cyan-300 font-bold pointer-events-none"
+              className="absolute text-cyan-300 font-bold pointer-events-none drop-shadow-lg"
               style={{
-                fontSize: joystickSize * 0.12,
-                opacity: currentMovement.intensity
+                fontSize: joystickSize * 0.14,
+                opacity: Math.max(0.6, currentMovement.intensity),
+                textShadow: '0 0 8px rgba(6, 182, 212, 0.8)',
+                transform: currentMovement.intensity > 0.5 
+                  ? `scale(${1 + currentMovement.intensity * 0.2})` 
+                  : 'scale(1)',
               }}
             >
               {currentMovement.direction === 'up' && '↑'}
