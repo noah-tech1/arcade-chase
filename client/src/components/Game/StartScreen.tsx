@@ -7,10 +7,11 @@ import QRCode from 'qrcode';
 
 export default function StartScreen() {
   const { start, resetGame, joystickMode, toggleJoystickMode } = useGame();
-  const { personalHighScore, allTimeHighScore } = useHighScore();
+  const { personalHighScore, allTimeHighScore, playerName, hasSetName, setPlayerName } = useHighScore();
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [qrCodeOpen, setQrCodeOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
 
   console.log('StartScreen render, qrCodeOpen:', qrCodeOpen);
 
@@ -43,8 +44,22 @@ export default function StartScreen() {
   }, [qrCodeOpen]);
 
   const handleStart = () => {
-    resetGame();
-    start();
+    // If user hasn't set a name yet, prompt for it before starting
+    if (!hasSetName || !playerName.trim()) {
+      setShowNamePrompt(true);
+    } else {
+      resetGame();
+      start();
+    }
+  };
+
+  const handleNameSubmit = (name: string) => {
+    if (name.trim()) {
+      setPlayerName(name.trim());
+      setShowNamePrompt(false);
+      resetGame();
+      start();
+    }
   };
 
   return (
@@ -179,6 +194,50 @@ export default function StartScreen() {
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Name Prompt Modal */}
+      {showNamePrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="bg-gray-900 p-8 rounded-xl border border-cyan-400 max-w-md w-full mx-4 text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">Welcome to Arcade Collector!</h2>
+            <p className="text-gray-300 mb-6">Enter your name to save your high scores and compete on the leaderboard:</p>
+            
+            <input
+              type="text"
+              placeholder="Enter your name..."
+              className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none mb-4"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleNameSubmit(e.currentTarget.value);
+                }
+              }}
+            />
+            
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => {
+                  const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+                  handleNameSubmit(input.value);
+                }}
+                className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-bold"
+              >
+                Start Game
+              </button>
+              <button
+                onClick={() => {
+                  setShowNamePrompt(false);
+                  resetGame();
+                  start();
+                }}
+                className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Skip
+              </button>
+            </div>
           </div>
         </div>
       )}
