@@ -223,19 +223,9 @@ export default function StartScreen() {
                   const input = document.querySelector('input[type="text"]') as HTMLInputElement;
                   handleNameSubmit(input.value);
                 }}
-                className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-bold"
+                className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-500 hover:to-blue-500 transition-all duration-200 font-bold text-lg shadow-lg"
               >
                 Start Game
-              </button>
-              <button
-                onClick={() => {
-                  setShowNamePrompt(false);
-                  resetGame();
-                  start();
-                }}
-                className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Skip
               </button>
             </div>
           </div>

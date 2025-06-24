@@ -45,19 +45,27 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
   const topScores = getTopScores(10);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border-2 border-cyan-400 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <Trophy className="w-6 h-6 text-yellow-400" />
-            <h2 className="text-2xl font-bold text-cyan-400 font-mono">LEADERBOARD</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border border-cyan-400/30 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden shadow-2xl">
+        {/* Header with neon effect */}
+        <div className="flex justify-between items-center mb-8 pb-4 border-b border-cyan-400/20">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Trophy className="w-10 h-10 text-yellow-400 drop-shadow-lg" />
+              <div className="absolute inset-0 w-10 h-10 bg-yellow-400/20 rounded-full blur-xl"></div>
+            </div>
+            <div>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                LEADERBOARD
+              </h2>
+              <p className="text-gray-400 text-sm">Hall of Champions</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-all duration-200 p-2 hover:bg-gray-800 rounded-lg"
           >
-            <X className="w-6 h-6" />
+            <X className="w-7 h-7" />
           </button>
         </div>
 
