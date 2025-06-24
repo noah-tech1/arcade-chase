@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHighScore } from '../../lib/stores/useHighScore';
-import { Trophy, Crown, Star, Zap, User, Calendar, Target, X, Trash2, Medal, Sparkles } from 'lucide-react';
+import { Trophy, Crown, Star, Zap, User, Calendar, Target, X, Medal, Sparkles } from 'lucide-react';
 
 interface LeaderboardProps {
   isOpen: boolean;
@@ -25,8 +25,10 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
   React.useEffect(() => {
     if (isOpen) {
       loadLeaderboard();
+      // Automatically clean duplicates when leaderboard loads
+      cleanupDuplicates();
     }
-  }, [isOpen, loadLeaderboard]);
+  }, [isOpen, loadLeaderboard, cleanupDuplicates]);
 
   if (!isOpen) return null;
 
@@ -35,9 +37,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     setEditingName(false);
   };
 
-  const handleCleanupDuplicates = async () => {
-    await cleanupDuplicates();
-  };
+
 
   const formatDate = (date: Date | string) => {
     const d = new Date(date);
@@ -271,18 +271,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
             )}
           </div>
 
-          {/* Footer Actions */}
-          <div className="px-8 py-6 border-t border-purple-500/20 bg-gradient-to-r from-purple-500/5 to-cyan-500/5">
-            <div className="flex justify-center">
-              <button
-                onClick={handleCleanupDuplicates}
-                className="flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 rounded-2xl hover:from-red-500/30 hover:to-pink-500/30 transition-all duration-300 border border-red-400/40 hover:border-red-400/60 shadow-xl hover:shadow-2xl hover:scale-105"
-              >
-                <Trash2 className="w-6 h-6" />
-                <span className="font-bold text-lg">RESET ARENA</span>
-              </button>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>
