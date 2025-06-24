@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useHighScore } from "../../lib/stores/useHighScore";
+import { useAudio } from "../../lib/stores/useAudio";
 import { Play, Trophy, Volume2, VolumeX, List, QrCode, Download, Settings, Smartphone } from "lucide-react";
 import Leaderboard from "./Leaderboard";
 import QRCode from 'qrcode';

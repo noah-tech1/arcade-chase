@@ -1,6 +1,7 @@
 import React from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useHighScore } from "../../lib/stores/useHighScore";
+import { useAudio } from "../../lib/stores/useAudio";
 import { RotateCcw, Trophy, Target } from "lucide-react";
 
 export default function GameOverScreen() {
@@ -14,9 +15,19 @@ export default function GameOverScreen() {
     addToLeaderboard,
     cleanupDuplicates 
   } = useHighScore();
+  const { playGameOver, playHighScore } = useAudio();
+
+  const isNewHighScore = score > personalHighScore;
   
   // Check if this is a new high score when component mounts
   React.useEffect(() => {
+    // Play appropriate sound when game over screen appears
+    if (isNewHighScore) {
+      playHighScore();
+    } else {
+      playGameOver();
+    }
+
     const handleScoreUpdate = async () => {
       if (score > 0) {
         updatePersonalHighScore(score, level);

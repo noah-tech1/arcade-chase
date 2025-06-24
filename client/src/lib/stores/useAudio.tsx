@@ -56,36 +56,177 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
 
   playHit: () => {
-    const { hitSound, isMuted } = get();
-    if (hitSound) {
-      // If sound is muted, don't play anything
-      if (isMuted) {
-        // Audio muted
-        return;
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+        oscillator.type = 'sawtooth';
+        
+        gainNode.gain.setValueAtTime(volume * 0.5, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.15);
+      } catch (e) {
+        console.warn('Audio not supported');
       }
-
-      // Clone the sound to allow overlapping playback
-      const soundClone = hitSound.cloneNode() as HTMLAudioElement;
-      soundClone.volume = 0.3;
-      soundClone.play().catch(error => {
-        // Audio playback failed
-      });
     }
   },
 
   playSuccess: () => {
-    const { successSound, isMuted } = get();
-    if (successSound) {
-      // If sound is muted, don't play anything
-      if (isMuted) {
-        // Audio muted
-        return;
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(523, audioContext.currentTime);
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(volume * 0.6, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (e) {
+        console.warn('Audio not supported');
       }
+    }
+  },
 
-      successSound.currentTime = 0;
-      successSound.play().catch(error => {
-        // Audio playback failed
-      });
+  playPowerUp: () => {
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(659, audioContext.currentTime);
+        oscillator.type = 'triangle';
+        
+        gainNode.gain.setValueAtTime(volume * 0.7, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.warn('Audio not supported');
+      }
+    }
+  },
+
+  playCollect: () => {
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(volume * 0.4, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+      } catch (e) {
+        console.warn('Audio not supported');
+      }
+    }
+  },
+
+  playGameOver: () => {
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(147, audioContext.currentTime);
+        oscillator.type = 'sawtooth';
+        
+        gainNode.gain.setValueAtTime(volume * 0.8, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.0);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 1.0);
+      } catch (e) {
+        console.warn('Audio not supported');
+      }
+    }
+  },
+
+  playLevelUp: () => {
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(784, audioContext.currentTime);
+        oscillator.type = 'triangle';
+        
+        gainNode.gain.setValueAtTime(volume * 0.7, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.8);
+      } catch (e) {
+        console.warn('Audio not supported');
+      }
+    }
+  },
+
+  playHighScore: () => {
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(volume * 0.8, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.2);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 1.2);
+      } catch (e) {
+        console.warn('Audio not supported');
+      }
     }
   }
 }));

@@ -30,7 +30,7 @@ export default function GameCanvas() {
     updatePowerUps,
     updateCombo
   } = useGame();
-  const { playHit, playSuccess } = useAudio();
+  const { playHit, playSuccess, playCollect, playPowerUp, playLevelUp, initializeAudio } = useAudio();
 
   // Ensure activePowerUps has default values
   const safePowerUps = activePowerUps || {
