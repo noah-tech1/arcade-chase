@@ -185,7 +185,13 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                 <p className="text-gray-400 text-lg">Be the first legend to claim the throne!</p>
               </div>
             ) : (
-              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-4 elite-scrollbar">
+              <div className="relative">
+                {topScores.length > 5 && (
+                  <div className="absolute top-0 right-0 z-10 bg-purple-500/20 text-purple-300 px-3 py-1 rounded-lg text-sm font-medium border border-purple-500/30">
+                    Scroll to see more →
+                  </div>
+                )}
+              <div className="space-y-4 max-h-[400px] overflow-y-auto pr-4 elite-scrollbar scroll-smooth hover:pr-2 transition-all duration-200">
                 {topScores.map((entry, index) => (
                   <div 
                     key={entry.id || `${entry.playerName}-${entry.score}-${index}`}
@@ -260,6 +266,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                     </div>
                   </div>
                 ))}
+                </div>
               </div>
             )}
           </div>
