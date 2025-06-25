@@ -29,5 +29,7 @@ export const insertLeaderboardSchema = createInsertSchema(leaderboard).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type LoginUser = z.infer<typeof loginUserSchema>;
+export type RegisterUser = z.infer<typeof registerUserSchema>;
 export type InsertLeaderboard = z.infer<typeof insertLeaderboardSchema>;
 export type LeaderboardEntry = typeof leaderboard.$inferSelect;
