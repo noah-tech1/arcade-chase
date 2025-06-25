@@ -155,8 +155,8 @@ export class GameEngine {
       this.player.size = baseSize;
     }
     
-    // Update player
-    this.player.update(input, gameSpeed, this.canvasWidth, this.canvasHeight, speedBoost, safeCheatEffects);
+    // Update player with movement callback
+    this.player.update(input, gameSpeed, this.canvasWidth, this.canvasHeight, speedBoost, safeCheatEffects, onMove);
     
     // Update collectibles
     for (const collectible of this.collectibles) {

@@ -23,7 +23,7 @@ export class Player {
     this.invulnerabilityFrames = 0;
   }
 
-  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, canvasWidth: number, canvasHeight: number, speedBoost: number = 1, cheatEffects?: any) {
+  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, canvasWidth: number, canvasHeight: number, speedBoost: number = 1, cheatEffects?: any, onMove?: () => void) {
     let finalSpeedBoost = speedBoost;
     
     // Apply speed cheat effects
@@ -31,19 +31,29 @@ export class Player {
     else if (cheatEffects?.superSpeed) finalSpeedBoost *= 1.8;
     
     const adjustedSpeed = this.speed * gameSpeed * finalSpeedBoost;
+    let moved = false;
     
     // Handle movement input
     if (input.left) {
       this.position.x -= adjustedSpeed;
+      moved = true;
     }
     if (input.right) {
       this.position.x += adjustedSpeed;
+      moved = true;
     }
     if (input.up) {
       this.position.y -= adjustedSpeed;
+      moved = true;
     }
     if (input.down) {
       this.position.y += adjustedSpeed;
+      moved = true;
+    }
+
+    // Play movement sound if player moved
+    if (moved && onMove) {
+      onMove();
     }
 
     // Keep player within canvas bounds

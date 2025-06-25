@@ -1,5 +1,89 @@
 import { create } from "zustand";
 
+let audioContext: AudioContext | null = null;
+let backgroundOscillator: OscillatorNode | null = null;
+let backgroundGain: GainNode | null = null;
+
+const getAudioContext = () => {
+  if (!audioContext) {
+    try {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    } catch (e) {
+      console.warn('Web Audio API not supported');
+      return null;
+    }
+  }
+  return audioContext;
+};
+
+const playTone = (frequency: number, type: OscillatorType, duration: number, volume: number) => {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+    oscillator.type = type;
+    
+    gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+    
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + duration);
+  } catch (e) {
+    console.warn('Failed to play audio:', e);
+  }
+};
+
+const startBackgroundLoop = (volume: number) => {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    backgroundOscillator = ctx.createOscillator();
+    backgroundGain = ctx.createGain();
+    
+    backgroundOscillator.connect(backgroundGain);
+    backgroundGain.connect(ctx.destination);
+    
+    backgroundOscillator.frequency.setValueAtTime(55, ctx.currentTime);
+    backgroundOscillator.type = 'sine';
+    
+    backgroundGain.gain.setValueAtTime(0, ctx.currentTime);
+    backgroundGain.gain.linearRampToValueAtTime(volume * 0.1, ctx.currentTime + 2);
+    
+    backgroundOscillator.start(ctx.currentTime);
+  } catch (e) {
+    console.warn('Failed to start background music:', e);
+  }
+};
+
+const stopBackgroundLoop = () => {
+  if (backgroundOscillator && backgroundGain) {
+    try {
+      backgroundGain.gain.linearRampToValueAtTime(0, backgroundGain.context.currentTime + 1);
+      backgroundOscillator.stop(backgroundGain.context.currentTime + 1);
+      backgroundOscillator = null;
+      backgroundGain = null;
+    } catch (e) {
+      console.warn('Failed to stop background music:', e);
+    }
+  }
+};
+
 interface AudioState {
   backgroundMusic: HTMLAudioElement | null;
   hitSound: HTMLAudioElement | null;
@@ -11,6 +95,7 @@ interface AudioState {
   highScoreSound: HTMLAudioElement | null;
   isMuted: boolean;
   volume: number;
+  isBackgroundMusicPlaying: boolean;
   isBackgroundMusicPlaying: boolean;
 
   // Setter functions
