@@ -96,7 +96,6 @@ interface AudioState {
   isMuted: boolean;
   volume: number;
   isBackgroundMusicPlaying: boolean;
-  isBackgroundMusicPlaying: boolean;
 
   // Setter functions
   setBackgroundMusic: (music: HTMLAudioElement) => void;
@@ -128,198 +127,121 @@ export const useAudio = create<AudioState>((set, get) => ({
   backgroundMusic: null,
   hitSound: null,
   successSound: null,
-  isMuted: true, // Start muted by default
+  powerUpSound: null,
+  collectSound: null,
+  gameOverSound: null,
+  levelUpSound: null,
+  highScoreSound: null,
+  isMuted: false,
+  volume: 0.7,
+  isBackgroundMusicPlaying: false,
 
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
   setHitSound: (sound) => set({ hitSound: sound }),
   setSuccessSound: (sound) => set({ successSound: sound }),
+  setPowerUpSound: (sound) => set({ powerUpSound: sound }),
+  setCollectSound: (sound) => set({ collectSound: sound }),
+  setGameOverSound: (sound) => set({ gameOverSound: sound }),
+  setLevelUpSound: (sound) => set({ levelUpSound: sound }),
+  setHighScoreSound: (sound) => set({ highScoreSound: sound }),
 
   setVolume: (volume) => {
+    const { isBackgroundMusicPlaying } = get();
     set({ volume });
+    
+    if (isBackgroundMusicPlaying && backgroundGain) {
+      backgroundGain.gain.setValueAtTime(volume * 0.1, backgroundGain.context.currentTime);
+    }
   },
 
   toggleMute: () => {
-    const { isMuted } = get();
-    set({ isMuted: !isMuted });
+    const { isMuted, isBackgroundMusicPlaying } = get();
+    const newMuted = !isMuted;
+    set({ isMuted: newMuted });
+    
+    if (newMuted && isBackgroundMusicPlaying) {
+      stopBackgroundLoop();
+      set({ isBackgroundMusicPlaying: false });
+    }
   },
 
   initializeAudio: () => {
-    // Simple initialization - just enable audio
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume();
+    }
     set({ isMuted: false });
+  },
+
+  startBackgroundMusic: () => {
+    const { isMuted, volume, isBackgroundMusicPlaying } = get();
+    if (!isMuted && !isBackgroundMusicPlaying) {
+      startBackgroundLoop(volume);
+      set({ isBackgroundMusicPlaying: true });
+    }
+  },
+
+  stopBackgroundMusic: () => {
+    const { isBackgroundMusicPlaying } = get();
+    if (isBackgroundMusicPlaying) {
+      stopBackgroundLoop();
+      set({ isBackgroundMusicPlaying: false });
+    }
   },
 
   playHit: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-        oscillator.type = 'sawtooth';
-        
-        gainNode.gain.setValueAtTime(volume * 0.5, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.15);
-      } catch (e) {
-        console.warn('Audio not supported');
-      }
+      playTone(200, 'sawtooth', 0.15, volume * 0.3);
     }
   },
 
   playSuccess: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(523, audioContext.currentTime);
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(volume * 0.6, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.3);
-      } catch (e) {
-        console.warn('Audio not supported');
-      }
+      playTone(523, 'sine', 0.3, volume * 0.4);
     }
   },
 
   playPowerUp: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(659, audioContext.currentTime);
-        oscillator.type = 'triangle';
-        
-        gainNode.gain.setValueAtTime(volume * 0.7, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.5);
-      } catch (e) {
-        console.warn('Audio not supported');
-      }
+      playTone(659, 'triangle', 0.5, volume * 0.5);
     }
   },
 
   playCollect: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(volume * 0.4, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.1);
-      } catch (e) {
-        console.warn('Audio not supported');
-      }
+      playTone(440, 'sine', 0.1, volume * 0.2);
     }
   },
 
   playGameOver: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(147, audioContext.currentTime);
-        oscillator.type = 'sawtooth';
-        
-        gainNode.gain.setValueAtTime(volume * 0.8, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.0);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 1.0);
-      } catch (e) {
-        console.warn('Audio not supported');
-      }
+      playTone(147, 'sawtooth', 1.0, volume * 0.6);
     }
   },
 
   playLevelUp: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(784, audioContext.currentTime);
-        oscillator.type = 'triangle';
-        
-        gainNode.gain.setValueAtTime(volume * 0.7, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.8);
-      } catch (e) {
-        console.warn('Audio not supported');
-      }
+      playTone(784, 'triangle', 0.8, volume * 0.5);
     }
   },
 
   playHighScore: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(volume * 0.8, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.2);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 1.2);
-      } catch (e) {
-        console.warn('Audio not supported');
-      }
+      playTone(880, 'sine', 1.2, volume * 0.6);
     }
-  }
+  },
+
+  playMove: () => {
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      playTone(100, 'sine', 0.05, volume * 0.05);
+    }
+  },
 }));

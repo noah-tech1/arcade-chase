@@ -108,14 +108,15 @@ export default function GameCanvas() {
     //   console.log('Input state:', inputRef.current);
     // }
 
-    // Update game state with cheat effects
+    // Update game state with cheat effects and movement callback
     const result = gameEngineRef.current.update(
       inputRef.current,
       effectiveGameSpeed,
       level,
       cheatPowerUps,
       cheatPowerUps.magnet > 0,
-      safeCheatEffects
+      safeCheatEffects,
+      playMove
     );
 
     // Handle game events
