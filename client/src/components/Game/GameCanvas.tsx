@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useAudio } from "../../lib/stores/useAudio";
 import { GameEngine } from "../../lib/game/GameEngine";

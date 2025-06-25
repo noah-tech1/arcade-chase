@@ -290,13 +290,13 @@ export default function StartScreen() {
                   </div>
                   
                   <div>
-                    <label className="block text-gray-300 mb-2">Volume: {Math.round(volume * 100)}%</label>
+                    <label className="block text-gray-300 mb-2">Volume: {Math.round((volume || 0.7) * 100)}%</label>
                     <input
                       type="range"
                       min="0"
                       max="1"
                       step="0.1"
-                      value={volume}
+                      value={volume || 0.7}
                       onChange={(e) => setVolume(parseFloat(e.target.value))}
                       className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
                     />
