@@ -48,7 +48,11 @@ export default function StartScreen() {
 
   const handleStart = () => {
     // Initialize audio on first interaction
-    initializeAudio();
+    try {
+      initializeAudio();
+    } catch (e) {
+      console.warn('Audio initialization failed');
+    }
     
     // If user hasn't set a name yet, prompt for it before starting
     if (!hasSetName || !playerName.trim()) {
@@ -143,10 +147,13 @@ export default function StartScreen() {
           {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           <span>Audio: {isMuted ? 'Muted' : 'Enabled'}</span>
           <button 
-            onClick={toggleMute}
+            onClick={() => {
+              initializeAudio();
+              toggleMute();
+            }}
             className="ml-2 px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs transition-colors"
           >
-            {isMuted ? 'Unmute' : 'Mute'}
+            {isMuted ? 'Enable Audio' : 'Mute'}
           </button>
         </div>
       </div>
