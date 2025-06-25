@@ -10,6 +10,8 @@ export class Player {
   shieldActive: boolean;
   shieldPulse: number;
   invulnerabilityFrames: number;
+  thrusterParticles: Array<{x: number, y: number, vx: number, vy: number, life: number}>;
+  rotationAngle: number;
 
   constructor(x: number, y: number) {
     this.position = { x, y };

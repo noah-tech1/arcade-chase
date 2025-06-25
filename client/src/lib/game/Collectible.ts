@@ -7,6 +7,8 @@ export class Collectible {
   value: number;
   pulsePhase: number;
   originalSize: number;
+  type: string;
+  glowIntensity: number;
 
   constructor(x: number, y: number, value: number = 10) {
     this.position = { x, y };

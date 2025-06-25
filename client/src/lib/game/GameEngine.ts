@@ -18,6 +18,10 @@ export class GameEngine {
   lastSpawnTime: number;
   lastObstacleSpawn: number;
   lastPowerUpSpawn: number;
+  backgroundStars: Array<{x: number, y: number, size: number, speed: number, alpha: number}>;
+  comboMultiplier: number;
+  comboTimer: number;
+  lastCollectionTime: number;
 
   constructor(canvasWidth: number, canvasHeight: number) {
     this.canvasWidth = canvasWidth;
@@ -311,7 +315,14 @@ export class GameEngine {
       this.lastPowerUpSpawn = now;
     }
     
-    return { scoreGained, hit, collected, powerUpCollected };
+    return { 
+      scoreGained, 
+      hit, 
+      collected, 
+      powerUpCollected, 
+      comboMultiplier: this.comboMultiplier,
+      comboTimer: this.comboTimer 
+    };
   }
 
   render(ctx: CanvasRenderingContext2D, cheatEffects?: any) {

@@ -7,6 +7,8 @@ export class Obstacle {
   color: string;
   rotationSpeed: number;
   rotation: number;
+  pulsePhase: number;
+  spikes: Array<{angle: number, length: number}>;
 
   constructor(x: number, y: number, vx: number = 0, vy: number = 0) {
     this.position = { x, y };
