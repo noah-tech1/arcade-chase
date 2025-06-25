@@ -45,14 +45,18 @@ export const useAudio = create<AudioState>((set, get) => ({
   setHitSound: (sound) => set({ hitSound: sound }),
   setSuccessSound: (sound) => set({ successSound: sound }),
 
+  setVolume: (volume) => {
+    set({ volume });
+  },
+
   toggleMute: () => {
     const { isMuted } = get();
-    const newMutedState = !isMuted;
+    set({ isMuted: !isMuted });
+  },
 
-    // Just update the muted state
-    set({ isMuted: newMutedState });
-
-    // Sound state toggled
+  initializeAudio: () => {
+    // Simple initialization - just enable audio
+    set({ isMuted: false });
   },
 
   playHit: () => {

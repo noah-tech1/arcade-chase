@@ -32,6 +32,11 @@ export default function GameCanvas() {
   } = useGame();
   const { playHit, playSuccess, playCollect, playPowerUp, playLevelUp, initializeAudio } = useAudio();
 
+  // Initialize audio on component mount
+  React.useEffect(() => {
+    initializeAudio();
+  }, [initializeAudio]);
+
   // Ensure activePowerUps has default values
   const safePowerUps = activePowerUps || {
     shield: 0,
