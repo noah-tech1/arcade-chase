@@ -11,6 +11,7 @@ interface AudioState {
   highScoreSound: HTMLAudioElement | null;
   isMuted: boolean;
   volume: number;
+  isBackgroundMusicPlaying: boolean;
 
   // Setter functions
   setBackgroundMusic: (music: HTMLAudioElement) => void;
@@ -32,6 +33,9 @@ interface AudioState {
   playGameOver: () => void;
   playLevelUp: () => void;
   playHighScore: () => void;
+  playMove: () => void;
+  startBackgroundMusic: () => void;
+  stopBackgroundMusic: () => void;
   initializeAudio: () => void;
 }
 

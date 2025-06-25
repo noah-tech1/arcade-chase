@@ -30,12 +30,17 @@ export default function GameCanvas() {
     updatePowerUps,
     updateCombo
   } = useGame();
-  const { playHit, playSuccess, playCollect, playPowerUp, playLevelUp, initializeAudio } = useAudio();
+  const { playHit, playSuccess, playCollect, playPowerUp, playLevelUp, playMove, startBackgroundMusic, stopBackgroundMusic, initializeAudio } = useAudio();
 
-  // Initialize audio on component mount
+  // Initialize audio and start background music when game starts
   React.useEffect(() => {
-    initializeAudio();
-  }, [initializeAudio]);
+    if (phase === 'playing') {
+      initializeAudio();
+      startBackgroundMusic();
+    } else if (phase === 'gameOver' || phase === 'start') {
+      stopBackgroundMusic();
+    }
+  }, [phase, initializeAudio, startBackgroundMusic, stopBackgroundMusic]);
 
   // Ensure activePowerUps has default values
   const safePowerUps = activePowerUps || {

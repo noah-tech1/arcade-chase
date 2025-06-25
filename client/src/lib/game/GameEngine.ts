@@ -118,7 +118,7 @@ export class GameEngine {
     this.powerUps.push(new PowerUp(x, y, randomType));
   }
 
-  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, level: number, activePowerUps: any, magnetActive: boolean = false, cheatEffects?: any): { scoreGained: number; hit: boolean; collected: number; powerUpCollected?: string } {
+  update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, level: number, activePowerUps: any, magnetActive: boolean = false, cheatEffects?: any, onMove?: () => void): { scoreGained: number; hit: boolean; collected: number; powerUpCollected?: string } {
     let scoreGained = 0;
     let hit = false;
     let collected = 0;
