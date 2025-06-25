@@ -30,7 +30,7 @@ export default function GameCanvas() {
     updatePowerUps,
     updateCombo
   } = useGame();
-  const { playHit, playSuccess, playCollect, playPowerUp, playLevelUp, playMove, playBoost, playShield, playMagnet, startBackgroundMusic, stopBackgroundMusic, initializeAudio } = useAudio();
+  const { playHit, playSuccess, playCollect, playPowerUp, playLevelUp, playMove, playBoost, playShield, playMagnet, playAmbientPulse, startBackgroundMusic, stopBackgroundMusic, initializeAudio } = useAudio();
 
   // Initialize audio and start background music when game starts
   React.useEffect(() => {

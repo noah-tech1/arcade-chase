@@ -1,11 +1,12 @@
 import { create } from "zustand";
 
 let audioContext: AudioContext | null = null;
-let backgroundOscillator: OscillatorNode | null = null;
-let backgroundGain: GainNode | null = null;
-let backgroundOscillator2: OscillatorNode | null = null;
-let backgroundGain2: GainNode | null = null;
+let backgroundOscillators: OscillatorNode[] = [];
+let backgroundGains: GainNode[] = [];
 let noiseBuffer: AudioBuffer | null = null;
+let noiseSource: AudioBufferSourceNode | null = null;
+let noiseGain: GainNode | null = null;
+let convolver: ConvolverNode | null = null;
 
 const getAudioContext = () => {
   if (!audioContext) {
@@ -47,7 +48,7 @@ const playTone = (frequency: number, type: OscillatorType, duration: number, vol
   }
 };
 
-const playComplexTone = (frequencies: number[], type: OscillatorType, duration: number, volume: number) => {
+const playComplexTone = (frequencies: number[], type: OscillatorType, duration: number, volume: number, effects?: { reverb?: boolean; filter?: boolean; distortion?: boolean }) => {
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -59,9 +60,48 @@ const playComplexTone = (frequencies: number[], type: OscillatorType, duration: 
     frequencies.forEach((freq, index) => {
       const oscillator = ctx.createOscillator();
       const gainNode = ctx.createGain();
+      let destination: AudioNode = gainNode;
+      
+      // Add filter if requested
+      if (effects?.filter) {
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(freq * 2, ctx.currentTime);
+        filter.Q.setValueAtTime(1, ctx.currentTime);
+        destination.connect(filter);
+        destination = filter;
+      }
+      
+      // Add distortion if requested
+      if (effects?.distortion) {
+        const waveshaper = ctx.createWaveShaper();
+        const samples = 44100;
+        const curve = new Float32Array(samples);
+        const deg = Math.PI / 180;
+        
+        for (let i = 0; i < samples; i++) {
+          const x = (i * 2) / samples - 1;
+          curve[i] = ((3 + 20) * x * 20 * deg) / (Math.PI + 20 * Math.abs(x));
+        }
+        
+        waveshaper.curve = curve;
+        waveshaper.oversample = '4x';
+        
+        destination.connect(waveshaper);
+        destination = waveshaper;
+      }
+      
+      // Add reverb if requested
+      if (effects?.reverb && convolver) {
+        const reverbGain = ctx.createGain();
+        reverbGain.gain.setValueAtTime(0.3, ctx.currentTime);
+        destination.connect(reverbGain);
+        reverbGain.connect(convolver);
+        convolver.connect(ctx.destination);
+      }
       
       oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
+      destination.connect(ctx.destination);
       
       oscillator.frequency.setValueAtTime(freq, ctx.currentTime);
       oscillator.type = type;
@@ -70,7 +110,7 @@ const playComplexTone = (frequencies: number[], type: OscillatorType, duration: 
       gainNode.gain.setValueAtTime(adjustedVolume, ctx.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
       
-      oscillator.start(ctx.currentTime);
+      oscillator.start(ctx.currentTime + index * 0.02); // Slight stagger
       oscillator.stop(ctx.currentTime + duration);
     });
   } catch (e) {
@@ -79,13 +119,35 @@ const playComplexTone = (frequencies: number[], type: OscillatorType, duration: 
 };
 
 const createNoiseBuffer = (ctx: AudioContext) => {
-  const bufferSize = ctx.sampleRate * 0.1; // 100ms of noise
-  noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-  const output = noiseBuffer.getChannelData(0);
+  const bufferSize = ctx.sampleRate * 2; // 2 seconds of noise
+  noiseBuffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
   
-  for (let i = 0; i < bufferSize; i++) {
-    output[i] = Math.random() * 2 - 1;
+  for (let channel = 0; channel < 2; channel++) {
+    const output = noiseBuffer.getChannelData(channel);
+    for (let i = 0; i < bufferSize; i++) {
+      // Create pink noise (1/f noise) for more natural sound
+      let pink = 0;
+      for (let j = 0; j < 12; j++) {
+        pink += Math.random() * Math.pow(2, -j);
+      }
+      output[i] = (pink - 6) * 0.1;
+    }
   }
+};
+
+const createReverbBuffer = (ctx: AudioContext) => {
+  const length = ctx.sampleRate * 3; // 3 seconds reverb
+  const buffer = ctx.createBuffer(2, length, ctx.sampleRate);
+  
+  for (let channel = 0; channel < 2; channel++) {
+    const output = buffer.getChannelData(channel);
+    for (let i = 0; i < length; i++) {
+      const decay = Math.pow(1 - i / length, 2);
+      output[i] = (Math.random() * 2 - 1) * decay * 0.3;
+    }
+  }
+  
+  return buffer;
 };
 
 const startBackgroundLoop = (volume: number) => {
@@ -97,63 +159,130 @@ const startBackgroundLoop = (volume: number) => {
       ctx.resume();
     }
 
-    // Create noise buffer if it doesn't exist
+    // Create buffers if they don't exist
     if (!noiseBuffer) {
       createNoiseBuffer(ctx);
     }
 
-    // Primary ambient drone
-    backgroundOscillator = ctx.createOscillator();
-    backgroundGain = ctx.createGain();
-    
-    backgroundOscillator.connect(backgroundGain);
-    backgroundGain.connect(ctx.destination);
-    
-    backgroundOscillator.frequency.setValueAtTime(55, ctx.currentTime);
-    backgroundOscillator.type = 'sine';
-    
-    backgroundGain.gain.setValueAtTime(0, ctx.currentTime);
-    backgroundGain.gain.linearRampToValueAtTime(volume * 0.08, ctx.currentTime + 2);
-    
-    backgroundOscillator.start(ctx.currentTime);
+    // Create convolver for reverb
+    if (!convolver) {
+      convolver = ctx.createConvolver();
+      convolver.buffer = createReverbBuffer(ctx);
+    }
 
-    // Secondary harmonic layer
-    backgroundOscillator2 = ctx.createOscillator();
-    backgroundGain2 = ctx.createGain();
+    // Complex ambient soundscape with multiple layers
+    const frequencies = [55, 82.5, 110, 165, 220]; // Bass harmonics
+    const waveTypes: OscillatorType[] = ['sine', 'triangle', 'sawtooth', 'sine', 'triangle'];
+    const volumes = [0.08, 0.04, 0.02, 0.03, 0.015];
     
-    backgroundOscillator2.connect(backgroundGain2);
-    backgroundGain2.connect(ctx.destination);
-    
-    backgroundOscillator2.frequency.setValueAtTime(82.5, ctx.currentTime); // Fifth harmonic
-    backgroundOscillator2.type = 'triangle';
-    
-    backgroundGain2.gain.setValueAtTime(0, ctx.currentTime);
-    backgroundGain2.gain.linearRampToValueAtTime(volume * 0.04, ctx.currentTime + 3);
-    
-    backgroundOscillator2.start(ctx.currentTime);
-
-    // Add subtle white noise for atmosphere
-    if (noiseBuffer) {
-      const noiseSource = ctx.createBufferSource();
-      const noiseGain = ctx.createGain();
+    frequencies.forEach((freq, index) => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
       const filter = ctx.createBiquadFilter();
+      
+      // Add some randomness to frequency for organic feel
+      const detune = (Math.random() - 0.5) * 10;
+      oscillator.frequency.setValueAtTime(freq, ctx.currentTime);
+      oscillator.detune.setValueAtTime(detune, ctx.currentTime);
+      oscillator.type = waveTypes[index];
+      
+      // Filter for warmth
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(freq * 4, ctx.currentTime);
+      filter.Q.setValueAtTime(0.3, ctx.currentTime);
+      
+      oscillator.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      
+      // Slowly fade in with slight variations
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(volume * volumes[index], ctx.currentTime + 2 + index * 0.5);
+      
+      // Add subtle LFO modulation
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      lfo.frequency.setValueAtTime(0.1 + index * 0.05, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(freq * 0.001, ctx.currentTime);
+      lfo.connect(lfoGain);
+      lfoGain.connect(oscillator.frequency);
+      
+      oscillator.start(ctx.currentTime);
+      lfo.start(ctx.currentTime);
+      
+      backgroundOscillators.push(oscillator, lfo);
+      backgroundGains.push(gain, lfoGain);
+    });
+
+    // Enhanced atmospheric noise with filtering and reverb
+    if (noiseBuffer && convolver) {
+      noiseSource = ctx.createBufferSource();
+      noiseGain = ctx.createGain();
+      const filter1 = ctx.createBiquadFilter();
+      const filter2 = ctx.createBiquadFilter();
+      const reverbGain = ctx.createGain();
       
       noiseSource.buffer = noiseBuffer;
       noiseSource.loop = true;
       
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(200, ctx.currentTime);
-      filter.Q.setValueAtTime(0.5, ctx.currentTime);
+      // Multi-stage filtering for rich texture
+      filter1.type = 'bandpass';
+      filter1.frequency.setValueAtTime(300, ctx.currentTime);
+      filter1.Q.setValueAtTime(2, ctx.currentTime);
       
-      noiseSource.connect(filter);
-      filter.connect(noiseGain);
+      filter2.type = 'highpass';
+      filter2.frequency.setValueAtTime(100, ctx.currentTime);
+      
+      // Route: noise -> filter1 -> filter2 -> split to direct and reverb
+      noiseSource.connect(filter1);
+      filter1.connect(filter2);
+      filter2.connect(noiseGain);
+      filter2.connect(reverbGain);
+      
       noiseGain.connect(ctx.destination);
+      reverbGain.connect(convolver);
+      convolver.connect(ctx.destination);
       
       noiseGain.gain.setValueAtTime(0, ctx.currentTime);
-      noiseGain.gain.linearRampToValueAtTime(volume * 0.02, ctx.currentTime + 4);
+      noiseGain.gain.linearRampToValueAtTime(volume * 0.01, ctx.currentTime + 3);
+      
+      reverbGain.gain.setValueAtTime(0, ctx.currentTime);
+      reverbGain.gain.linearRampToValueAtTime(volume * 0.005, ctx.currentTime + 4);
       
       noiseSource.start(ctx.currentTime);
     }
+
+    // Add procedural wind-like sweeps
+    setTimeout(() => {
+      if (backgroundOscillators.length > 0) {
+        const sweepOsc = ctx.createOscillator();
+        const sweepGain = ctx.createGain();
+        const sweepFilter = ctx.createBiquadFilter();
+        
+        sweepOsc.type = 'sawtooth';
+        sweepOsc.frequency.setValueAtTime(40, ctx.currentTime);
+        sweepFilter.type = 'lowpass';
+        sweepFilter.frequency.setValueAtTime(80, ctx.currentTime);
+        sweepFilter.Q.setValueAtTime(3, ctx.currentTime);
+        
+        sweepOsc.connect(sweepFilter);
+        sweepFilter.connect(sweepGain);
+        sweepGain.connect(ctx.destination);
+        
+        sweepGain.gain.setValueAtTime(0, ctx.currentTime);
+        sweepGain.gain.linearRampToValueAtTime(volume * 0.02, ctx.currentTime + 1);
+        sweepGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 8);
+        
+        sweepFilter.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 6);
+        
+        sweepOsc.start(ctx.currentTime);
+        sweepOsc.stop(ctx.currentTime + 8);
+        
+        backgroundOscillators.push(sweepOsc);
+        backgroundGains.push(sweepGain);
+      }
+    }, 5000);
+    
   } catch (e) {
     console.warn('Failed to start background music:', e);
   }
@@ -161,19 +290,37 @@ const startBackgroundLoop = (volume: number) => {
 
 const stopBackgroundLoop = () => {
   try {
-    if (backgroundOscillator && backgroundGain) {
-      backgroundGain.gain.linearRampToValueAtTime(0, backgroundGain.context.currentTime + 1);
-      backgroundOscillator.stop(backgroundGain.context.currentTime + 1);
-      backgroundOscillator = null;
-      backgroundGain = null;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    // Fade out all oscillators
+    backgroundGains.forEach(gain => {
+      if (gain && gain.gain) {
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
+      }
+    });
+    
+    backgroundOscillators.forEach(osc => {
+      if (osc) {
+        try {
+          osc.stop(ctx.currentTime + 1);
+        } catch (e) {
+          // Oscillator might already be stopped
+        }
+      }
+    });
+    
+    if (noiseSource && noiseGain) {
+      noiseGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
+      noiseSource.stop(ctx.currentTime + 1);
+      noiseSource = null;
+      noiseGain = null;
     }
     
-    if (backgroundOscillator2 && backgroundGain2) {
-      backgroundGain2.gain.linearRampToValueAtTime(0, backgroundGain2.context.currentTime + 1);
-      backgroundOscillator2.stop(backgroundGain2.context.currentTime + 1);
-      backgroundOscillator2 = null;
-      backgroundGain2 = null;
-    }
+    // Clear arrays
+    backgroundOscillators.length = 0;
+    backgroundGains.length = 0;
+    
   } catch (e) {
     console.warn('Failed to stop background music:', e);
   }
@@ -218,6 +365,8 @@ interface AudioState {
   playMagnet: () => void;
   playShield: () => void;
   playDanger: () => void;
+  playAmbientPulse: () => void;
+  playEcho: () => void;
   startBackgroundMusic: () => void;
   stopBackgroundMusic: () => void;
   initializeAudio: () => void;
@@ -250,11 +399,19 @@ export const useAudio = create<AudioState>((set, get) => ({
     set({ volume });
     
     if (isBackgroundMusicPlaying) {
-      if (backgroundGain) {
-        backgroundGain.gain.setValueAtTime(volume * 0.08, backgroundGain.context.currentTime);
-      }
-      if (backgroundGain2) {
-        backgroundGain2.gain.setValueAtTime(volume * 0.04, backgroundGain2.context.currentTime);
+      const ctx = getAudioContext();
+      if (ctx) {
+        backgroundGains.forEach((gain, index) => {
+          if (gain && gain.gain) {
+            const baseVolumes = [0.08, 0.04, 0.02, 0.03, 0.015];
+            const targetVolume = volume * (baseVolumes[index % baseVolumes.length] || 0.02);
+            gain.gain.setValueAtTime(targetVolume, ctx.currentTime);
+          }
+        });
+        
+        if (noiseGain) {
+          noiseGain.gain.setValueAtTime(volume * 0.01, ctx.currentTime);
+        }
       }
     }
   },
@@ -297,16 +454,16 @@ export const useAudio = create<AudioState>((set, get) => ({
   playHit: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      // Harsh impact sound with multiple frequencies
-      playComplexTone([200, 150, 180], 'sawtooth', 0.2, volume * 0.4);
+      // Harsh impact sound with distortion
+      playComplexTone([200, 150, 180, 120], 'sawtooth', 0.25, volume * 0.4, { distortion: true, filter: true });
     }
   },
 
   playSuccess: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      // Pleasant success chord
-      playComplexTone([523, 659, 784], 'sine', 0.4, volume * 0.3);
+      // Pleasant success chord with reverb
+      playComplexTone([523, 659, 784, 1047], 'sine', 0.5, volume * 0.3, { reverb: true, filter: true });
     }
   },
 
@@ -371,8 +528,8 @@ export const useAudio = create<AudioState>((set, get) => ({
   playLevelUp: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      // Triumphant level up fanfare
-      playComplexTone([523, 659, 784, 1047], 'triangle', 0.8, volume * 0.4);
+      // Triumphant level up fanfare with reverb
+      playComplexTone([523, 659, 784, 1047, 1319], 'triangle', 1.0, volume * 0.4, { reverb: true, filter: true });
     }
   },
 
@@ -464,8 +621,65 @@ export const useAudio = create<AudioState>((set, get) => ({
   playDanger: () => {
     const { isMuted, volume } = get();
     if (!isMuted) {
-      // Warning/danger sound
-      playTone(220, 'square', 0.1, volume * 0.4);
+      // Warning/danger sound with distortion
+      playComplexTone([220, 110], 'square', 0.15, volume * 0.4, { distortion: true });
+    }
+  },
+
+  playAmbientPulse: () => {
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      // Subtle ambient pulse for atmosphere
+      const ctx = getAudioContext();
+      if (ctx) {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(60, ctx.currentTime);
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(120, ctx.currentTime);
+        filter.Q.setValueAtTime(2, ctx.currentTime);
+        
+        oscillator.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(volume * 0.05, ctx.currentTime + 0.5);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 2);
+      }
+    }
+  },
+
+  playEcho: () => {
+    const { isMuted, volume } = get();
+    if (!isMuted) {
+      // Echo effect for special moments
+      const ctx = getAudioContext();
+      if (ctx && convolver) {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 1);
+        
+        oscillator.connect(gain);
+        gain.connect(convolver);
+        convolver.connect(ctx.destination);
+        
+        gain.gain.setValueAtTime(volume * 0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 1);
+      }
     }
   },
 }));
