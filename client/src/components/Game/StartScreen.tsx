@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useHighScore } from "../../lib/stores/useHighScore";
+import { useAuth } from "../../lib/stores/useAuth";
 import { useAudio } from "../../lib/stores/useAudio";
-import { Play, Trophy, Volume2, VolumeX, List, QrCode, Download, Settings, Smartphone } from "lucide-react";
+import { Play, Trophy, Volume2, VolumeX, List, QrCode, Download, Settings, Smartphone, User, LogOut } from "lucide-react";
 import Leaderboard from "./Leaderboard";
+import AuthModal from "../Auth/AuthModal";
 import QRCode from 'qrcode';
 
 export default function StartScreen() {
   const { start, resetGame, joystickMode, toggleJoystickMode } = useGame();
   const { personalHighScore, allTimeHighScore, playerName, hasSetName, setPlayerName } = useHighScore();
+  const { user, isAuthenticated, logout, checkAuth } = useAuth();
   const { isMuted, toggleMute, volume, setVolume, initializeAudio } = useAudio();
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [qrCodeOpen, setQrCodeOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+
+  // Check authentication status on mount
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   console.log('StartScreen render, qrCodeOpen:', qrCodeOpen);
 
@@ -54,6 +63,14 @@ export default function StartScreen() {
       console.warn('Audio initialization failed');
     }
     
+    // If authenticated, use username
+    if (isAuthenticated && user) {
+      setPlayerName(user.username);
+      resetGame();
+      start();
+      return;
+    }
+    
     // If user hasn't set a name yet, prompt for it before starting
     if (!hasSetName || !playerName.trim()) {
       setShowNamePrompt(true);
@@ -61,6 +78,11 @@ export default function StartScreen() {
       resetGame();
       start();
     }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setPlayerName('');
   };
 
   const handleNameSubmit = (name: string) => {
@@ -89,6 +111,12 @@ export default function StartScreen() {
           <div className="score-info">
             <div>Personal Best: {personalHighScore.toLocaleString()}</div>
             <div>All-Time Record: {allTimeHighScore.toLocaleString()}</div>
+            {isAuthenticated && user && (
+              <div className="auth-status">
+                <User size={14} />
+                <span>Logged in as {user.username}</span>
+              </div>
+            )}
           </div>
         </div>
         
@@ -112,6 +140,24 @@ export default function StartScreen() {
           <Settings size={16} />
           SETTINGS
         </button>
+
+        {!isAuthenticated ? (
+          <button 
+            className="auth-button login-button"
+            onClick={() => setShowAuth(true)}
+          >
+            <User size={16} />
+            LOGIN / REGISTER
+          </button>
+        ) : (
+          <button 
+            className="auth-button logout-button"
+            onClick={handleLogout}
+          >
+            <LogOut size={16} />
+            LOGOUT
+          </button>
+        )}
         
         <div className="flex gap-3">
           <button
@@ -350,6 +396,11 @@ export default function StartScreen() {
           </div>
         </div>
       )}
+
+      <AuthModal 
+        isOpen={showAuth} 
+        onClose={() => setShowAuth(false)} 
+      />
     </div>
   );
 }
