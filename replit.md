@@ -139,6 +139,7 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Improved mobile responsiveness with better touch controls and visual feedback
 - Added in-game audio toggle and enhanced UI polish for both web and mobile users
 - Implemented background ambient music and movement sound effects for immersive gameplay experience
+- Enhanced audio system with rich background noise, harmonic layers, and specialized sound effects for different power-ups and game events
 
 ## User Preferences
 
