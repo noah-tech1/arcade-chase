@@ -6,60 +6,73 @@ The game features a sophisticated collectible rarity system with three tiers of 
 
 ### Rarity Tiers
 
-#### 1. Common Items (70% spawn chance)
+#### 1. Common Items (40% spawn chance) - IMPROVED
 - **Color**: Cyan (#4ECDC4)
-- **Points**: 10 points
+- **Points**: 15 points (increased from 10)
 - **Size**: 8 pixels
 - **Visual Effects**: 
   - Basic pulsing glow
   - Standard particle burst on collection
   - Simple white core highlight
 
-#### 2. Rare Items (20% spawn chance)
+#### 2. Rare Items (40% spawn chance) - MUCH MORE COMMON
 - **Color**: Purple (#9B59B6)
-- **Points**: 25 points (2.5x common)
-- **Size**: 10 pixels
+- **Points**: 50 points (increased from 25, 3.3x common)
+- **Size**: 13 pixels (increased)
 - **Visual Effects**:
-  - Enhanced glow with higher intensity
-  - Sparkle effects with rotating white dots
-  - Purple particle burst with more particles
-  - Larger collection explosion
+  - Enhanced glow with higher intensity and outer aura
+  - 6 sparkle effects in diamond pattern
+  - Purple particle burst with power-up effects
+  - Larger collection explosion with 12 particles
+  - Faster pulsing animation
 
-#### 3. Epic Items (10% spawn chance)
+#### 3. Epic Items (20% spawn chance) - TWICE AS COMMON
 - **Color**: Gold (#FFD700)
-- **Points**: 50 points (5x common)
-- **Size**: 12 pixels
+- **Points**: 125 points (increased from 50, 8.3x common)
+- **Size**: 16 pixels (increased)
 - **Visual Effects**:
-  - Maximum glow intensity
-  - Multiple sparkle effects in cross pattern
-  - Golden particle explosion with 12 particles
-  - Largest and most dramatic collection burst
+  - Maximum glow intensity with double aura layers
+  - 8 sparkle effects in cross/star pattern
+  - Golden particle explosion with 16 particles
+  - Power-up effect particles on collection
+  - Fastest pulsing with brightest center flash
+  - Most dramatic collection burst
 
 ### Technical Implementation
 
 #### Spawn Logic (GameEngine.ts)
 ```typescript
 spawnCollectible() {
-  // Enhanced collectible types with different rarities
+  // Enhanced rarity system - more rare/epic items, better rewards
   const rarity = Math.random();
   let value, type;
   
-  if (rarity < 0.7) {
-    // Common (70%)
-    value = 10;
+  if (rarity < 0.4) {
+    // Common (40% - reduced from 70%)
+    value = 15; // Increased from 10
     type = 'common';
-  } else if (rarity < 0.9) {
-    // Rare (20%)
-    value = 25;
+  } else if (rarity < 0.8) {
+    // Rare (40% - increased from 20%)
+    value = 50; // Increased from 25
     type = 'rare';
   } else {
-    // Epic (10%)
-    value = 50;
+    // Epic (20% - increased from 10%)
+    value = 125; // Increased from 50
     type = 'epic';
   }
   
   const collectible = new Collectible(x, y, value);
   collectible.type = type;
+  
+  // Set enhanced visual properties
+  if (type === 'epic') {
+    collectible.size = 16; // Bigger
+    collectible.glowIntensity = 1; // Maximum glow
+  } else if (type === 'rare') {
+    collectible.size = 13; // Medium size
+    collectible.glowIntensity = 0.7; // Enhanced glow
+  }
+  
   this.collectibles.push(collectible);
 }
 ```

@@ -146,7 +146,8 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Enhanced StartScreen with authentication UI, user status display, and account management features
 - Implemented comprehensive game enhancements: combo multiplier system, enhanced visual effects, animated background stars
 - Added dynamic player ship design with directional rotation and thruster particle effects
-- Enhanced collectible system with rarity tiers (common, rare, epic) featuring unique colors and sparkle effects
+- Enhanced collectible system with improved rarity distribution: Common (40%, 15pts), Rare (40%, 50pts), Epic (20%, 125pts)
+- Upgraded visual effects for rare/epic items with enhanced sparkles, multi-layer glows, and dramatic particle explosions
 - Improved obstacle design with procedural spiky shapes and dynamic pulse animations
 - Upgraded particle system with enhanced explosion effects, collection bursts, and improved rendering
 - Added combo timer UI with animated progress bar and glowing effects for sustained collection streaks
