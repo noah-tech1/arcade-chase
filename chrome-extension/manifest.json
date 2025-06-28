@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "A retro arcade-style collectible game with power-ups, combos, and leaderboards",
   "permissions": [
-    "storage"
+    "storage",
+    "offscreen"
   ],
   "action": {
     "default_popup": "popup.html",

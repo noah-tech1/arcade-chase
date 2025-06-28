@@ -192,19 +192,46 @@ class GameEngine {
         };
 
         this.setupInitialObjects();
-        this.loadHighScore();
+        this.loadHighScore(); // This is now async but we don't need to await it
         this.bindEvents();
     }
 
-    loadHighScore() {
-        const saved = localStorage.getItem('arcadeCollectorHighScore');
-        this.highScore = saved ? parseInt(saved) : 0;
+    async loadHighScore() {
+        try {
+            // Try Chrome extension storage first
+            if (typeof chrome !== 'undefined' && chrome.storage) {
+                const result = await chrome.storage.local.get(['arcadeCollectorHighScore']);
+                this.highScore = result.arcadeCollectorHighScore || 0;
+            } else {
+                // Fallback to localStorage
+                const saved = localStorage.getItem('arcadeCollectorHighScore');
+                this.highScore = saved ? parseInt(saved) : 0;
+            }
+        } catch (error) {
+            // Fallback to localStorage if Chrome storage fails
+            const saved = localStorage.getItem('arcadeCollectorHighScore');
+            this.highScore = saved ? parseInt(saved) : 0;
+        }
     }
 
-    saveHighScore() {
+    async saveHighScore() {
         if (this.score > this.highScore) {
             this.highScore = this.score;
-            localStorage.setItem('arcadeCollectorHighScore', this.highScore.toString());
+            
+            try {
+                // Try Chrome extension storage first
+                if (typeof chrome !== 'undefined' && chrome.storage) {
+                    await chrome.storage.local.set({ 
+                        arcadeCollectorHighScore: this.highScore 
+                    });
+                } else {
+                    // Fallback to localStorage
+                    localStorage.setItem('arcadeCollectorHighScore', this.highScore.toString());
+                }
+            } catch (error) {
+                // Fallback to localStorage if Chrome storage fails
+                localStorage.setItem('arcadeCollectorHighScore', this.highScore.toString());
+            }
         }
     }
 
