@@ -182,7 +182,9 @@ export default function StartScreen() {
             className="chrome-extension-button"
             onClick={() => {
               console.log('Chrome extension button clicked');
-              window.open('/chrome-extension-download.html', '_blank');
+              const extensionUrl = `${window.location.origin}/chrome-extension-download.html`;
+              console.log('Opening:', extensionUrl);
+              window.open(extensionUrl, '_blank');
             }}
             style={{
               display: 'flex',
