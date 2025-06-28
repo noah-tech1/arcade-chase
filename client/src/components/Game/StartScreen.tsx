@@ -177,6 +177,42 @@ export default function StartScreen() {
             <Download size={16} />
             MOBILE APP
           </button>
+          
+          <button 
+            className="chrome-extension-button"
+            onClick={() => {
+              console.log('Chrome extension button clicked');
+              window.open('/chrome-extension-download.html', '_blank');
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 24px',
+              backgroundColor: '#3B82F6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#2563EB';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#3B82F6';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C13.3 2 14.3 2.3 15.3 2.9L20.6 9.7C21.5 10.9 22 12.4 22 14V20C22 21.1 21.1 22 20 22H4C2.9 22 2 21.1 2 20V14C2 12.4 2.5 10.9 3.4 9.7L8.7 2.9C9.7 2.3 10.7 2 12 2M12 4C11.3 4 10.7 4.2 10.1 4.6L5.1 11H18.9L13.9 4.6C13.3 4.2 12.7 4 12 4M7 13V19H9V13H7M11 13V19H13V13H11M15 13V19H17V13H15Z"/>
+            </svg>
+            CHROME EXTENSION
+          </button>
         </div>
         
         <div className="instructions">
