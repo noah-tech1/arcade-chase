@@ -165,16 +165,22 @@ class Obstacle {
     constructor(x, y, vx = 0, vy = 0) {
         this.position = new Vector2(x, y);
         this.velocity = new Vector2(vx, vy);
-        this.size = 25;
-        this.color = '#FF6B6B';
+        this.size = 30; // Make them bigger and more visible
+        this.color = '#FF4444'; // Brighter red color
         this.rotation = 0;
-        this.rotationSpeed = 0.05;
+        this.rotationSpeed = 0.08;
+        this.pulsePhase = Math.random() * Math.PI * 2;
+        this.originalSize = this.size;
     }
 
     update(canvasWidth, canvasHeight) {
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
         this.rotation += this.rotationSpeed;
+        
+        // Add pulsing animation
+        this.pulsePhase += 0.1;
+        this.size = this.originalSize + Math.sin(this.pulsePhase) * 3;
 
         // Bounce off walls
         if (this.position.x <= this.size / 2 || this.position.x >= canvasWidth - this.size / 2) {
@@ -187,8 +193,6 @@ class Obstacle {
 
     render(ctx, cheatEffects) {
         ctx.save();
-        ctx.translate(this.position.x, this.position.y);
-        ctx.rotate(this.rotation);
         
         // Apply rainbow mode colors
         let obstacleColor = this.color;
@@ -197,10 +201,41 @@ class Obstacle {
             obstacleColor = `hsl(${hue}, 80%, 50%)`;
         }
         
+        // Enhanced glow effect for obstacles
         ctx.shadowColor = obstacleColor;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 15;
+        ctx.globalAlpha = 0.8;
+        
+        // Draw spiky obstacle shape for better visibility
+        ctx.translate(this.position.x, this.position.y);
+        ctx.rotate(this.rotation);
         ctx.fillStyle = obstacleColor;
-        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        
+        // Create spiky diamond shape
+        ctx.beginPath();
+        const spikes = 8;
+        const innerRadius = this.size * 0.3;
+        const outerRadius = this.size * 0.5;
+        
+        for (let i = 0; i < spikes * 2; i++) {
+            const angle = (i * Math.PI) / spikes;
+            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        
+        // Add inner core
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+        
         ctx.restore();
     }
 }
@@ -431,9 +466,12 @@ class GameEngine {
             }
         });
 
-        // Only spawn obstacles if not disabled by cheat
+        // Update obstacles (unless disabled by cheat)
         if (!this.activeCheatEffects.noObstacles) {
-            this.obstacles.forEach(obstacle => obstacle.update(this.canvas.width, this.canvas.height, speedMultiplier));
+            this.obstacles.forEach(obstacle => obstacle.update(this.canvas.width, this.canvas.height));
+        } else {
+            // If obstacles are disabled, clear them
+            this.obstacles = [];
         }
 
         // Check collectible collisions
@@ -510,7 +548,8 @@ class GameEngine {
                    obstacle.position.y > -50 && obstacle.position.y < this.canvas.height + 50;
         });
 
-        if (Math.random() < 0.002 * this.level && this.obstacles.length < 8) {
+        // Spawn obstacles more frequently to match web version
+        if (Math.random() < 0.01 * this.level && this.obstacles.length < 8 && !this.activeCheatEffects.noObstacles) {
             this.spawnObstacle();
         }
     }
