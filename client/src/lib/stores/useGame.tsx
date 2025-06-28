@@ -1,10 +1,13 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
-export type GamePhase = "ready" | "playing" | "ended";
+export type GamePhase = "ready" | "loading" | "playing" | "gameOver" | "ended";
+export type TransitionType = "fadeIn" | "slideDown" | "scale" | "spin" | "none";
 
 interface GameState {
   phase: GamePhase;
+  transitionType: TransitionType;
+  isTransitioning: boolean;
   score: number;
   level: number;
   lives: number;
@@ -48,6 +51,10 @@ interface GameState {
   start: () => void;
   restart: () => void;
   end: () => void;
+  
+  // Transition actions
+  startTransition: (toPhase: GamePhase, transitionType?: TransitionType) => void;
+  completeTransition: () => void;
 
   // Score and progression
   addScore: (points: number) => void;
@@ -77,6 +84,8 @@ interface GameState {
 export const useGame = create<GameState>()(
   subscribeWithSelector((set, get) => ({
     phase: "ready",
+    transitionType: "none",
+    isTransitioning: false,
     score: 0,
     level: 1,
     lives: 3,
@@ -394,5 +403,30 @@ export const useGame = create<GameState>()(
     },
     
     toggleJoystickMode: () => set((state) => ({ joystickMode: !state.joystickMode })),
+    
+    // Transition actions
+    startTransition: (toPhase: GamePhase, transitionType: TransitionType = "fadeIn") => {
+      set({ 
+        isTransitioning: true, 
+        transitionType,
+        phase: "loading"
+      });
+      
+      // Complete transition after animation duration
+      setTimeout(() => {
+        set({ 
+          phase: toPhase, 
+          isTransitioning: false,
+          transitionType: "none"
+        });
+      }, 600); // 600ms transition duration
+    },
+    
+    completeTransition: () => {
+      set({ 
+        isTransitioning: false,
+        transitionType: "none"
+      });
+    },
   }))
 );
