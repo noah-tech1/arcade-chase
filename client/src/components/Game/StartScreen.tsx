@@ -9,7 +9,7 @@ import AuthModal from "../Auth/AuthModal";
 import QRCode from 'qrcode';
 
 export default function StartScreen() {
-  const { start, resetGame, joystickMode, toggleJoystickMode } = useGame();
+  const { start, resetGame, joystickMode, toggleJoystickMode, startTransition } = useGame();
   const { personalHighScore, allTimeHighScore, playerName, hasSetName, setPlayerName } = useHighScore();
   const { user, isAuthenticated, logout, checkAuth } = useAuth();
   const { isMuted, toggleMute, volume, setVolume, initializeAudio } = useAudio();
@@ -67,7 +67,7 @@ export default function StartScreen() {
     if (isAuthenticated && user) {
       setPlayerName(user.username);
       resetGame();
-      start();
+      startTransition("playing", "fadeIn");
       return;
     }
     
@@ -76,7 +76,7 @@ export default function StartScreen() {
       setShowNamePrompt(true);
     } else {
       resetGame();
-      start();
+      startTransition("playing", "fadeIn");
     }
   };
 

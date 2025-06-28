@@ -7,12 +7,13 @@ import StartScreen from "./components/Game/StartScreen";
 import GameOverScreen from "./components/Game/GameOverScreen";
 import GameUI from "./components/Game/GameUI";
 import TouchControls from "./components/Game/TouchControls";
+import LoadingScreen from "./components/Game/LoadingScreen";
 import "./index.css";
 
 const queryClient = new QueryClient();
 
 function GameApp() {
-  const { phase } = useGame();
+  const { phase, transitionType } = useGame();
   const { setHitSound, setSuccessSound } = useAudio();
   const audioInitialized = useRef(false);
 
@@ -55,6 +56,7 @@ function GameApp() {
   return (
     <div className="game-container">
       {phase === "ready" && <StartScreen />}
+      {phase === "loading" && <LoadingScreen transitionType={transitionType} />}
       {phase === "playing" && (
         <>
           <GameCanvas />
@@ -62,7 +64,7 @@ function GameApp() {
           <TouchControls />
         </>
       )}
-      {phase === "ended" && <GameOverScreen />}
+      {(phase === "gameOver" || phase === "ended") && <GameOverScreen />}
     </div>
   );
 }
