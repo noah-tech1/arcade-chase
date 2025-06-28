@@ -389,38 +389,16 @@ class GameEngine {
     }
 
     spawnObstacle() {
-        const side = Math.floor(Math.random() * 4);
-        let x, y, vx, vy;
-        const speed = 1 + this.level * 0.3;
+        // Spawn obstacles directly on screen for debugging - they should be visible immediately
+        const x = 100 + Math.random() * (this.canvas.width - 200);
+        const y = 100 + Math.random() * (this.canvas.height - 200);
+        const speed = 2;
+        const vx = (Math.random() - 0.5) * speed;
+        const vy = (Math.random() - 0.5) * speed;
 
-        switch (side) {
-            case 0: // Top
-                x = Math.random() * this.canvas.width;
-                y = -25;
-                vx = (Math.random() - 0.5) * 2;
-                vy = speed;
-                break;
-            case 1: // Right
-                x = this.canvas.width + 25;
-                y = Math.random() * this.canvas.height;
-                vx = -speed;
-                vy = (Math.random() - 0.5) * 2;
-                break;
-            case 2: // Bottom
-                x = Math.random() * this.canvas.width;
-                y = this.canvas.height + 25;
-                vx = (Math.random() - 0.5) * 2;
-                vy = -speed;
-                break;
-            case 3: // Left
-                x = -25;
-                y = Math.random() * this.canvas.height;
-                vx = speed;
-                vy = (Math.random() - 0.5) * 2;
-                break;
-        }
-
-        this.obstacles.push(new Obstacle(x, y, vx, vy));
+        const newObstacle = new Obstacle(x, y, vx, vy);
+        this.obstacles.push(newObstacle);
+        // Obstacle created successfully
     }
 
     checkCollision(obj1, obj2, size1, size2) {
@@ -553,7 +531,7 @@ class GameEngine {
         });
 
         // Spawn obstacles on a timer (like web version)
-        if (Date.now() - this.lastObstacleSpawn > 2000 && this.obstacles.length < 6 && !this.activeCheatEffects.noObstacles) {
+        if (Date.now() - this.lastObstacleSpawn > 1000 && this.obstacles.length < 6) {
             this.spawnObstacle();
             this.lastObstacleSpawn = Date.now();
         }
@@ -584,10 +562,8 @@ class GameEngine {
         // Pass cheat effects to all render calls
         this.collectibles.forEach(collectible => collectible.render(this.ctx, this.activeCheatEffects));
         
-        // Only render obstacles if not disabled by cheat
-        if (!this.activeCheatEffects.noObstacles) {
-            this.obstacles.forEach(obstacle => obstacle.render(this.ctx, this.activeCheatEffects));
-        }
+        // Render obstacles
+        this.obstacles.forEach(obstacle => obstacle.render(this.ctx, this.activeCheatEffects));
         
         this.player.render(this.ctx, this.activeCheatEffects);
     }
