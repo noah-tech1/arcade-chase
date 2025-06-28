@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { LeaderboardService } from "./db";
+import path from "path";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Leaderboard API routes
