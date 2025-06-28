@@ -151,6 +151,8 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Improved obstacle design with procedural spiky shapes and dynamic pulse animations
 - Upgraded particle system with enhanced explosion effects, collection bursts, and improved rendering
 - Added combo timer UI with animated progress bar and glowing effects for sustained collection streaks
+- Created Chrome extension version with complete game functionality, offline play, and local high score storage
+- Built downloadable ZIP package with installation instructions and optimized 800x600 popup interface
 
 ## User Preferences
 
