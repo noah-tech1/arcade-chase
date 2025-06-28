@@ -97,16 +97,23 @@ class Collectible {
         else if (this.type === 'rare') this.glowIntensity *= 1.2;
     }
 
-    render(ctx) {
+    render(ctx, cheatEffects) {
         ctx.save();
+        
+        // Apply rainbow mode colors
+        let collectibleColor = this.color;
+        if (cheatEffects && cheatEffects.rainbowMode) {
+            const hue = (Date.now() * 0.4 + this.position.x * 0.2) % 360;
+            collectibleColor = `hsl(${hue}, 90%, 60%)`;
+        }
         
         const baseGlow = this.type === 'epic' ? 35 : this.type === 'rare' ? 25 : 20;
         ctx.shadowBlur = baseGlow + (this.glowIntensity * 15);
-        ctx.shadowColor = this.color;
+        ctx.shadowColor = collectibleColor;
         
         // Main collectible
         ctx.globalAlpha = 1;
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = collectibleColor;
         ctx.beginPath();
         ctx.arc(this.position.x, this.position.y, this.size / 2, 0, Math.PI * 2);
         ctx.fill();
@@ -458,14 +465,26 @@ class GameEngine {
     }
 
     render() {
-        this.ctx.fillStyle = '#0a0a1a';
+        // Apply rainbow background mode
+        if (this.activeCheatEffects.rainbowMode) {
+            const hue = (Date.now() * 0.05) % 360;
+            this.ctx.fillStyle = `hsl(${hue}, 30%, 5%)`;
+        } else {
+            this.ctx.fillStyle = '#0a0a1a';
+        }
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (this.gameState !== 'playing' && this.gameState !== 'paused') return;
 
-        this.collectibles.forEach(collectible => collectible.render(this.ctx));
-        this.obstacles.forEach(obstacle => obstacle.render(this.ctx));
-        this.player.render(this.ctx);
+        // Pass cheat effects to all render calls
+        this.collectibles.forEach(collectible => collectible.render(this.ctx, this.activeCheatEffects));
+        
+        // Only render obstacles if not disabled by cheat
+        if (!this.activeCheatEffects.noObstacles) {
+            this.obstacles.forEach(obstacle => obstacle.render(this.ctx, this.activeCheatEffects));
+        }
+        
+        this.player.render(this.ctx, this.activeCheatEffects);
     }
 
     bindEvents() {
