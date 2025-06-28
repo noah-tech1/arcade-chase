@@ -5,7 +5,7 @@ import { useAudio } from "../../lib/stores/useAudio";
 import { RotateCcw, Trophy, Target } from "lucide-react";
 
 export default function GameOverScreen() {
-  const { score, level, restart } = useGame();
+  const { score, level, restart, startTransition } = useGame();
   const { 
     personalHighScore, 
     allTimeHighScore, 
@@ -84,7 +84,13 @@ export default function GameOverScreen() {
           </div>
         </div>
         
-        <button onClick={restart} className="restart-button">
+        <button 
+          onClick={() => {
+            restart();
+            startTransition("ready", "slideDown");
+          }} 
+          className="restart-button"
+        >
           <RotateCcw size={20} />
           PLAY AGAIN
         </button>

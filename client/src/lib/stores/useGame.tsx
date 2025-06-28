@@ -168,12 +168,10 @@ export const useGame = create<GameState>()(
     },
 
     end: () => {
-      set((state) => {
-        if (state.phase === "playing") {
-          return { phase: "ended" };
-        }
-        return {};
-      });
+      const currentState = get();
+      if (currentState.phase === "playing") {
+        currentState.startTransition("gameOver", "spin");
+      }
     },
 
     addScore: (points: number) => {

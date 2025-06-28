@@ -90,7 +90,7 @@ export default function StartScreen() {
       setPlayerName(name.trim());
       setShowNamePrompt(false);
       resetGame();
-      start();
+      startTransition("playing", "scale");
     }
   };
 
