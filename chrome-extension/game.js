@@ -184,6 +184,31 @@ class GameEngine {
         this.comboTimer = 0;
         this.lastCollectionTime = 0;
         
+        // Cheat system
+        this.cheatMode = false;
+        this.cheatPrompt = false;
+        this.cheatMenuOpen = false;
+        this.activeCheatEffects = {
+            godMode: false,
+            slowMotion: false,
+            doubleScore: false,
+            superSpeed: false,
+            rainbowMode: false,
+            bigPlayer: false,
+            tinyPlayer: false,
+            infiniteLives: false,
+            noObstacles: false,
+            autoCollect: false,
+            extraLives: false,
+            tripleScore: false,
+            maxSpeed: false,
+            gigaPlayer: false,
+            microPlayer: false,
+            allPowerUps: false,
+            scoreBoost: false,
+            timeFreeze: false,
+        };
+        
         this.input = {
             left: false,
             right: false,
@@ -296,9 +321,44 @@ class GameEngine {
     update() {
         if (this.gameState !== 'playing') return;
 
-        this.player.update(this.input, this.canvas.width, this.canvas.height);
-        this.collectibles.forEach(collectible => collectible.update());
-        this.obstacles.forEach(obstacle => obstacle.update(this.canvas.width, this.canvas.height));
+        // Apply cheat effects to player speed
+        let speedMultiplier = 1;
+        if (this.activeCheatEffects.maxSpeed) speedMultiplier = 3;
+        else if (this.activeCheatEffects.superSpeed) speedMultiplier = 2;
+        else if (this.activeCheatEffects.slowMotion) speedMultiplier = 0.3;
+        else if (this.activeCheatEffects.timeFreeze) speedMultiplier = 0.1;
+
+        // Apply player size cheats
+        let originalSize = this.player.size;
+        if (this.activeCheatEffects.gigaPlayer) this.player.size = originalSize * 3;
+        else if (this.activeCheatEffects.bigPlayer) this.player.size = originalSize * 2;
+        else if (this.activeCheatEffects.tinyPlayer) this.player.size = originalSize * 0.5;
+        else if (this.activeCheatEffects.microPlayer) this.player.size = originalSize * 0.25;
+
+        this.player.update(this.input, this.canvas.width, this.canvas.height, speedMultiplier);
+        
+        // Update collectibles and obstacles with time effects
+        this.collectibles.forEach(collectible => {
+            collectible.update();
+            
+            // Auto-collect cheat
+            if (this.activeCheatEffects.autoCollect) {
+                const dx = this.player.position.x - collectible.position.x;
+                const dy = this.player.position.y - collectible.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 150) {
+                    const pullStrength = 0.3;
+                    collectible.position.x += dx * pullStrength;
+                    collectible.position.y += dy * pullStrength;
+                }
+            }
+        });
+
+        // Only spawn obstacles if not disabled by cheat
+        if (!this.activeCheatEffects.noObstacles) {
+            this.obstacles.forEach(obstacle => obstacle.update(this.canvas.width, this.canvas.height, speedMultiplier));
+        }
 
         // Check collectible collisions
         for (let i = this.collectibles.length - 1; i >= 0; i--) {
@@ -376,6 +436,22 @@ class GameEngine {
 
     bindEvents() {
         document.addEventListener('keydown', (e) => {
+            // Handle cheat menu activation
+            if (e.key === '8' && !this.cheatPrompt && this.gameState === 'playing') {
+                this.cheatPrompt = true;
+                const passcode = prompt('🔒 Enter passcode:');
+                
+                // Check passcode
+                if (passcode === '7456660641') {
+                    this.openCheatMenu();
+                } else if (passcode !== null) {
+                    alert('❌ Invalid passcode!');
+                }
+                
+                this.cheatPrompt = false;
+                return;
+            }
+            
             switch (e.code) {
                 case 'KeyW':
                 case 'ArrowUp':
@@ -476,6 +552,169 @@ class GameEngine {
         } else {
             comboDisplay.style.display = 'none';
         }
+    }
+
+    // Cheat system methods
+    openCheatMenu() {
+        this.cheatMenuOpen = true;
+        this.createCheatMenuHTML();
+    }
+
+    closeCheatMenu() {
+        this.cheatMenuOpen = false;
+        const cheatMenu = document.getElementById('cheatMenu');
+        if (cheatMenu) {
+            cheatMenu.remove();
+        }
+    }
+
+    toggleCheatEffect(effectKey) {
+        this.activeCheatEffects[effectKey] = !this.activeCheatEffects[effectKey];
+        this.cheatMode = true;
+        
+        // Apply special effects immediately
+        if (effectKey === 'infiniteLives' && this.activeCheatEffects[effectKey]) {
+            this.lives = 999;
+        }
+        if (effectKey === 'extraLives' && this.activeCheatEffects[effectKey]) {
+            this.lives += 5;
+        }
+        
+        this.updateCheatMenuDisplay();
+    }
+
+    clearAllCheats() {
+        Object.keys(this.activeCheatEffects).forEach(key => {
+            this.activeCheatEffects[key] = false;
+        });
+        this.cheatMode = false;
+        this.updateCheatMenuDisplay();
+    }
+
+    createCheatMenuHTML() {
+        if (document.getElementById('cheatMenu')) return;
+
+        const cheatMenu = document.createElement('div');
+        cheatMenu.id = 'cheatMenu';
+        cheatMenu.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        `;
+
+        const cheatPanel = document.createElement('div');
+        cheatPanel.style.cssText = `
+            background: #2a2a2a;
+            border: 2px solid #4ECDC4;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            max-height: 500px;
+            overflow-y: auto;
+            color: white;
+        `;
+
+        cheatPanel.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: #4ECDC4; margin: 0;">🎮 CHEAT MENU</h2>
+                <button onclick="game.closeCheatMenu()" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">✕</button>
+            </div>
+            <div id="cheatCategories"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="game.clearAllCheats()" style="background: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">Clear All</button>
+                <button onclick="game.closeCheatMenu()" style="background: #4ECDC4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Close</button>
+            </div>
+        `;
+
+        cheatMenu.appendChild(cheatPanel);
+        document.body.appendChild(cheatMenu);
+
+        this.createCheatCategories();
+    }
+
+    createCheatCategories() {
+        const categoriesContainer = document.getElementById('cheatCategories');
+        if (!categoriesContainer) return;
+
+        const categories = [
+            {
+                title: "Movement & Speed",
+                cheats: [
+                    { key: 'superSpeed', name: 'Super Speed', desc: 'Lightning fast movement' },
+                    { key: 'maxSpeed', name: 'Max Speed', desc: 'Ludicrous speed' },
+                    { key: 'slowMotion', name: 'Slow Motion', desc: 'Time slows down' },
+                    { key: 'timeFreeze', name: 'Time Freeze', desc: 'Everything slows' },
+                ]
+            },
+            {
+                title: "Player Size",
+                cheats: [
+                    { key: 'bigPlayer', name: 'Big Player', desc: 'Giant player' },
+                    { key: 'tinyPlayer', name: 'Tiny Player', desc: 'Small player' },
+                    { key: 'gigaPlayer', name: 'Giga Player', desc: 'Massive player' },
+                    { key: 'microPlayer', name: 'Micro Player', desc: 'Microscopic player' },
+                ]
+            },
+            {
+                title: "Scoring",
+                cheats: [
+                    { key: 'doubleScore', name: 'Double Score', desc: '2x points' },
+                    { key: 'tripleScore', name: 'Triple Score', desc: '3x points' },
+                    { key: 'scoreBoost', name: 'Score Boost', desc: '1.5x points' },
+                ]
+            },
+            {
+                title: "Lives & Survival",
+                cheats: [
+                    { key: 'godMode', name: 'God Mode', desc: 'Invincibility' },
+                    { key: 'infiniteLives', name: 'Infinite Lives', desc: 'Never lose lives' },
+                    { key: 'extraLives', name: 'Extra Lives', desc: 'Gain 5 lives' },
+                ]
+            },
+            {
+                title: "Gameplay",
+                cheats: [
+                    { key: 'noObstacles', name: 'No Obstacles', desc: 'Clear path' },
+                    { key: 'autoCollect', name: 'Auto Collect', desc: 'Items come to you' },
+                    { key: 'allPowerUps', name: 'All Power-ups', desc: 'Permanent abilities' },
+                    { key: 'rainbowMode', name: 'Rainbow Mode', desc: 'Psychedelic colors' },
+                ]
+            }
+        ];
+
+        categoriesContainer.innerHTML = categories.map(category => `
+            <div style="margin-bottom: 15px;">
+                <h3 style="color: #4ECDC4; margin: 10px 0 5px 0; font-size: 14px;">${category.title}</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 5px;">
+                    ${category.cheats.map(cheat => `
+                        <button id="cheat-${cheat.key}" onclick="game.toggleCheatEffect('${cheat.key}')" 
+                                style="background: ${this.activeCheatEffects[cheat.key] ? '#4ECDC4' : '#555'}; 
+                                       color: white; border: none; padding: 8px; border-radius: 3px; 
+                                       cursor: pointer; font-size: 11px; text-align: left;">
+                            <div style="font-weight: bold;">${cheat.name}</div>
+                            <div style="font-size: 9px; opacity: 0.8;">${cheat.desc}</div>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    updateCheatMenuDisplay() {
+        Object.keys(this.activeCheatEffects).forEach(key => {
+            const button = document.getElementById(`cheat-${key}`);
+            if (button) {
+                button.style.background = this.activeCheatEffects[key] ? '#4ECDC4' : '#555';
+            }
+        });
     }
 
     gameLoop() {
