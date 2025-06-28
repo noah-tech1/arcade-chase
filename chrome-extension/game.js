@@ -255,6 +255,7 @@ class GameEngine {
         this.combo = 0;
         this.comboTimer = 0;
         this.lastCollectionTime = 0;
+        this.lastObstacleSpawn = 0;
         
         // Cheat system
         this.cheatMode = false;
@@ -295,6 +296,9 @@ class GameEngine {
         this.setupInitialObjects();
         this.loadHighScore(); // This is now async but we don't need to await it
         this.bindEvents();
+        
+        // Start spawning obstacles immediately
+        this.lastObstacleSpawn = Date.now();
     }
 
     initStars() {
@@ -548,9 +552,10 @@ class GameEngine {
                    obstacle.position.y > -50 && obstacle.position.y < this.canvas.height + 50;
         });
 
-        // Spawn obstacles more frequently to match web version
-        if (Math.random() < 0.01 * this.level && this.obstacles.length < 8 && !this.activeCheatEffects.noObstacles) {
+        // Spawn obstacles on a timer (like web version)
+        if (Date.now() - this.lastObstacleSpawn > 2000 && this.obstacles.length < 6 && !this.activeCheatEffects.noObstacles) {
             this.spawnObstacle();
+            this.lastObstacleSpawn = Date.now();
         }
     }
 
