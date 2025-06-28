@@ -107,11 +107,23 @@ class Collectible {
             collectibleColor = `hsl(${hue}, 90%, 60%)`;
         }
         
+        // Enhanced glow effects for different rarities
         const baseGlow = this.type === 'epic' ? 35 : this.type === 'rare' ? 25 : 20;
-        ctx.shadowBlur = baseGlow + (this.glowIntensity * 15);
-        ctx.shadowColor = collectibleColor;
+        const glowRadius = baseGlow + (this.glowIntensity * 15);
         
-        // Main collectible
+        // Create multiple glow layers for enhanced effect
+        for (let i = 3; i >= 1; i--) {
+            ctx.shadowBlur = glowRadius * i;
+            ctx.shadowColor = collectibleColor;
+            ctx.globalAlpha = 0.3 / i;
+            ctx.beginPath();
+            ctx.arc(this.position.x, this.position.y, this.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Main collectible with enhanced brightness
+        ctx.shadowBlur = glowRadius;
+        ctx.shadowColor = collectibleColor;
         ctx.globalAlpha = 1;
         ctx.fillStyle = collectibleColor;
         ctx.beginPath();
@@ -241,9 +253,45 @@ class GameEngine {
             down: false
         };
 
+        // Background stars for visual enhancement
+        this.stars = [];
+        this.initStars();
+
         this.setupInitialObjects();
         this.loadHighScore(); // This is now async but we don't need to await it
         this.bindEvents();
+    }
+
+    initStars() {
+        for (let i = 0; i < 50; i++) {
+            this.stars.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                size: Math.random() * 2 + 0.5,
+                opacity: Math.random() * 0.8 + 0.2,
+                twinkleSpeed: Math.random() * 0.02 + 0.01,
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+    }
+
+    updateStars() {
+        this.stars.forEach(star => {
+            star.phase += star.twinkleSpeed;
+            star.opacity = 0.3 + Math.sin(star.phase) * 0.4;
+        });
+    }
+
+    renderStars() {
+        this.ctx.save();
+        this.stars.forEach(star => {
+            this.ctx.globalAlpha = star.opacity;
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.beginPath();
+            this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+        this.ctx.restore();
     }
 
     async loadHighScore() {
@@ -345,6 +393,9 @@ class GameEngine {
 
     update() {
         if (this.gameState !== 'playing') return;
+
+        // Update background stars for visual enhancement
+        this.updateStars();
 
         // Apply cheat effects to player speed
         let speedMultiplier = 1;
@@ -465,14 +516,24 @@ class GameEngine {
     }
 
     render() {
-        // Apply rainbow background mode
+        // Apply rainbow background mode or default dark space background
         if (this.activeCheatEffects.rainbowMode) {
             const hue = (Date.now() * 0.05) % 360;
             this.ctx.fillStyle = `hsl(${hue}, 30%, 5%)`;
         } else {
-            this.ctx.fillStyle = '#0a0a1a';
+            // Create gradient background like web version
+            const gradient = this.ctx.createRadialGradient(
+                this.canvas.width / 2, this.canvas.height / 2, 0,
+                this.canvas.width / 2, this.canvas.height / 2, Math.max(this.canvas.width, this.canvas.height)
+            );
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(1, '#0a0a1a');
+            this.ctx.fillStyle = gradient;
         }
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Render animated background stars
+        this.renderStars();
 
         if (this.gameState !== 'playing' && this.gameState !== 'paused') return;
 
