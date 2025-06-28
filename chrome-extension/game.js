@@ -14,26 +14,36 @@ class Player {
         this.color = '#4ECDC4';
     }
 
-    update(input, canvasWidth, canvasHeight) {
+    update(input, canvasWidth, canvasHeight, speedMultiplier = 1) {
+        const effectiveSpeed = this.speed * speedMultiplier;
+        
         if (input.left && this.position.x > this.size / 2) {
-            this.position.x -= this.speed;
+            this.position.x -= effectiveSpeed;
         }
         if (input.right && this.position.x < canvasWidth - this.size / 2) {
-            this.position.x += this.speed;
+            this.position.x += effectiveSpeed;
         }
         if (input.up && this.position.y > this.size / 2) {
-            this.position.y -= this.speed;
+            this.position.y -= effectiveSpeed;
         }
         if (input.down && this.position.y < canvasHeight - this.size / 2) {
-            this.position.y += this.speed;
+            this.position.y += effectiveSpeed;
         }
     }
 
-    render(ctx) {
+    render(ctx, cheatEffects) {
         ctx.save();
-        ctx.shadowColor = this.color;
+        
+        // Apply rainbow mode colors
+        let playerColor = this.color;
+        if (cheatEffects && cheatEffects.rainbowMode) {
+            const hue = (Date.now() * 0.3) % 360;
+            playerColor = `hsl(${hue}, 100%, 60%)`;
+        }
+        
+        ctx.shadowColor = playerColor;
         ctx.shadowBlur = 15;
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = playerColor;
         ctx.beginPath();
         ctx.arc(this.position.x, this.position.y, this.size / 2, 0, Math.PI * 2);
         ctx.fill();
@@ -156,13 +166,21 @@ class Obstacle {
         }
     }
 
-    render(ctx) {
+    render(ctx, cheatEffects) {
         ctx.save();
         ctx.translate(this.position.x, this.position.y);
         ctx.rotate(this.rotation);
-        ctx.shadowColor = this.color;
+        
+        // Apply rainbow mode colors
+        let obstacleColor = this.color;
+        if (cheatEffects && cheatEffects.rainbowMode) {
+            const hue = (Date.now() * 0.2 + this.position.x * 0.1) % 360;
+            obstacleColor = `hsl(${hue}, 80%, 50%)`;
+        }
+        
+        ctx.shadowColor = obstacleColor;
         ctx.shadowBlur = 10;
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = obstacleColor;
         ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
         ctx.restore();
     }
@@ -377,7 +395,13 @@ class GameEngine {
                 this.comboTimer = 3000;
                 
                 points *= this.combo;
-                this.score += points;
+                
+                // Apply scoring cheat effects
+                if (this.activeCheatEffects.tripleScore) points *= 3;
+                else if (this.activeCheatEffects.doubleScore) points *= 2;
+                else if (this.activeCheatEffects.scoreBoost) points *= 1.5;
+                
+                this.score += Math.floor(points);
                 
                 this.collectibles.splice(i, 1);
                 this.spawnCollectible();
@@ -391,9 +415,19 @@ class GameEngine {
             }
         }
 
-        // Check obstacle collisions
+        // Check obstacle collisions (with cheat protection)
         for (const obstacle of this.obstacles) {
             if (this.checkCollision(this.player.position, obstacle.position, this.player.size, obstacle.size)) {
+                // Apply cheat protection
+                if (this.activeCheatEffects.godMode || this.activeCheatEffects.infiniteLives) {
+                    // No damage in god mode or infinite lives
+                    break;
+                } else if (this.activeCheatEffects.extraLives) {
+                    // Gain life instead of losing it
+                    this.lives++;
+                    break;
+                }
+                
                 this.lives--;
                 if (this.lives <= 0) {
                     this.gameOver();
