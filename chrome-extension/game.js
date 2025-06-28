@@ -490,23 +490,77 @@ class GameEngine {
 let game;
 
 function initGame() {
+    console.log('Initializing game...');
     const canvas = document.getElementById('gameCanvas');
+    if (!canvas) {
+        console.error('Canvas element not found!');
+        return;
+    }
     game = new GameEngine(canvas);
     game.gameLoop();
+    
+    // Add backup event listeners for buttons in case onclick doesn't work
+    const buttons = document.querySelectorAll('.game-button');
+    buttons.forEach(button => {
+        const text = button.textContent.trim();
+        console.log('Setting up button:', text);
+        
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Button clicked:', text);
+            
+            switch(text) {
+                case 'START GAME':
+                    startGame();
+                    break;
+                case 'HOW TO PLAY':
+                    showInstructions();
+                    break;
+                case 'PLAY AGAIN':
+                    restartGame();
+                    break;
+                case 'MAIN MENU':
+                    showStartScreen();
+                    break;
+                default:
+                    console.log('Unknown button:', text);
+            }
+        });
+    });
+    
+    console.log('Game initialized successfully');
 }
 
 function startGame() {
+    console.log('Start game button clicked');
+    if (!game) {
+        console.error('Game not initialized!');
+        return;
+    }
     game.startGame();
+    console.log('Game started');
 }
 
 function restartGame() {
+    console.log('Restart game button clicked');
+    if (!game) {
+        console.error('Game not initialized!');
+        return;
+    }
     game.startGame();
+    console.log('Game restarted');
 }
 
 function showStartScreen() {
+    console.log('Show start screen button clicked');
+    if (!game) {
+        console.error('Game not initialized!');
+        return;
+    }
     game.gameState = 'start';
     document.getElementById('startScreen').style.display = 'flex';
     document.getElementById('gameOverScreen').style.display = 'none';
+    console.log('Start screen shown');
 }
 
 function showInstructions() {
@@ -538,4 +592,15 @@ function showInstructions() {
 }
 
 // Initialize the game when the page loads
-document.addEventListener('DOMContentLoaded', initGame);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing game...');
+    setTimeout(initGame, 100); // Small delay to ensure all elements are ready
+});
+
+// Fallback initialization if DOM is already loaded
+if (document.readyState === 'loading') {
+    console.log('DOM is loading, waiting for DOMContentLoaded');
+} else {
+    console.log('DOM already loaded, initializing immediately');
+    setTimeout(initGame, 100);
+}
