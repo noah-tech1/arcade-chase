@@ -4,24 +4,24 @@ import fs from 'fs';
 
 const router = Router();
 
-// APK download route
-router.get('/arcade-collector.apk', (req, res) => {
-  const apkPath = path.join(__dirname, '../public/arcade-collector.apk');
+// Chrome Extension ZIP download route
+router.get('/arcade-collector-chrome-extension.zip', (req, res) => {
+  const zipPath = path.join(__dirname, '../public/arcade-collector-chrome-extension.zip');
   
-  // Check if APK file exists
-  if (fs.existsSync(apkPath)) {
-    res.setHeader('Content-Type', 'application/vnd.android.package-archive');
-    res.setHeader('Content-Disposition', 'attachment; filename="arcade-collector.apk"');
-    res.download(apkPath, 'arcade-collector.apk');
+  // Check if ZIP file exists
+  if (fs.existsSync(zipPath)) {
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment; filename="arcade-collector-chrome-extension.zip"');
+    res.download(zipPath, 'arcade-collector-chrome-extension.zip');
   } else {
-    // If APK doesn't exist, serve a message explaining how to build it
+    // If ZIP doesn't exist, serve a message explaining how to build it
     res.status(404).json({
-      error: 'APK not found',
-      message: 'To generate the APK file, run: npm run build:mobile-apk',
+      error: 'Chrome Extension ZIP not found',
+      message: 'To generate the Chrome Extension ZIP file, run: npm run build:chrome-extension',
       buildInstructions: [
-        '1. Navigate to the mobile-app directory',
-        '2. Run: eas build --platform android --local',
-        '3. Copy the generated APK to server/public/'
+        '1. Navigate to the chrome-extension directory',
+        '2. Run: npm run package',
+        '3. Copy the generated ZIP to server/public/'
       ]
     });
   }

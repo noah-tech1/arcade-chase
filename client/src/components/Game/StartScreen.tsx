@@ -28,13 +28,13 @@ export default function StartScreen() {
   console.log('StartScreen render, qrCodeOpen:', qrCodeOpen);
 
   useEffect(() => {
-    // Generate QR code for APK download
+    // Generate QR code for Chrome Extension ZIP download
     const generateQRCode = async () => {
       try {
-        // Point to the APK download endpoint
-        const apkDownloadUrl = `${window.location.origin}/download/arcade-collector.apk`;
-        console.log('Generating QR code for APK download:', apkDownloadUrl);
-        const qrDataUrl = await QRCode.toDataURL(apkDownloadUrl, {
+        // Point to the Chrome Extension ZIP download endpoint
+        const zipDownloadUrl = `${window.location.origin}/download/arcade-collector-chrome-extension.zip`;
+        console.log('Generating QR code for Chrome Extension ZIP download:', zipDownloadUrl);
+        const qrDataUrl = await QRCode.toDataURL(zipDownloadUrl, {
           width: 200,
           margin: 2,
           color: {
@@ -168,14 +168,14 @@ export default function StartScreen() {
           </button>
           
           <button 
-            className="mobile-app-button"
+            className="extension-button"
             onClick={() => {
-              console.log('Mobile app button clicked');
+              console.log('Extension download button clicked');
               setQrCodeOpen(true);
             }}
           >
             <Download size={16} />
-            MOBILE APP
+            EXTENSION
           </button>
           
           <button 
@@ -252,15 +252,15 @@ export default function StartScreen() {
           <div className="bg-gray-900 p-8 rounded-xl border border-cyan-400 max-w-md w-full mx-4 text-center">
             <div className="flex items-center justify-center gap-2 mb-6">
               <QrCode className="text-cyan-400" size={24} />
-              <h2 className="text-2xl font-bold text-white">Mobile App Access</h2>
+              <h2 className="text-2xl font-bold text-white">Chrome Extension Access</h2>
             </div>
             
-            {/* QR Code for current web app */}
+            {/* QR Code for Chrome Extension download */}
             <div className="bg-white p-4 rounded-lg mb-6 mx-auto w-52 h-52 flex items-center justify-center">
               {qrCodeDataUrl ? (
                 <div className="text-center">
                   <img src={qrCodeDataUrl} alt="QR Code" className="mx-auto mb-2" />
-                  <p className="text-xs text-gray-600">Scan to play on mobile</p>
+                  <p className="text-xs text-gray-600">Scan to download extension</p>
                 </div>
               ) : (
                 <div className="text-center">
@@ -272,30 +272,30 @@ export default function StartScreen() {
             
             <div className="space-y-4 mb-6">
               <p className="text-gray-300">
-                Scan the QR code with your phone to download the APK file
+                Scan the QR code with your phone to download the Chrome Extension ZIP file
               </p>
               
               <div className="text-sm text-gray-400 space-y-1">
-                <p>✓ Offline mobile app (APK)</p>
-                <p>✓ Install directly on Android</p>
+                <p>✓ Offline Chrome Extension (ZIP)</p>
+                <p>✓ Install directly in browser</p>
                 <p>✓ No internet required after download</p>
                 <p>✓ Full game features included</p>
               </div>
               
               <div className="flex gap-3 justify-center">
                 <a 
-                  href={`${window.location.origin}/download/arcade-collector.apk`}
+                  href={`${window.location.origin}/download/arcade-collector-chrome-extension.zip`}
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  download="arcade-collector.apk"
+                  download="arcade-collector-chrome-extension.zip"
                 >
                   <Download size={16} />
-                  Download APK
+                  Download ZIP
                 </a>
               </div>
               
               <div className="text-xs text-gray-500 border-t border-gray-700 pt-3">
                 <p>Direct link:</p>
-                <p className="font-mono break-all text-cyan-400">{window.location.origin}/download/arcade-collector.apk</p>
+                <p className="font-mono break-all text-cyan-400">{window.location.origin}/download/arcade-collector-chrome-extension.zip</p>
               </div>
             </div>
             
