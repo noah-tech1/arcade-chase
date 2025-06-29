@@ -4,6 +4,7 @@ import { useGame } from "../../lib/stores/useGame";
 import { useAudio } from "../../lib/stores/useAudio";
 import { GameEngine } from "../../lib/game/GameEngine";
 import CheatMenu from "./CheatMenu";
+import FPSCounter from "./FPSCounter";
 
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

@@ -15,6 +15,14 @@ interface GameState {
   combo: number;
   comboTimer: number;
   cheatMode: boolean;
+  
+  // Game statistics for FPS counter
+  gameStats: {
+    collectiblesCollected: number;
+    obstaclesAvoided: number;
+    timePlayed: number;
+    startTime: number;
+  };
 
   // Enhanced cheat system
   activeCheatEffects: {
@@ -79,6 +87,12 @@ interface GameState {
   toggleCheatEffect: (effect: keyof GameState['activeCheatEffects']) => void;
   clearAllCheats: () => void;
   toggleJoystickMode: () => void;
+  
+  // Game stats tracking
+  incrementCollectibles: () => void;
+  incrementObstaclesAvoided: () => void;
+  updateTimePlayed: () => void;
+  startGameTimer: () => void;
 }
 
 export const useGame = create<GameState>()(
@@ -94,6 +108,12 @@ export const useGame = create<GameState>()(
     comboTimer: 0,
     cheatMode: false,
     joystickMode: false,
+    gameStats: {
+      collectiblesCollected: 0,
+      obstaclesAvoided: 0,
+      timePlayed: 0,
+      startTime: 0,
+    },
     activeCheatEffects: {
       godMode: false,
       slowMotion: false,
