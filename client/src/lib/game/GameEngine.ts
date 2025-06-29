@@ -18,10 +18,10 @@ export class GameEngine {
   lastSpawnTime: number;
   lastObstacleSpawn: number;
   lastPowerUpSpawn: number;
-  backgroundStars: Array<{x: number, y: number, size: number, speed: number, alpha: number}>;
-  comboMultiplier: number;
-  comboTimer: number;
-  lastCollectionTime: number;
+  backgroundStars: Array<{x: number, y: number, size: number, speed: number, alpha: number}> = [];
+  comboMultiplier: number = 1;
+  comboTimer: number = 0;
+  lastCollectionTime: number = 0;
 
   constructor(canvasWidth: number, canvasHeight: number) {
     this.canvasWidth = canvasWidth;
@@ -35,13 +35,33 @@ export class GameEngine {
     this.lastSpawnTime = 0;
     this.lastObstacleSpawn = 0;
     this.lastPowerUpSpawn = 0;
+    this.backgroundStars = [];
+    this.comboMultiplier = 1;
+    this.comboTimer = 0;
+    this.lastCollectionTime = 0;
     
-    // Spawn initial collectibles
+    // Initialize background stars
+    this.initBackgroundStars();
+    
+    // Spawn initial collectibles with harder spacing
     this.spawnInitialCollectibles();
   }
 
+  initBackgroundStars() {
+    for (let i = 0; i < 150; i++) {
+      this.backgroundStars.push({
+        x: Math.random() * this.canvasWidth,
+        y: Math.random() * this.canvasHeight,
+        size: Math.random() * 2 + 0.5,
+        speed: Math.random() * 0.5 + 0.1,
+        alpha: Math.random() * 0.8 + 0.2
+      });
+    }
+  }
+
   spawnInitialCollectibles() {
-    for (let i = 0; i < 5; i++) {
+    // Start with fewer collectibles to increase difficulty
+    for (let i = 0; i < 3; i++) {
       this.spawnCollectible();
     }
   }
@@ -127,6 +147,11 @@ export class GameEngine {
     let hit = false;
     let collected = 0;
     let powerUpCollected: string | undefined;
+    
+    // Dynamic difficulty scaling based on level
+    const difficultyMultiplier = 1 + (level * GAME_CONFIG.DIFFICULTY_SCALING.LEVEL_MULTIPLIER * 0.1);
+    const scaledObstacleSpawnRate = GAME_CONFIG.OBSTACLE_SPAWN_RATE * (1 + level * GAME_CONFIG.DIFFICULTY_SCALING.SPAWN_RATE_INCREASE);
+    const scaledCollectibleSpawnRate = GAME_CONFIG.BASE_SPAWN_RATE * (1 + level * GAME_CONFIG.DIFFICULTY_SCALING.SPAWN_RATE_INCREASE * 0.5);
     
     // Apply cheat effects
     const safeCheatEffects = cheatEffects || {};
@@ -293,24 +318,34 @@ export class GameEngine {
       }
     }
     
-    // Spawn new collectibles periodically
+    // Advanced spawning system with difficulty scaling
     const now = Date.now();
-    if (now - this.lastSpawnTime > 2500 && this.collectibles.length < 10) {
-      this.spawnCollectible();
-      this.lastSpawnTime = now;
+    const maxCollectibles = Math.min(GAME_CONFIG.DIFFICULTY_SCALING.MAX_COLLECTIBLES, 6 + Math.floor(level / 3));
+    const maxObstacles = Math.min(GAME_CONFIG.DIFFICULTY_SCALING.MAX_OBSTACLES, 8 + Math.floor(level / 2));
+    
+    // Dynamic spawn intervals based on level
+    const collectibleSpawnInterval = Math.max(1200, 2800 - (level * 150));
+    const obstacleSpawnInterval = Math.max(800, 2200 - (level * 180));
+    
+    // Spawn collectibles with increased frequency
+    if (now - this.lastSpawnTime > collectibleSpawnInterval && this.collectibles.length < maxCollectibles) {
+      if (Math.random() < scaledCollectibleSpawnRate) {
+        this.spawnCollectible();
+        this.lastSpawnTime = now;
+      }
     }
     
-    // Spawn obstacles based on level (skip if no obstacles cheat is active)
-    if (!safeCheatEffects.noObstacles) {
-      const obstacleSpawnRate = GAME_CONFIG.OBSTACLE_SPAWN_RATE * (1 + level * 0.4);
-      if (now - this.lastObstacleSpawn > 1800 && Math.random() < obstacleSpawnRate) {
-        this.spawnObstacle(gameSpeed);
+    // Spawn obstacles with aggressive scaling (skip if no obstacles cheat is active)
+    if (!safeCheatEffects.noObstacles && this.obstacles.length < maxObstacles) {
+      if (now - this.lastObstacleSpawn > obstacleSpawnInterval && Math.random() < scaledObstacleSpawnRate) {
+        this.spawnObstacle(gameSpeed * difficultyMultiplier);
         this.lastObstacleSpawn = now;
       }
     }
     
-    // Spawn power-ups occasionally
-    if (now - this.lastPowerUpSpawn > 15000 && this.powerUps.length < 2 && Math.random() < GAME_CONFIG.POWERUP_SPAWN_RATE) {
+    // Spawn power-ups less frequently to increase difficulty
+    const powerUpSpawnInterval = Math.max(12000, 20000 - (level * 400));
+    if (now - this.lastPowerUpSpawn > powerUpSpawnInterval && this.powerUps.length < 2 && Math.random() < GAME_CONFIG.POWERUP_SPAWN_RATE) {
       this.spawnPowerUp();
       this.lastPowerUpSpawn = now;
     }
