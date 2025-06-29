@@ -1,321 +1,339 @@
-import React, { useState, useEffect } from "react";
-import { useGame } from "../../lib/stores/useGame";
-import { useHighScore } from "../../lib/stores/useHighScore";
-import { useAuth } from "../../lib/stores/useAuth";
-import { useAudio } from "../../lib/stores/useAudio";
-import { Play, Trophy, Volume2, VolumeX, List, QrCode, Download, Settings, Smartphone, User, LogOut } from "lucide-react";
-import Leaderboard from "./Leaderboard";
-import AuthModal from "../Auth/AuthModal";
-import SettingsModal from "./SettingsModal";
-import QRCode from 'qrcode';
+import React, { useState, useEffect } from 'react';
+import { useGame } from '../../lib/stores/useGame';
+import { useAudio } from '../../lib/stores/useAudio';
+import { useHighScore } from '../../lib/stores/useHighScore';
+import { FaPause, FaPlay, FaCog, FaTrophy, FaDownload, FaVolumeUp, FaVolumeOff } from 'react-icons/fa';
+import Leaderboard from './Leaderboard';
 
-export default function StartScreen() {
-  const { start, resetGame, joystickMode, toggleJoystickMode, startTransition } = useGame();
-  const { personalHighScore, allTimeHighScore, playerName, setPlayerName } = useHighScore();
-  const { user, isAuthenticated, logout, checkAuth } = useAuth();
-  const { isMuted, toggleMute, volume, setVolume, initializeAudio } = useAudio();
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
-  const [qrCodeOpen, setQrCodeOpen] = useState(false);
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
-  const [showNamePrompt, setShowNamePrompt] = useState(false);
+interface FloatingParticle {
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  color: string;
+  size: number;
+  opacity: number;
+}
+
+interface AnimatedCounter {
+  value: number;
+  displayValue: number;
+  increment: number;
+}
+
+function StartScreenModern() {
+  const { start, resetGame, startTransition } = useGame();
+  const { isMuted, toggleMute, initializeAudio } = useAudio();
+  const { personalHighScore, allTimeHighScore, playerName } = useHighScore();
+  
+  const [particles, setParticles] = useState<FloatingParticle[]>([]);
   const [showSettings, setShowSettings] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [animatedStats, setAnimatedStats] = useState<{
+    personalScore: AnimatedCounter;
+    allTimeScore: AnimatedCounter;
+  }>({
+    personalScore: { value: personalHighScore, displayValue: 0, increment: Math.max(1, Math.floor(personalHighScore / 100)) },
+    allTimeScore: { value: allTimeHighScore, displayValue: 0, increment: Math.max(1, Math.floor(allTimeHighScore / 100)) }
+  });
 
-  // Check authentication status on mount
+  // Initialize floating particles
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    const newParticles: FloatingParticle[] = [];
+    for (let i = 0; i < 25; i++) {
+      newParticles.push({
+        id: i,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        color: `hsl(${Math.random() * 360}, 80%, 70%)`,
+        size: Math.random() * 8 + 4,
+        opacity: Math.random() * 0.7 + 0.3
+      });
+    }
+    setParticles(newParticles);
+  }, []);
 
-  console.log('StartScreen render, qrCodeOpen:', qrCodeOpen);
-
+  // Animate particles
   useEffect(() => {
-    // Generate QR code for Chrome Extension ZIP download
-    const generateQRCode = async () => {
-      try {
-        // Point to the Chrome Extension ZIP download endpoint
-        const zipDownloadUrl = `${window.location.origin}/download/arcade-collector-chrome-extension.zip`;
-        console.log('Generating QR code for Chrome Extension ZIP download:', zipDownloadUrl);
-        const qrDataUrl = await QRCode.toDataURL(zipDownloadUrl, {
-          width: 200,
-          margin: 2,
-          color: {
-            dark: '#000000',
-            light: '#FFFFFF'
-          }
-        });
-        console.log('QR code generated successfully');
-        setQrCodeDataUrl(qrDataUrl);
-      } catch (error) {
-        console.error('Error generating QR code:', error);
-      }
+    const animateParticles = () => {
+      setParticles(prev => prev.map(particle => {
+        let newX = particle.x + particle.vx;
+        let newY = particle.y + particle.vy;
+        let newVx = particle.vx;
+        let newVy = particle.vy;
+
+        // Bounce off edges
+        if (newX <= 0 || newX >= window.innerWidth) {
+          newVx = -newVx;
+          newX = Math.max(0, Math.min(window.innerWidth, newX));
+        }
+        if (newY <= 0 || newY >= window.innerHeight) {
+          newVy = -newVy;
+          newY = Math.max(0, Math.min(window.innerHeight, newY));
+        }
+
+        return {
+          ...particle,
+          x: newX,
+          y: newY,
+          vx: newVx,
+          vy: newVy
+        };
+      }));
     };
 
-    if (qrCodeOpen) {
-      console.log('QR code modal should open, generating QR code...');
-      generateQRCode();
-    }
-  }, [qrCodeOpen]);
+    const interval = setInterval(animateParticles, 50);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleStart = () => {
-    // Initialize audio on first interaction
+  // Animate counters
+  useEffect(() => {
+    const animateCounters = () => {
+      setAnimatedStats(prev => {
+        const newPersonal = prev.personalScore.displayValue < prev.personalScore.value
+          ? { ...prev.personalScore, displayValue: Math.min(prev.personalScore.value, prev.personalScore.displayValue + prev.personalScore.increment) }
+          : prev.personalScore;
+        
+        const newAllTime = prev.allTimeScore.displayValue < prev.allTimeScore.value
+          ? { ...prev.allTimeScore, displayValue: Math.min(prev.allTimeScore.value, prev.allTimeScore.displayValue + prev.allTimeScore.increment) }
+          : prev.allTimeScore;
+
+        return {
+          personalScore: newPersonal,
+          allTimeScore: newAllTime
+        };
+      });
+    };
+
+    const interval = setInterval(animateCounters, 50);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleStartGame = () => {
     try {
       initializeAudio();
     } catch (e) {
       console.warn('Audio initialization failed');
     }
-    
-    // If authenticated, use username
-    if (isAuthenticated && user) {
-      setPlayerName(user.username);
-      resetGame();
-      startTransition("playing", "fadeIn");
-      return;
-    }
-    
-    // If user hasn't set a name yet, prompt for it before starting
-    if (!playerName.trim() || playerName === "Player") {
-      setShowNamePrompt(true);
-    } else {
-      resetGame();
-      startTransition("playing", "fadeIn");
-    }
+    resetGame();
+    startTransition("playing", "fadeIn");
   };
 
-  const handleLogout = async () => {
-    await logout();
-    setPlayerName('');
+  const handleShowLeaderboard = () => {
+    setLeaderboardOpen(true);
   };
 
-  const handleNameSubmit = (name: string) => {
-    if (name.trim()) {
-      setPlayerName(name.trim());
-      setShowNamePrompt(false);
-      resetGame();
-      startTransition("playing", "scale");
-    }
-  };
+  const quickStats = [
+    { label: 'Personal Best', value: animatedStats.personalScore.displayValue, color: 'text-cyan-400', bg: 'bg-cyan-400/10' },
+    { label: 'All-Time Record', value: animatedStats.allTimeScore.displayValue, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+    { label: 'Player', value: playerName || 'Anonymous', color: 'text-purple-400', bg: 'bg-purple-400/10', isText: true }
+  ];
 
   return (
-    <div className="start-screen">
-      <div className="start-content">
-        <h1 className="game-title">
-          <span className="title-arcade">ARCADE</span>
-          <span className="title-collector">COLLECTOR</span>
-        </h1>
-        
-        <div className="game-description">
-          Navigate through space, collect the glowing orbs, and avoid the dangerous obstacles!
-        </div>
-        
-        <div className="high-score-display">
-          <Trophy className="trophy-icon" />
-          <div className="score-info">
-            <div>Personal Best: {personalHighScore.toLocaleString()}</div>
-            <div>All-Time Record: {allTimeHighScore.toLocaleString()}</div>
-            {isAuthenticated && user && (
-              <div className="auth-status">
-                <User size={14} />
-                <span>Logged in as {user.username}</span>
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-auto">
+      {/* Animated Background Particles */}
+      <div className="absolute inset-0">
+        {particles.map(particle => (
+          <div
+            key={particle.id}
+            className="absolute rounded-full blur-sm animate-pulse"
+            style={{
+              left: `${particle.x}px`,
+              top: `${particle.y}px`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              backgroundColor: particle.color,
+              opacity: particle.opacity,
+              transform: 'translate(-50%, -50%)'
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+
+      {/* Main Content */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Header */}
+        <header className="flex justify-between items-center p-6 lg:p-8">
+          <div className="flex items-center space-x-4 lg:space-x-6">
+            <button
+              onClick={() => {
+                initializeAudio();
+                toggleMute();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                initializeAudio();
+                toggleMute();
+              }}
+              className="p-3 lg:p-4 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white transform hover:scale-110 touch-manipulation"
+            >
+              {!isMuted ? <FaVolumeUp size={20} className="lg:w-6 lg:h-6" /> : <FaVolumeOff size={20} className="lg:w-6 lg:h-6" />}
+            </button>
+          </div>
+          
+          <div className="flex items-center space-x-4 lg:space-x-6">
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                setShowSettings(!showSettings);
+              }}
+              className="p-3 lg:p-4 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white transform hover:scale-110 touch-manipulation"
+            >
+              <FaCog size={20} className="lg:w-6 lg:h-6" />
+            </button>
+          </div>
+        </header>
+
+        {/* Main Hero Section */}
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 text-center">
+          {/* Game Title */}
+          <div className="mb-4">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 tracking-wider drop-shadow-2xl">
+              ARCADE
+            </h1>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white/90 tracking-widest mb-3">
+              COLLECTOR
+            </h2>
+            <div className="w-24 lg:w-32 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto rounded-full" />
+          </div>
+
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 w-full max-w-4xl">
+            {quickStats.map((stat, index) => (
+              <div
+                key={stat.label}
+                className={`relative p-4 rounded-xl ${stat.bg} backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105`}
+                style={{ animationDelay: `${index * 200}ms` }}
+              >
+                <div className="text-center">
+                  <p className="text-white/70 text-xs font-medium mb-1 uppercase tracking-wider">{stat.label}</p>
+                  <p className={`text-2xl lg:text-3xl font-bold ${stat.color}`}>
+                    {stat.isText ? stat.value : typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
+                  </p>
+                </div>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
               </div>
-            )}
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-3">
+            <button
+              onClick={handleStartGame}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleStartGame();
+              }}
+              className="group relative px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white font-bold text-base hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-cyan-500/25 touch-manipulation"
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <FaPlay className="text-sm group-hover:animate-pulse" />
+                <span>START GAME</span>
+              </div>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-purple-400/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
+            </button>
+            
+            <button 
+              onClick={handleShowLeaderboard}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleShowLeaderboard();
+              }}
+              className="group relative px-8 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-base hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20 touch-manipulation"
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <FaTrophy className="text-sm group-hover:animate-bounce" />
+                <span>LEADERBOARD</span>
+              </div>
+            </button>
+          </div>
+
+          {/* Game Features */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full max-w-3xl text-center">
+            {[
+              { icon: '⚡', label: 'Fast-Paced' },
+              { icon: '🎯', label: 'Precision' },
+              { icon: '🏆', label: 'Competitive' },
+              { icon: '🎮', label: 'Retro Style' }
+            ].map((feature, index) => (
+              <div
+                key={feature.label}
+                className="p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="text-lg mb-1">{feature.icon}</div>
+                <p className="text-white/80 text-xs font-medium">{feature.label}</p>
+              </div>
+            ))}
           </div>
         </div>
-        
-        <button onClick={handleStart} className="start-button">
-          <Play size={20} />
-          START GAME
-        </button>
-        
-        <button 
-          className="leaderboard-button"
-          onClick={() => setLeaderboardOpen(true)}
-        >
-          <List size={16} />
-          LEADERBOARD
-        </button>
 
-        <button 
-          className="settings-button"
-          onClick={() => setShowSettings(true)}
-        >
-          <Settings size={16} />
-          SETTINGS
-        </button>
-
-        {!isAuthenticated ? (
-          <button 
-            className="auth-button login-button"
-            onClick={() => setShowAuth(true)}
-          >
-            <User size={16} />
-            LOGIN / REGISTER
-          </button>
-        ) : (
-          <button 
-            className="auth-button logout-button"
-            onClick={handleLogout}
-          >
-            <LogOut size={16} />
-            LOGOUT
-          </button>
-        )}
-        
-        <div className="flex gap-3">
-          <button
-            onClick={toggleJoystickMode}
-            className={`joystick-mode-button ${joystickMode ? 'active' : ''}`}
-          >
-            {joystickMode ? 'JOYSTICK: ON' : 'JOYSTICK: OFF'}
-          </button>
-          
-          <button 
-            className="extension-button"
-            onClick={() => {
-              console.log('Extension download button clicked');
-              setQrCodeOpen(true);
-            }}
-          >
-            <Download size={16} />
-            DOWNLOAD ZIP
-          </button>
-        </div>
-        
-        <div className="instructions">
-          <h3>How to Play:</h3>
-          <ul>
-            <li>Use <strong>WASD</strong> or <strong>Arrow Keys</strong> to move</li>
-            <li>Collect <span className="collectible-demo">green orbs</span> for points</li>
-            <li>Avoid <span className="obstacle-demo">yellow obstacles</span></li>
-            <li>Difficulty increases every 1000 points</li>
-          </ul>
-        </div>
-        
-        <div className="audio-notice">
-          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-          <span>Audio: {isMuted ? 'Muted' : 'Enabled'}</span>
-          <button 
-            onClick={() => {
-              initializeAudio();
-              toggleMute();
-            }}
-            className="ml-2 px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-xs transition-colors"
-          >
-            {isMuted ? 'Enable Audio' : 'Mute'}
-          </button>
-        </div>
+        {/* Footer */}
+        <footer className="p-2 text-center">
+          <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
+            <div className="text-white/60 text-xs">
+              © 2025 Arcade Collector - Enhanced Edition
+            </div>
+            <div className="flex items-center space-x-4">
+              <button className="flex items-center space-x-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300">
+                <FaDownload size={14} />
+                <span className="text-sm">Download</span>
+              </button>
+            </div>
+          </div>
+        </footer>
       </div>
-      
-      <Leaderboard 
-        isOpen={leaderboardOpen} 
-        onClose={() => setLeaderboardOpen(false)} 
-      />
 
-      {qrCodeOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-8 rounded-xl border border-cyan-400 max-w-md w-full mx-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <QrCode className="text-cyan-400" size={24} />
-              <h2 className="text-2xl font-bold text-white">Chrome Extension Access</h2>
-            </div>
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-slate-800/90 backdrop-blur-md rounded-2xl p-8 w-full max-w-md border border-white/20">
+            <h3 className="text-2xl font-bold text-white mb-6">Settings</h3>
             
-            {/* QR Code for Chrome Extension download */}
-            <div className="bg-white p-4 rounded-lg mb-6 mx-auto w-52 h-52 flex items-center justify-center">
-              {qrCodeDataUrl ? (
-                <div className="text-center">
-                  <img src={qrCodeDataUrl} alt="QR Code" className="mx-auto mb-2" />
-                  <p className="text-xs text-gray-600">Scan to download extension</p>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <QrCode size={120} className="text-gray-800 mx-auto mb-2" />
-                  <p className="text-xs text-gray-600">Generating QR code...</p>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-4 mb-6">
-              <p className="text-gray-300">
-                Scan the QR code with your phone to download the Chrome Extension ZIP file
-              </p>
-              
-              <div className="text-sm text-gray-400 space-y-1">
-                <p>✓ Offline Chrome Extension (ZIP)</p>
-                <p>✓ Install directly in browser</p>
-                <p>✓ No internet required after download</p>
-                <p>✓ Full game features included</p>
-              </div>
-              
-              <div className="flex gap-3 justify-center">
-                <a 
-                  href={`${window.location.origin}/download/arcade-collector-chrome-extension.zip`}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  download="arcade-collector-chrome-extension.zip"
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-white/80">Audio</span>
+                <button
+                  onClick={() => {
+                    initializeAudio();
+                    toggleMute();
+                  }}
+                  className={`w-12 h-6 rounded-full transition-all duration-300 ${
+                    !isMuted ? 'bg-cyan-500' : 'bg-gray-600'
+                  }`}
                 >
-                  <Download size={16} />
-                  Download ZIP
-                </a>
-              </div>
-              
-              <div className="text-xs text-gray-500 border-t border-gray-700 pt-3">
-                <p>Direct link:</p>
-                <p className="font-mono break-all text-cyan-400">{window.location.origin}/download/arcade-collector-chrome-extension.zip</p>
+                  <div
+                    className={`w-5 h-5 bg-white rounded-full transition-transform duration-300 ${
+                      !isMuted ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
             </div>
             
             <button
-              onClick={() => setQrCodeOpen(false)}
-              className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              onClick={() => setShowSettings(false)}
+              className="mt-6 w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg text-white font-semibold hover:from-cyan-400 hover:to-purple-500 transition-all duration-300"
             >
               Close
             </button>
           </div>
         </div>
       )}
-
-      {/* Name Prompt Modal */}
-      {showNamePrompt && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-8 rounded-xl border border-cyan-400 max-w-md w-full mx-4 text-center">
-            <h2 className="text-2xl font-bold text-white mb-4">Welcome to Arcade Collector!</h2>
-            <p className="text-gray-300 mb-6">Enter your name to save your high scores and compete on the leaderboard:</p>
-            
-            <input
-              type="text"
-              placeholder="Enter your name..."
-              className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none mb-4"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleNameSubmit(e.currentTarget.value);
-                }
-              }}
-            />
-            
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => {
-                  const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-                  handleNameSubmit(input.value);
-                }}
-                className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-500 hover:to-blue-500 transition-all duration-200 font-bold text-lg shadow-lg"
-              >
-                Start Game
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Settings Modal */}
-      <SettingsModal 
-        isOpen={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
-
-      <AuthModal 
-        isOpen={showAuth} 
-        onClose={() => setShowAuth(false)} 
+      
+      <Leaderboard 
+        isOpen={leaderboardOpen} 
+        onClose={() => setLeaderboardOpen(false)} 
       />
     </div>
   );
 }
+
+export default StartScreenModern;
