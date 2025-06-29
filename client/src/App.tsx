@@ -12,6 +12,8 @@ import InstallPWA from "./components/PWA/InstallPWA";
 import AppUpdatePrompt from "./components/PWA/AppUpdatePrompt";
 import SplashScreen from "./components/PWA/SplashScreen";
 import WakeLockManager from "./components/PWA/WakeLockManager";
+import AddToHomeScreen from "./components/PWA/AddToHomeScreen";
+import NotificationOptIn from "./components/PWA/NotificationOptIn";
 import { offlineStorageManager, hapticManager } from "./lib/mobile-utils";
 import "./index.css";
 
@@ -82,7 +84,9 @@ function GameApp() {
         <>
           <WakeLockManager />
           <InstallPWA />
+          <AddToHomeScreen />
           <AppUpdatePrompt />
+          <NotificationOptIn />
           
           {phase === "ready" && <StartScreen />}
           {phase === "loading" && <LoadingScreen transitionType={transitionType} />}

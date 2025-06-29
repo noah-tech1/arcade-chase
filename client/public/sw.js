@@ -115,27 +115,154 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Push notifications (if needed later)
+// Push notification handler
 self.addEventListener('push', (event) => {
-  if (event.data) {
+  console.log('Push notification received:', event);
+  
+  if (!event.data) {
+    console.log('No data in push event');
+    return;
+  }
+
+  try {
     const data = event.data.json();
+    console.log('Push data:', data);
+    
     const options = {
-      body: data.body,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-192x192.png',
-      vibrate: [200, 100, 200],
-      tag: 'arcade-collector-notification'
+      body: data.body || 'New notification from Arcade Collector',
+      icon: data.icon || '/icons/icon-192x192.png',
+      badge: data.badge || '/icons/icon-192x192.png',
+      tag: data.tag || 'arcade-collector',
+      data: data.data || {},
+      requireInteraction: data.requireInteraction || false,
+      silent: data.silent || false,
+      timestamp: Date.now(),
+      actions: data.actions || []
     };
+
     event.waitUntil(
-      self.registration.showNotification(data.title, options)
+      self.registration.showNotification(data.title || 'Arcade Collector', options)
+    );
+  } catch (error) {
+    console.error('Error processing push notification:', error);
+    
+    // Fallback notification
+    event.waitUntil(
+      self.registration.showNotification('Arcade Collector', {
+        body: 'You have a new notification!',
+        icon: '/icons/icon-192x192.png',
+        tag: 'arcade-collector-fallback'
+      })
     );
   }
 });
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked:', event);
+  
   event.notification.close();
+  
+  const action = event.action;
+  const data = event.notification.data || {};
+  
+  let url = '/';
+  
+  // Handle different notification actions
+  switch (action) {
+    case 'play':
+      url = '/';
+      break;
+    case 'challenge':
+      url = '/?challenge=daily';
+      break;
+    case 'update':
+      url = '/?updated=true';
+      break;
+    case 'snooze':
+      // Schedule another reminder
+      self.registration.showNotification('Play Reminder', {
+        body: 'Don\'t forget to play Arcade Collector!',
+        icon: '/icons/icon-192x192.png',
+        tag: 'play-reminder',
+        timestamp: Date.now() + (2 * 60 * 60 * 1000) // 2 hours later
+      });
+      return;
+    case 'dismiss':
+      return;
+    default:
+      // Handle data-based routing
+      if (data.type === 'challenge') {
+        url = '/?challenge=daily';
+      } else if (data.type === 'update') {
+        url = '/?updated=true';
+      }
+      break;
+  }
+  
   event.waitUntil(
-    clients.openWindow('/')
+    clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    }).then((clientList) => {
+      // Check if app is already open
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin)) {
+          client.focus();
+          client.postMessage({
+            type: 'NOTIFICATION_CLICKED',
+            action: action,
+            data: data,
+            url: url
+          });
+          return;
+        }
+      }
+      
+      // Open new window if app is not open
+      return clients.openWindow(url);
+    })
   );
+});
+
+// Handle notification close
+self.addEventListener('notificationclose', (event) => {
+  console.log('Notification closed:', event);
+  
+  // Track notification dismissal for analytics
+  const data = event.notification.data || {};
+  if (data.trackDismissal) {
+    // You can send analytics data here
+    console.log('Notification dismissed:', data);
+  }
+});
+
+// Periodic background sync for notifications
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'notification-sync') {
+    console.log('Background sync for notifications triggered');
+    
+    event.waitUntil(
+      // You can fetch new notification data from server here
+      fetch('/api/notifications/check')
+        .then(response => response.json())
+        .then(data => {
+          if (data.notifications && data.notifications.length > 0) {
+            return Promise.all(
+              data.notifications.map(notification =>
+                self.registration.showNotification(notification.title, {
+                  body: notification.body,
+                  icon: '/icons/icon-192x192.png',
+                  tag: notification.tag || 'background-sync',
+                  data: notification.data || {}
+                })
+              )
+            );
+          }
+        })
+        .catch(error => {
+          console.error('Background sync failed:', error);
+        })
+    );
+  }
 });
