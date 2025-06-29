@@ -100,11 +100,13 @@ class GameSettingsManager {
     const merged = { ...DEFAULT_SETTINGS };
     
     // Deep merge stored settings with defaults
-    Object.keys(DEFAULT_SETTINGS).forEach(category => {
-      if (stored[category] && typeof stored[category] === 'object') {
-        merged[category] = { ...DEFAULT_SETTINGS[category], ...stored[category] };
-      }
-    });
+    if (stored && typeof stored === 'object') {
+      if (stored.audio) merged.audio = { ...DEFAULT_SETTINGS.audio, ...stored.audio };
+      if (stored.controls) merged.controls = { ...DEFAULT_SETTINGS.controls, ...stored.controls };
+      if (stored.display) merged.display = { ...DEFAULT_SETTINGS.display, ...stored.display };
+      if (stored.gameplay) merged.gameplay = { ...DEFAULT_SETTINGS.gameplay, ...stored.gameplay };
+      if (stored.notifications) merged.notifications = { ...DEFAULT_SETTINGS.notifications, ...stored.notifications };
+    }
     
     return merged;
   }
@@ -128,10 +130,10 @@ class GameSettingsManager {
   }
 
   // Update specific setting
-  updateSetting<T extends keyof GameSettings>(
+  updateSetting<T extends keyof GameSettings, K extends keyof GameSettings[T]>(
     category: T,
-    key: keyof GameSettings[T],
-    value: GameSettings[T][keyof GameSettings[T]]
+    key: K,
+    value: GameSettings[T][K]
   ): void {
     this.settings[category] = {
       ...this.settings[category],

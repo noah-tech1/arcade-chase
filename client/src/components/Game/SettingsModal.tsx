@@ -13,7 +13,7 @@ import {
   Upload,
   Save
 } from 'lucide-react';
-import { useGameSettings } from '../../lib/gameSettings';
+import { useGameSettings, GameSettings } from '../../lib/gameSettings';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -29,27 +29,54 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   if (!isOpen) return null;
 
   const handleSliderChange = (
-    category: keyof typeof settings,
+    category: keyof GameSettings,
     key: string,
     value: number
   ) => {
-    updateSetting(category, key as any, value);
+    switch (category) {
+      case 'audio':
+        updateSetting('audio', key as keyof GameSettings['audio'], value as any);
+        break;
+      case 'controls':
+        updateSetting('controls', key as keyof GameSettings['controls'], value as any);
+        break;
+    }
   };
 
   const handleToggleChange = (
-    category: keyof typeof settings,
+    category: keyof GameSettings,
     key: string,
     checked: boolean
   ) => {
-    updateSetting(category, key as any, checked);
+    switch (category) {
+      case 'audio':
+        updateSetting('audio', key as keyof GameSettings['audio'], checked as any);
+        break;
+      case 'controls':
+        updateSetting('controls', key as keyof GameSettings['controls'], checked as any);
+        break;
+      case 'display':
+        updateSetting('display', key as keyof GameSettings['display'], checked as any);
+        break;
+      case 'gameplay':
+        updateSetting('gameplay', key as keyof GameSettings['gameplay'], checked as any);
+        break;
+      case 'notifications':
+        updateSetting('notifications', key as keyof GameSettings['notifications'], checked as any);
+        break;
+    }
   };
 
   const handleSelectChange = (
-    category: keyof typeof settings,
+    category: keyof GameSettings,
     key: string,
     value: string
   ) => {
-    updateSetting(category, key as any, value);
+    switch (category) {
+      case 'gameplay':
+        updateSetting('gameplay', key as keyof GameSettings['gameplay'], value as any);
+        break;
+    }
   };
 
   const handleExport = () => {
