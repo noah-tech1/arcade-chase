@@ -121,7 +121,7 @@ export default function StartScreenModern() {
   ];
 
   return (
-    <div className="relative min-h-screen lg:h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-auto">
       {/* Animated Background Particles */}
       <div className="absolute inset-0">
         {particles.map(particle => (
@@ -145,7 +145,7 @@ export default function StartScreenModern() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col min-h-screen lg:h-full">
+      <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
         <header className="flex justify-between items-center p-6 lg:p-8">
           <div className="flex items-center space-x-4 lg:space-x-6">
@@ -171,60 +171,60 @@ export default function StartScreenModern() {
         </header>
 
         {/* Main Hero Section */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 text-center">
           {/* Game Title */}
-          <div className="mb-6 lg:mb-12">
-            <h1 className="text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 lg:mb-4 tracking-wider drop-shadow-2xl">
+          <div className="mb-4">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 tracking-wider drop-shadow-2xl">
               ARCADE
             </h1>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white/90 tracking-widest mb-4 lg:mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white/90 tracking-widest mb-3">
               COLLECTOR
             </h2>
-            <div className="w-32 lg:w-48 h-1 lg:h-2 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto rounded-full" />
+            <div className="w-24 lg:w-32 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto rounded-full" />
           </div>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8 mb-6 lg:mb-12 w-full max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 w-full max-w-4xl">
             {quickStats.map((stat, index) => (
               <div
                 key={stat.label}
-                className={`relative p-6 lg:p-8 rounded-2xl ${stat.bg} backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105`}
+                className={`relative p-4 rounded-xl ${stat.bg} backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105`}
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <div className="text-center">
-                  <p className="text-white/70 text-sm lg:text-base font-medium mb-2 uppercase tracking-wider">{stat.label}</p>
-                  <p className={`text-3xl lg:text-4xl xl:text-5xl font-bold ${stat.color}`}>
+                  <p className="text-white/70 text-xs font-medium mb-1 uppercase tracking-wider">{stat.label}</p>
+                  <p className={`text-2xl lg:text-3xl font-bold ${stat.color}`}>
                     {stat.isText ? stat.value : typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
                   </p>
                 </div>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
               </div>
             ))}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 lg:gap-8 mb-4 lg:mb-8">
+          <div className="flex flex-col sm:flex-row gap-3 mb-3">
             <button
               onClick={handleStartGame}
-              className="group relative px-12 lg:px-16 py-4 lg:py-5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white font-bold text-lg lg:text-xl xl:text-2xl hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-cyan-500/25"
+              className="group relative px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white font-bold text-base hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-cyan-500/25"
             >
-              <div className="flex items-center justify-center space-x-3 lg:space-x-4">
-                <FaPlay className="text-sm lg:text-base group-hover:animate-pulse" />
+              <div className="flex items-center justify-center space-x-2">
+                <FaPlay className="text-sm group-hover:animate-pulse" />
                 <span>START GAME</span>
               </div>
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-purple-400/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
             </button>
             
-            <button className="group relative px-12 lg:px-16 py-4 lg:py-5 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-lg lg:text-xl xl:text-2xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20">
-              <div className="flex items-center justify-center space-x-3 lg:space-x-4">
-                <FaTrophy className="text-sm lg:text-base group-hover:animate-bounce" />
+            <button className="group relative px-8 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-base hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20">
+              <div className="flex items-center justify-center space-x-2">
+                <FaTrophy className="text-sm group-hover:animate-bounce" />
                 <span>LEADERBOARD</span>
               </div>
             </button>
           </div>
 
           {/* Game Features */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-6 w-full max-w-5xl text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full max-w-3xl text-center">
             {[
               { icon: '⚡', label: 'Fast-Paced' },
               { icon: '🎯', label: 'Precision' },
@@ -233,20 +233,20 @@ export default function StartScreenModern() {
             ].map((feature, index) => (
               <div
                 key={feature.label}
-                className="p-4 lg:p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105"
+                className="p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="text-2xl lg:text-3xl mb-2">{feature.icon}</div>
-                <p className="text-white/80 text-sm lg:text-base font-medium">{feature.label}</p>
+                <div className="text-lg mb-1">{feature.icon}</div>
+                <p className="text-white/80 text-xs font-medium">{feature.label}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Footer */}
-        <footer className="p-4 lg:p-6 text-center">
-          <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-            <div className="text-white/60 text-sm lg:text-base">
+        <footer className="p-2 text-center">
+          <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
+            <div className="text-white/60 text-xs">
               © 2025 Arcade Collector - Enhanced Edition
             </div>
             <div className="flex items-center space-x-4">
