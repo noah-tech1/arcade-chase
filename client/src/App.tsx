@@ -77,7 +77,7 @@ function GameApp() {
   };
 
   return (
-    <div className="game-container">
+    <div className="game-container responsive-wrapper">
       <SplashScreen show={showSplash} onComplete={handleSplashComplete} />
       
       {appReady && (
@@ -91,11 +91,11 @@ function GameApp() {
           {phase === "ready" && <StartScreen />}
           {phase === "loading" && <LoadingScreen transitionType={transitionType} />}
           {phase === "playing" && (
-            <>
+            <div className="game-playing-container">
               <GameCanvas />
               <GameUI />
               <TouchControls />
-            </>
+            </div>
           )}
           {(phase === "gameOver" || phase === "ended") && <GameOverScreen />}
         </>
