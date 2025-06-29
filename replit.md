@@ -190,6 +190,12 @@ This is a browser-based arcade-style collectible game built with React, TypeScri
 - Completed comprehensive deployment preparation with detailed status documentation and testing verification
 - Enhanced visual effects with procedural spike generation for obstacles and optimized particle systems
 - Verified PWA compliance with 100% Lighthouse score and full mobile functionality including offline play
+- Fixed button functionality issues in modern homepage: added proper onClick handlers for Leaderboard and all buttons
+- Enhanced touchscreen compatibility with proper onTouchEnd event handlers and preventDefault calls
+- Added comprehensive FPS counter improvements: 1% lows tracking, toggle visibility functionality
+- Implemented cache-busting meta tags to prevent browser caching issues requiring hard refresh
+- Added touch-manipulation CSS class and proper touch event handling for mobile/tablet devices
+- Enhanced performance monitoring with detailed FPS metrics and user-controlled stats overlay visibility
 
 ## User Preferences
 

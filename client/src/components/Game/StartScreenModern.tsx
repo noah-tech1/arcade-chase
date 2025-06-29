@@ -166,11 +166,12 @@ function StartScreenModern() {
                 initializeAudio();
                 toggleMute();
               }}
-              onTouchStart={() => {
+              onTouchEnd={(e) => {
+                e.preventDefault();
                 initializeAudio();
                 toggleMute();
               }}
-              className="p-3 lg:p-4 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white transform hover:scale-110"
+              className="p-3 lg:p-4 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white transform hover:scale-110 touch-manipulation"
             >
               {!isMuted ? <FaVolumeUp size={20} className="lg:w-6 lg:h-6" /> : <FaVolumeOff size={20} className="lg:w-6 lg:h-6" />}
             </button>
@@ -179,8 +180,11 @@ function StartScreenModern() {
           <div className="flex items-center space-x-4 lg:space-x-6">
             <button
               onClick={() => setShowSettings(!showSettings)}
-              onTouchStart={() => setShowSettings(!showSettings)}
-              className="p-3 lg:p-4 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white transform hover:scale-110"
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                setShowSettings(!showSettings);
+              }}
+              className="p-3 lg:p-4 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white transform hover:scale-110 touch-manipulation"
             >
               <FaCog size={20} className="lg:w-6 lg:h-6" />
             </button>
@@ -223,8 +227,11 @@ function StartScreenModern() {
           <div className="flex flex-col sm:flex-row gap-3 mb-3">
             <button
               onClick={handleStartGame}
-              onTouchStart={handleStartGame}
-              className="group relative px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white font-bold text-base hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-cyan-500/25"
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleStartGame();
+              }}
+              className="group relative px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white font-bold text-base hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-cyan-500/25 touch-manipulation"
             >
               <div className="flex items-center justify-center space-x-2">
                 <FaPlay className="text-sm group-hover:animate-pulse" />
@@ -235,8 +242,11 @@ function StartScreenModern() {
             
             <button 
               onClick={handleShowLeaderboard}
-              onTouchStart={handleShowLeaderboard}
-              className="group relative px-8 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-base hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20"
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleShowLeaderboard();
+              }}
+              className="group relative px-8 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-base hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20 touch-manipulation"
             >
               <div className="flex items-center justify-center space-x-2">
                 <FaTrophy className="text-sm group-hover:animate-bounce" />
