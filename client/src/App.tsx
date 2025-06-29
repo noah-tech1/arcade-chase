@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useGame } from "./lib/stores/useGame";
 import { useAudio } from "./lib/stores/useAudio";
 import GameCanvas from "./components/Game/GameCanvas";
-import StartScreen from "./components/Game/StartScreenRedesigned";
+import StartScreen from "./components/Game/StartScreenModern";
 import GameOverScreen from "./components/Game/GameOverScreen";
 import GameUI from "./components/Game/GameUI";
 import TouchControls from "./components/Game/TouchControls";

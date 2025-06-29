@@ -163,6 +163,9 @@ export default function GameCanvas() {
       }
     }
     
+    // Update time played stats
+    updateTimePlayed();
+    
     // Render with cheat effects
     gameEngineRef.current.render(ctx, safeCheatEffects);
 
@@ -197,6 +200,10 @@ export default function GameCanvas() {
 
     // Initialize game engine with canvas dimensions
     gameEngineRef.current = new GameEngine(800, 600);
+    
+    // Set up stat tracking callbacks
+    gameEngineRef.current.onCollectibleCollected = incrementCollectibles;
+    gameEngineRef.current.onObstacleAvoided = incrementObstaclesAvoided;
 
     // Add keyboard event listeners
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -296,9 +303,11 @@ export default function GameCanvas() {
     };
   }, []);
 
-  // Handle game loop
+  // Handle game loop and timer
   useEffect(() => {
     if (phase === "playing") {
+      // Start the game timer when playing begins
+      startGameTimer();
       gameLoop();
     } else {
       if (animationFrameRef.current) {

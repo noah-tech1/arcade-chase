@@ -230,6 +230,11 @@ export class GameEngine {
       if (obstacle.position.x < -100 || obstacle.position.x > this.canvasWidth + 100 ||
           obstacle.position.y < -100 || obstacle.position.y > this.canvasHeight + 100) {
         this.obstacles.splice(i, 1);
+        
+        // Track obstacle avoidance for stats (only count obstacles that went off-screen naturally)
+        if (this.onObstacleAvoided && obstacle.position.y > this.canvasHeight) {
+          this.onObstacleAvoided();
+        }
       }
     }
     
@@ -272,6 +277,11 @@ export class GameEngine {
         
         this.collectibles.splice(i, 1);
         this.spawnCollectible();
+        
+        // Track collectible collection for stats
+        if (this.onCollectibleCollected) {
+          this.onCollectibleCollected();
+        }
       }
     }
     
