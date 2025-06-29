@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useGame } from "./lib/stores/useGame";
 import { useAudio } from "./lib/stores/useAudio";
@@ -9,14 +9,20 @@ import GameUI from "./components/Game/GameUI";
 import TouchControls from "./components/Game/TouchControls";
 import LoadingScreen from "./components/Game/LoadingScreen";
 import InstallPWA from "./components/PWA/InstallPWA";
+import AppUpdatePrompt from "./components/PWA/AppUpdatePrompt";
+import SplashScreen from "./components/PWA/SplashScreen";
+import WakeLockManager from "./components/PWA/WakeLockManager";
+import { offlineStorageManager, hapticManager } from "./lib/mobile-utils";
 import "./index.css";
 
 const queryClient = new QueryClient();
 
 function GameApp() {
-  const { phase, transitionType } = useGame();
+  const { phase, transitionType, score, level } = useGame();
   const { setHitSound, setSuccessSound } = useAudio();
   const audioInitialized = useRef(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
     // Initialize audio on first user interaction
