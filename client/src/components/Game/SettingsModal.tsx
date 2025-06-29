@@ -85,8 +85,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   ] as const;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-700">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-gray-900 rounded-lg w-full max-w-5xl h-[95vh] sm:max-h-[90vh] overflow-hidden border border-gray-700 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-700">
           <h2 className="text-xl font-bold text-white">Game Settings</h2>
@@ -146,22 +146,27 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
         )}
 
-        <div className="flex h-[500px]">
+        <div className="flex flex-1 min-h-0">
           {/* Sidebar */}
-          <div className="w-48 bg-gray-800 border-r border-gray-700">
+          <div className="w-32 sm:w-48 bg-gray-800 border-r border-gray-700 flex-shrink-0">
             <div className="p-4 space-y-1">
               {tabs.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`w-full flex items-center space-x-2 px-3 py-2 rounded text-sm transition-colors ${
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    setActiveTab(id);
+                  }}
+                  className={`w-full flex items-center space-x-2 px-2 sm:px-3 py-2 rounded text-xs sm:text-sm transition-colors touch-manipulation ${
                     activeTab === id
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{label}</span>
+                  <span className="hidden sm:inline">{label}</span>
+                  <span className="sm:hidden text-xs">{label.slice(0,4)}</span>
                 </button>
               ))}
             </div>

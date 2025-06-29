@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useGameSettings } from '../../lib/gameSettings';
 
 interface FPSCounterProps {
   gameStats?: {
@@ -12,10 +13,16 @@ interface FPSCounterProps {
 }
 
 export const FPSCounter: React.FC<FPSCounterProps> = ({ gameStats }) => {
+  const { settings } = useGameSettings();
   const [fps, setFps] = useState(0);
   const [avgFps, setAvgFps] = useState(0);
   const [onePercentLow, setOnePercentLow] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  
+  // Don't render if FPS counter is disabled in settings
+  if (!settings.display.showFPS) {
+    return null;
+  }
   const frameCountRef = useRef(0);
   const lastTimeRef = useRef(performance.now());
   const fpsHistoryRef = useRef<number[]>([]);

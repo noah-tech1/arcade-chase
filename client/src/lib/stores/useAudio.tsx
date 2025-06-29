@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { gameSettings } from "../gameSettings";
 
 let audioContext: AudioContext | null = null;
 let backgroundOscillators: OscillatorNode[] = [];
