@@ -10,8 +10,8 @@ export class Player {
   shieldActive: boolean;
   shieldPulse: number;
   invulnerabilityFrames: number;
-  thrusterParticles: Array<{x: number, y: number, vx: number, vy: number, life: number}>;
-  rotationAngle: number;
+  thrusterParticles: Array<{x: number, y: number, vx: number, vy: number, life: number}> = [];
+  rotationAngle: number = 0;
 
   constructor(x: number, y: number) {
     this.position = { x, y };
@@ -23,6 +23,8 @@ export class Player {
     this.shieldActive = false;
     this.shieldPulse = 0;
     this.invulnerabilityFrames = 0;
+    this.thrusterParticles = [];
+    this.rotationAngle = 0;
   }
 
   update(input: { left: boolean; right: boolean; up: boolean; down: boolean }, gameSpeed: number, canvasWidth: number, canvasHeight: number, speedBoost: number = 1, cheatEffects?: any, onMove?: () => void) {

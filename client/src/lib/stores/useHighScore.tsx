@@ -147,7 +147,7 @@ export const useHighScore = create<HighScoreState>()(
         set((state) => ({
           ...state,
           leaderboard: state.leaderboard.filter(entry => 
-            entry.name.toLowerCase() !== playerName.toLowerCase()
+            (entry.name || entry.playerName).toLowerCase() !== playerName.toLowerCase()
           )
         }));
       },
