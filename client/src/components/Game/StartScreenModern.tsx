@@ -23,7 +23,7 @@ interface AnimatedCounter {
 
 export default function StartScreenModern() {
   const { start } = useGame();
-  const { isEnabled, toggleAudio } = useAudio();
+  const { isMuted, toggleMute, initializeAudio } = useAudio();
   const { personalHighScore, allTimeHighScore, playerName } = useHighScore();
   
   const [particles, setParticles] = useState<FloatingParticle[]>([]);
@@ -150,10 +150,13 @@ export default function StartScreenModern() {
         <header className="flex justify-between items-center p-6">
           <div className="flex items-center space-x-4">
             <button
-              onClick={toggleAudio}
+              onClick={() => {
+                initializeAudio();
+                toggleMute();
+              }}
               className="p-3 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white"
             >
-              {isEnabled ? <FaVolumeUp size={20} /> : <FaVolumeOff size={20} />}
+              {!isMuted ? <FaVolumeUp size={20} /> : <FaVolumeOff size={20} />}
             </button>
           </div>
           
@@ -266,14 +269,17 @@ export default function StartScreenModern() {
               <div className="flex items-center justify-between">
                 <span className="text-white/80">Audio</span>
                 <button
-                  onClick={toggleAudio}
+                  onClick={() => {
+                    initializeAudio();
+                    toggleMute();
+                  }}
                   className={`w-12 h-6 rounded-full transition-all duration-300 ${
-                    isEnabled ? 'bg-cyan-500' : 'bg-gray-600'
+                    !isMuted ? 'bg-cyan-500' : 'bg-gray-600'
                   }`}
                 >
                   <div
                     className={`w-5 h-5 bg-white rounded-full transition-transform duration-300 ${
-                      isEnabled ? 'translate-x-6' : 'translate-x-1'
+                      !isMuted ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </button>
