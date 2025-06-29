@@ -24,9 +24,9 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/gameplay.png",
+      "src": "/screenshots/gameplay.svg",
       "sizes": "1080x1920",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "form_factor": "narrow"
     }
   ]

@@ -1,69 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
-import { Download, Smartphone, X } from 'lucide-react';
-
-interface BeforeInstallPromptEvent extends Event {
-  readonly platforms: string[];
-  readonly userChoice: Promise<{
-    outcome: 'accepted' | 'dismissed';
-    platform: string;
-  }>;
-  prompt(): Promise<void>;
-}
+import { Download, Smartphone, X, Wifi, WifiOff } from 'lucide-react';
+import { PWAManager, PWAInstallPrompt, isMobileDevice, isOnline, onNetworkChange } from '../../lib/pwa-utils';
 
 export default function InstallPWA() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<PWAInstallPrompt | null>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [networkStatus, setNetworkStatus] = useState(isOnline());
+  const [showDismissed, setShowDismissed] = useState(false);
 
   useEffect(() => {
-    // Check if app is already installed
-    const isAppInstalled = window.matchMedia('(display-mode: standalone)').matches 
-      || window.matchMedia('(display-mode: fullscreen)').matches
-      || (window.navigator as any).standalone === true;
+    const pwaManager = PWAManager.getInstance();
     
-    setIsInstalled(isAppInstalled);
+    // Check if app is already installed
+    setIsInstalled(pwaManager.isInstalled());
 
-    // Listen for beforeinstallprompt event
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowInstallPrompt(true);
-    };
+    // Subscribe to install prompt changes
+    const unsubscribe = pwaManager.onInstallPromptChange((prompt) => {
+      setDeferredPrompt(prompt);
+      setShowInstallPrompt(!!prompt && !showDismissed && isMobileDevice());
+    });
 
-    // Listen for appinstalled event
-    const handleAppInstalled = () => {
-      setIsInstalled(true);
-      setShowInstallPrompt(false);
-      setDeferredPrompt(null);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    // Listen for network changes
+    const unsubscribeNetwork = onNetworkChange(setNetworkStatus);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
+      unsubscribe();
+      unsubscribeNetwork();
     };
-  }, []);
+  }, [showDismissed]);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-
-    // Show the install prompt
-    deferredPrompt.prompt();
+    const pwaManager = PWAManager.getInstance();
+    const success = await pwaManager.installApp();
     
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
-    } else {
-      console.log('User dismissed the install prompt');
+    if (success) {
+      setShowInstallPrompt(false);
     }
-    
-    // Clear the deferred prompt
-    setDeferredPrompt(null);
   };
 
   const handleDismiss = () => {
