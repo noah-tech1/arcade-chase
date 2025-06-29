@@ -206,6 +206,11 @@ function StartScreen() {
 
         {/* Main Hero Section */}
         <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 text-center">
+          {/* Debug indicator */}
+          <div className="fixed top-0 right-0 bg-green-500 text-white p-2 text-xs z-50">
+            MODERN UI v3.0 ACTIVE
+          </div>
+          
           {/* Game Title */}
           <div className="mb-4">
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 tracking-wider drop-shadow-2xl">
