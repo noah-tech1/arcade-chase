@@ -159,6 +159,12 @@ export const useGame = create<GameState>()(
         combo: 0,
         comboTimer: 0,
         cheatMode: false,
+        gameStats: {
+          collectiblesCollected: 0,
+          obstaclesAvoided: 0,
+          timePlayed: 0,
+          startTime: 0,
+        },
         activeCheatEffects: {
           godMode: false,
           slowMotion: false,
@@ -445,6 +451,48 @@ export const useGame = create<GameState>()(
         isTransitioning: false,
         transitionType: "none"
       });
+    },
+    
+    // Game stats tracking
+    incrementCollectibles: () => {
+      set((state) => ({
+        gameStats: {
+          ...state.gameStats,
+          collectiblesCollected: state.gameStats.collectiblesCollected + 1
+        }
+      }));
+    },
+    
+    incrementObstaclesAvoided: () => {
+      set((state) => ({
+        gameStats: {
+          ...state.gameStats,
+          obstaclesAvoided: state.gameStats.obstaclesAvoided + 1
+        }
+      }));
+    },
+    
+    updateTimePlayed: () => {
+      set((state) => {
+        const now = Date.now();
+        const timePlayed = state.gameStats.startTime > 0 ? 
+          (now - state.gameStats.startTime) / 1000 : 0;
+        return {
+          gameStats: {
+            ...state.gameStats,
+            timePlayed
+          }
+        };
+      });
+    },
+    
+    startGameTimer: () => {
+      set((state) => ({
+        gameStats: {
+          ...state.gameStats,
+          startTime: Date.now()
+        }
+      }));
     },
   }))
 );

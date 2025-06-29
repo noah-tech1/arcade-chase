@@ -22,6 +22,10 @@ export class GameEngine {
   comboMultiplier: number = 1;
   comboTimer: number = 0;
   lastCollectionTime: number = 0;
+  
+  // Callbacks for stats tracking
+  onCollectibleCollected?: () => void;
+  onObstacleAvoided?: () => void;
 
   constructor(canvasWidth: number, canvasHeight: number) {
     this.canvasWidth = canvasWidth;

@@ -19,6 +19,9 @@ export default function GameCanvas() {
     phase, 
     gameSpeed,
     level,
+    score,
+    lives,
+    gameStats,
     activePowerUps,
     activeCheatEffects,
     addScore, 
@@ -29,7 +32,11 @@ export default function GameCanvas() {
     toggleCheatEffect,
     clearAllCheats,
     updatePowerUps,
-    updateCombo
+    updateCombo,
+    incrementCollectibles,
+    incrementObstaclesAvoided,
+    updateTimePlayed,
+    startGameTimer
   } = useGame();
   const { playHit, playSuccess, playCollect, playPowerUp, playLevelUp, playMove, playBoost, playShield, playMagnet, playAmbientPulse, startBackgroundMusic, stopBackgroundMusic, initializeAudio } = useAudio();
 
@@ -315,6 +322,18 @@ export default function GameCanvas() {
         className="block mx-auto border-2 border-gray-600 rounded-lg"
         style={{ background: 'linear-gradient(45deg, #2C3E50, #34495E)' }}
       />
+      {phase === 'playing' && (
+        <FPSCounter 
+          gameStats={{
+            score,
+            level,
+            lives,
+            collectiblesCollected: gameStats.collectiblesCollected,
+            obstaclesAvoided: gameStats.obstaclesAvoided,
+            timePlayed: gameStats.timePlayed
+          }}
+        />
+      )}
       <CheatMenu 
         isOpen={cheatMenuOpen} 
         onClose={() => setCheatMenuOpen(false)} 
