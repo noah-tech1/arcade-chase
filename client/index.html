@@ -3,11 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Arcade Collector - Retro Game</title>
     <meta name="description" content="Classic arcade-style collectible game with retro aesthetics. Collect items, avoid obstacles, and unlock cheat modes in this browser-based gaming experience.">
     <meta name="keywords" content="arcade game, retro game, browser game, collectible game, cheat codes">
     <meta name="author" content="Arcade Collector Game">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4ECDC4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Arcade Collector">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -50,6 +66,40 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+      // Register service worker for PWA functionality
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+
+      // Handle PWA install prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the mini-infobar from appearing on mobile
+        e.preventDefault();
+        // Stash the event so it can be triggered later
+        deferredPrompt = e;
+        // Update UI notify user they can install the PWA
+        window.showInstallPromotion = true;
+      });
+
+      // Handle successful PWA installation
+      window.addEventListener('appinstalled', (evt) => {
+        console.log('PWA was installed');
+        window.showInstallPromotion = false;
+      });
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

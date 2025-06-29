@@ -8,6 +8,7 @@ import GameOverScreen from "./components/Game/GameOverScreen";
 import GameUI from "./components/Game/GameUI";
 import TouchControls from "./components/Game/TouchControls";
 import LoadingScreen from "./components/Game/LoadingScreen";
+import InstallPWA from "./components/PWA/InstallPWA";
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ function GameApp() {
 
   return (
     <div className="game-container">
+      <InstallPWA />
       {phase === "ready" && <StartScreen />}
       {phase === "loading" && <LoadingScreen transitionType={transitionType} />}
       {phase === "playing" && (
