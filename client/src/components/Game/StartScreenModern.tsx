@@ -3,6 +3,7 @@ import { useGame } from '../../lib/stores/useGame';
 import { useAudio } from '../../lib/stores/useAudio';
 import { useHighScore } from '../../lib/stores/useHighScore';
 import { FaPause, FaPlay, FaCog, FaTrophy, FaDownload, FaVolumeUp, FaVolumeOff } from 'react-icons/fa';
+import Leaderboard from './Leaderboard';
 
 interface FloatingParticle {
   id: number;
@@ -22,12 +23,13 @@ interface AnimatedCounter {
 }
 
 function StartScreenModern() {
-  const { start } = useGame();
+  const { start, resetGame, startTransition } = useGame();
   const { isMuted, toggleMute, initializeAudio } = useAudio();
   const { personalHighScore, allTimeHighScore, playerName } = useHighScore();
   
   const [particles, setParticles] = useState<FloatingParticle[]>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [animatedStats, setAnimatedStats] = useState<{
     personalScore: AnimatedCounter;
     allTimeScore: AnimatedCounter;
@@ -111,7 +113,17 @@ function StartScreenModern() {
   }, []);
 
   const handleStartGame = () => {
-    start();
+    try {
+      initializeAudio();
+    } catch (e) {
+      console.warn('Audio initialization failed');
+    }
+    resetGame();
+    startTransition("playing", "fadeIn");
+  };
+
+  const handleShowLeaderboard = () => {
+    setLeaderboardOpen(true);
   };
 
   const quickStats = [
@@ -154,6 +166,10 @@ function StartScreenModern() {
                 initializeAudio();
                 toggleMute();
               }}
+              onTouchStart={() => {
+                initializeAudio();
+                toggleMute();
+              }}
               className="p-3 lg:p-4 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white transform hover:scale-110"
             >
               {!isMuted ? <FaVolumeUp size={20} className="lg:w-6 lg:h-6" /> : <FaVolumeOff size={20} className="lg:w-6 lg:h-6" />}
@@ -163,6 +179,7 @@ function StartScreenModern() {
           <div className="flex items-center space-x-4 lg:space-x-6">
             <button
               onClick={() => setShowSettings(!showSettings)}
+              onTouchStart={() => setShowSettings(!showSettings)}
               className="p-3 lg:p-4 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 text-white transform hover:scale-110"
             >
               <FaCog size={20} className="lg:w-6 lg:h-6" />
@@ -206,6 +223,7 @@ function StartScreenModern() {
           <div className="flex flex-col sm:flex-row gap-3 mb-3">
             <button
               onClick={handleStartGame}
+              onTouchStart={handleStartGame}
               className="group relative px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white font-bold text-base hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-cyan-500/25"
             >
               <div className="flex items-center justify-center space-x-2">
@@ -215,7 +233,11 @@ function StartScreenModern() {
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-purple-400/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
             </button>
             
-            <button className="group relative px-8 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-base hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20">
+            <button 
+              onClick={handleShowLeaderboard}
+              onTouchStart={handleShowLeaderboard}
+              className="group relative px-8 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-base hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20"
+            >
               <div className="flex items-center justify-center space-x-2">
                 <FaTrophy className="text-sm group-hover:animate-bounce" />
                 <span>LEADERBOARD</span>
@@ -295,6 +317,11 @@ function StartScreenModern() {
           </div>
         </div>
       )}
+      
+      <Leaderboard 
+        isOpen={leaderboardOpen} 
+        onClose={() => setLeaderboardOpen(false)} 
+      />
     </div>
   );
 }
