@@ -4,6 +4,7 @@ import { useAudio } from '../../lib/stores/useAudio';
 import { useHighScore } from '../../lib/stores/useHighScore';
 import { FaPause, FaPlay, FaCog, FaTrophy, FaDownload, FaVolumeUp, FaVolumeOff } from 'react-icons/fa';
 import Leaderboard from './Leaderboard';
+import SettingsModal from './SettingsModal';
 
 interface FloatingParticle {
   id: number;
@@ -206,11 +207,6 @@ function StartScreen() {
 
         {/* Main Hero Section */}
         <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 text-center">
-          {/* Debug indicator */}
-          <div className="fixed top-0 right-0 bg-green-500 text-white p-2 text-xs z-50">
-            MODERN UI v3.0 ACTIVE
-          </div>
-          
           {/* Game Title */}
           <div className="mb-4">
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 tracking-wider drop-shadow-2xl">
@@ -316,42 +312,11 @@ function StartScreen() {
         </footer>
       </div>
 
-      {/* Settings Modal */}
-      {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-slate-800/90 backdrop-blur-md rounded-2xl p-8 w-full max-w-md border border-white/20">
-            <h3 className="text-2xl font-bold text-white mb-6">Settings</h3>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-white/80">Audio</span>
-                <button
-                  onClick={() => {
-                    initializeAudio();
-                    toggleMute();
-                  }}
-                  className={`w-12 h-6 rounded-full transition-all duration-300 ${
-                    !isMuted ? 'bg-cyan-500' : 'bg-gray-600'
-                  }`}
-                >
-                  <div
-                    className={`w-5 h-5 bg-white rounded-full transition-transform duration-300 ${
-                      !isMuted ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-            
-            <button
-              onClick={() => setShowSettings(false)}
-              className="mt-6 w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg text-white font-semibold hover:from-cyan-400 hover:to-purple-500 transition-all duration-300"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Comprehensive Settings Modal */}
+      <SettingsModal 
+        isOpen={showSettings} 
+        onClose={() => setShowSettings(false)} 
+      />
       
       <Leaderboard 
         isOpen={leaderboardOpen} 
