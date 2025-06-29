@@ -168,7 +168,7 @@ class Obstacle {
         this.size = 30; // Make them bigger and more visible
         this.color = '#FF4444'; // Brighter red color
         this.rotation = 0;
-        this.rotationSpeed = 0.08;
+        this.rotationSpeed = 0.15; // Increased from 0.08 to 0.15 for faster spinning
         this.pulsePhase = Math.random() * Math.PI * 2;
         this.originalSize = this.size;
     }
@@ -392,7 +392,7 @@ class GameEngine {
         // Spawn obstacles directly on screen for debugging - they should be visible immediately
         const x = 100 + Math.random() * (this.canvas.width - 200);
         const y = 100 + Math.random() * (this.canvas.height - 200);
-        const speed = 2;
+        const speed = 4.5; // Increased from 2 to 4.5 for faster movement
         const vx = (Math.random() - 0.5) * speed;
         const vy = (Math.random() - 0.5) * speed;
 
