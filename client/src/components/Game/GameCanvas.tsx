@@ -222,12 +222,9 @@ export default function GameCanvas() {
     
     // Handle window resize
     const handleResize = () => {
-      if (canvas) {
-        const { width: newWidth, height: newHeight } = canvasSize();
-        if (gameEngineRef.current) {
-          gameEngineRef.current.canvas.width = newWidth;
-          gameEngineRef.current.canvas.height = newHeight;
-        }
+      if (canvas && gameEngineRef.current) {
+        canvasSize(); // This updates the canvas dimensions
+        // The game engine will adapt to the new canvas size in the next update cycle
       }
     };
     
@@ -365,9 +362,10 @@ export default function GameCanvas() {
       }
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [settings.gameplay.pauseOnFocusLoss, phase, gameLoop]);
+  }, [settings.gameplay.pauseOnFocusLoss, settings.controls.invertYAxis, phase, gameLoop]);
 
   // Handle game loop and timer
   useEffect(() => {
