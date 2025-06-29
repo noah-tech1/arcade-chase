@@ -158,6 +158,15 @@ export class HapticManager {
   vibrate(pattern: number | number[]): boolean {
     if (!this.isSupported) return false;
     
+    // Check if haptic feedback is enabled in settings
+    try {
+      const { gameSettings } = require('./gameSettings');
+      const settings = gameSettings.getSettings();
+      if (!settings.audio.hapticFeedback) return false;
+    } catch (error) {
+      // Settings not available, proceed without check
+    }
+    
     try {
       navigator.vibrate(pattern);
       return true;

@@ -24,6 +24,13 @@ const getAudioContext = () => {
 const playTone = (frequency: number, type: OscillatorType, duration: number, volume: number) => {
   const ctx = getAudioContext();
   if (!ctx) return;
+  
+  // Check if sound effects are enabled in settings
+  const settings = gameSettings.getSettings();
+  if (!settings.audio.soundEffects) return;
+  
+  // Apply master volume from settings
+  volume = volume * settings.audio.masterVolume;
 
   try {
     if (ctx.state === 'suspended') {
@@ -438,8 +445,9 @@ export const useAudio = create<AudioState>((set, get) => ({
 
   startBackgroundMusic: () => {
     const { isMuted, volume, isBackgroundMusicPlaying } = get();
-    if (!isMuted && !isBackgroundMusicPlaying) {
-      startBackgroundLoop(volume);
+    const settings = gameSettings.getSettings();
+    if (!isMuted && !isBackgroundMusicPlaying && settings.audio.backgroundMusic) {
+      startBackgroundLoop(volume * settings.audio.masterVolume);
       set({ isBackgroundMusicPlaying: true });
     }
   },

@@ -85,42 +85,58 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   ] as const;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-gray-900 rounded-lg w-full max-w-5xl h-[95vh] sm:max-h-[90vh] overflow-hidden border border-gray-700 flex flex-col">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-1 sm:p-4">
+      <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-[98vh] sm:h-[95vh] md:max-h-[85vh] overflow-hidden border border-gray-700 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-700">
           <h2 className="text-xl font-bold text-white">Game Settings</h2>
           <div className="flex items-center space-x-2">
             <Button
               onClick={handleExport}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleExport();
+              }}
               size="sm"
               variant="ghost"
-              className="text-gray-300 hover:text-white"
+              className="text-gray-300 hover:text-white touch-manipulation"
             >
               <Download className="w-4 h-4 mr-1" />
               Export
             </Button>
             <Button
               onClick={() => setShowImport(!showImport)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                setShowImport(!showImport);
+              }}
               size="sm"
               variant="ghost"
-              className="text-gray-300 hover:text-white"
+              className="text-gray-300 hover:text-white touch-manipulation"
             >
               <Upload className="w-4 h-4 mr-1" />
               Import
             </Button>
             <Button
               onClick={resetToDefaults}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                resetToDefaults();
+              }}
               size="sm"
               variant="ghost"
-              className="text-orange-400 hover:text-orange-300"
+              className="text-orange-400 hover:text-orange-300 touch-manipulation"
             >
               <RotateCcw className="w-4 h-4 mr-1" />
               Reset
             </Button>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors"
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                onClose();
+              }}
+              className="text-gray-400 hover:text-white transition-colors touch-manipulation"
             >
               <X className="w-5 h-5" />
             </button>
@@ -138,7 +154,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 className="flex-1 bg-gray-700 text-white p-2 rounded text-sm"
                 rows={3}
               />
-              <Button onClick={handleImport} size="sm">
+              <Button 
+                onClick={handleImport}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  handleImport();
+                }}
+                size="sm"
+                className="touch-manipulation"
+              >
                 <Save className="w-4 h-4 mr-1" />
                 Import
               </Button>
