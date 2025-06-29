@@ -145,9 +145,7 @@ class PushNotificationManager {
       badge: data.badge || '/icons/icon-192x192.png',
       tag: data.tag || 'arcade-collector',
       data: data.data,
-      vibrate: [200, 100, 200],
       requireInteraction: false,
-      actions: data.actions,
       silent: false
     };
 

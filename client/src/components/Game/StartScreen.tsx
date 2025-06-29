@@ -11,7 +11,7 @@ import QRCode from 'qrcode';
 
 export default function StartScreen() {
   const { start, resetGame, joystickMode, toggleJoystickMode, startTransition } = useGame();
-  const { personalHighScore, allTimeHighScore, playerName, hasSetName, setPlayerName } = useHighScore();
+  const { personalHighScore, allTimeHighScore, playerName, setPlayerName } = useHighScore();
   const { user, isAuthenticated, logout, checkAuth } = useAuth();
   const { isMuted, toggleMute, volume, setVolume, initializeAudio } = useAudio();
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
@@ -73,7 +73,7 @@ export default function StartScreen() {
     }
     
     // If user hasn't set a name yet, prompt for it before starting
-    if (!hasSetName || !playerName.trim()) {
+    if (!playerName.trim() || playerName === "Player") {
       setShowNamePrompt(true);
     } else {
       resetGame();

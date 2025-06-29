@@ -29,54 +29,30 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   if (!isOpen) return null;
 
   const handleSliderChange = (
-    category: keyof GameSettings,
+    category: string,
     key: string,
     value: number
   ) => {
-    switch (category) {
-      case 'audio':
-        updateSetting('audio', key as keyof GameSettings['audio'], value as any);
-        break;
-      case 'controls':
-        updateSetting('controls', key as keyof GameSettings['controls'], value as any);
-        break;
-    }
+    // Direct call with type assertion for simplicity
+    (updateSetting as any)(category, key, value);
   };
 
   const handleToggleChange = (
-    category: keyof GameSettings,
+    category: string,
     key: string,
     checked: boolean
   ) => {
-    switch (category) {
-      case 'audio':
-        updateSetting('audio', key as keyof GameSettings['audio'], checked as any);
-        break;
-      case 'controls':
-        updateSetting('controls', key as keyof GameSettings['controls'], checked as any);
-        break;
-      case 'display':
-        updateSetting('display', key as keyof GameSettings['display'], checked as any);
-        break;
-      case 'gameplay':
-        updateSetting('gameplay', key as keyof GameSettings['gameplay'], checked as any);
-        break;
-      case 'notifications':
-        updateSetting('notifications', key as keyof GameSettings['notifications'], checked as any);
-        break;
-    }
+    // Direct call with type assertion for simplicity
+    (updateSetting as any)(category, key, checked);
   };
 
   const handleSelectChange = (
-    category: keyof GameSettings,
+    category: string,
     key: string,
     value: string
   ) => {
-    switch (category) {
-      case 'gameplay':
-        updateSetting('gameplay', key as keyof GameSettings['gameplay'], value as any);
-        break;
-    }
+    // Direct call with type assertion for simplicity
+    (updateSetting as any)(category, key, value);
   };
 
   const handleExport = () => {
