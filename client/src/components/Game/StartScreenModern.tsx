@@ -121,7 +121,7 @@ export default function StartScreenModern() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+    <div className="relative h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
       {/* Animated Background Particles */}
       <div className="absolute inset-0">
         {particles.map(particle => (
@@ -145,7 +145,7 @@ export default function StartScreenModern() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
         <header className="flex justify-between items-center p-6">
           <div className="flex items-center space-x-4">
@@ -173,18 +173,18 @@ export default function StartScreenModern() {
         {/* Main Hero Section */}
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
           {/* Game Title */}
-          <div className="mb-12">
-            <h1 className="text-8xl md:text-9xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4 tracking-wider">
+          <div className="mb-6">
+            <h1 className="text-6xl md:text-7xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 tracking-wider">
               ARCADE
             </h1>
-            <h2 className="text-5xl md:text-6xl font-bold text-white/90 tracking-widest mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold text-white/90 tracking-widest mb-4">
               COLLECTOR
             </h2>
             <div className="w-32 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto rounded-full" />
           </div>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 w-full max-w-4xl">
             {quickStats.map((stat, index) => (
               <div
                 key={stat.label}
@@ -203,28 +203,28 @@ export default function StartScreenModern() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <button
               onClick={handleStartGame}
-              className="group relative px-12 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white font-bold text-xl hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-cyan-500/25"
+              className="group relative px-10 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white font-bold text-lg hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-cyan-500/25"
             >
               <div className="flex items-center justify-center space-x-3">
-                <FaPlay className="text-lg group-hover:animate-pulse" />
+                <FaPlay className="text-sm group-hover:animate-pulse" />
                 <span>START GAME</span>
               </div>
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-purple-400/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
             </button>
             
-            <button className="group relative px-12 py-4 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20">
+            <button className="group relative px-10 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white font-bold text-lg hover:bg-white/20 transition-all duration-300 transform hover:scale-105 border border-white/20">
               <div className="flex items-center justify-center space-x-3">
-                <FaTrophy className="text-lg group-hover:animate-bounce" />
+                <FaTrophy className="text-sm group-hover:animate-bounce" />
                 <span>LEADERBOARD</span>
               </div>
             </button>
           </div>
 
           {/* Game Features */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-3xl text-center">
             {[
               { icon: '⚡', label: 'Fast-Paced' },
               { icon: '🎯', label: 'Precision' },
@@ -233,18 +233,18 @@ export default function StartScreenModern() {
             ].map((feature, index) => (
               <div
                 key={feature.label}
-                className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
+                className="p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="text-2xl mb-2">{feature.icon}</div>
-                <p className="text-white/80 text-sm font-medium">{feature.label}</p>
+                <div className="text-xl mb-1">{feature.icon}</div>
+                <p className="text-white/80 text-xs font-medium">{feature.label}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Footer */}
-        <footer className="p-6 text-center">
+        <footer className="p-3 text-center">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <div className="text-white/60 text-sm">
               © 2025 Arcade Collector - Enhanced Edition
