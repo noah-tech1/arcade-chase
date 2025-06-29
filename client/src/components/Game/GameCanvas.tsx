@@ -37,7 +37,7 @@ export default function GameCanvas() {
     if (phase === 'playing') {
       initializeAudio();
       startBackgroundMusic();
-    } else if (phase === 'gameOver' || phase === 'start') {
+    } else if (phase === 'gameOver' || phase === 'ready') {
       stopBackgroundMusic();
     }
   }, [phase, initializeAudio, startBackgroundMusic, stopBackgroundMusic]);

@@ -7,8 +7,8 @@ export class Obstacle {
   color: string;
   rotationSpeed: number;
   rotation: number;
-  pulsePhase: number;
-  spikes: Array<{angle: number, length: number}>;
+  pulsePhase: number = 0;
+  spikes: Array<{angle: number, length: number}> = [];
 
   constructor(x: number, y: number, vx: number = 0, vy: number = 0) {
     this.position = { x, y };
@@ -17,6 +17,16 @@ export class Obstacle {
     this.color = GAME_CONFIG.COLORS.OBSTACLE;
     this.rotationSpeed = (Math.random() - 0.5) * 0.2;
     this.rotation = 0;
+    this.pulsePhase = Math.random() * Math.PI * 2;
+    
+    // Generate procedural spikes for enhanced difficulty
+    const spikeCount = 6 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < spikeCount; i++) {
+      this.spikes.push({
+        angle: (Math.PI * 2 * i) / spikeCount,
+        length: 8 + Math.random() * 6
+      });
+    }
   }
 
   update(canvasWidth: number, canvasHeight: number) {
