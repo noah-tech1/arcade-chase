@@ -21,7 +21,7 @@ interface AnimatedCounter {
   increment: number;
 }
 
-export default function StartScreenModern() {
+function StartScreenModern() {
   const { start } = useGame();
   const { isMuted, toggleMute, initializeAudio } = useAudio();
   const { personalHighScore, allTimeHighScore, playerName } = useHighScore();
@@ -298,3 +298,5 @@ export default function StartScreenModern() {
     </div>
   );
 }
+
+export default StartScreenModern;

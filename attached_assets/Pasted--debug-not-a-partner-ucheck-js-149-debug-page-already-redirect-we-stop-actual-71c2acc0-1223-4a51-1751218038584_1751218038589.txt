@@ -1,0 +1,42 @@
+[debug] not a partner
+ucheck.js:149 [debug] page already redirect we stop, actual=71c2acc0-1223-4a51-872b-a2a14bd4c186-00-3aqxcb0f830qz.worf.replit.dev lastRootDirect=
+client:536 WebSocket connection to 'wss://71c2acc0-1223-4a51-872b-a2a14bd4c186-00-3aqxcb0f830qz.worf.replit.dev/?token=wE3DiBlWOEqp' failed: 
+setupWebSocket @ client:536
+(anonymous) @ client:531Understand this error
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=wE3DiBlWOEqp' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+setupWebSocket @ client:536
+fallback @ client:509
+(anonymous) @ client:555Understand this error
+chunk-WERSD76P.js?v=d45e576b:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+(index):111 SW registered:  ServiceWorkerRegistration {installing: null, waiting: null, active: ServiceWorker, navigationPreload: NavigationPreloadManager, scope: 'https://71c2acc0-1223-4a51-872b-a2a14bd4c186-00-3aqxcb0f830qz.worf.replit.dev/', …}
+71c2acc0-1223-4a51-872b-a2a14bd4c186-00-3aqxcb0f830qz.worf.replit.dev/:1 Error while trying to use the following icon from the Manifest: https://71c2acc0-1223-4a51-872b-a2a14bd4c186-00-3aqxcb0f830qz.worf.replit.dev/icons/icon-192x192.png (Download error or resource isn't a valid image)Understand this error
+read.js:2530 READ - Host validation failed: {hostName: '', hostType: undefined}
+content.js:2524 Host is not supported
+content.js:2526 Host is not valid or supported
+content.js:2526 Host is not in insights whitelist
+StartScreen.tsx:29 StartScreen render, qrCodeOpen: false
+StartScreen.tsx:29 StartScreen render, qrCodeOpen: false
+useAuth.tsx:150 Auth check failed: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+checkAuth @ useAuth.tsx:150
+await in checkAuth
+(anonymous) @ StartScreen.tsx:26
+commitHookEffectListMount @ chunk-WERSD76P.js?v=d45e576b:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=d45e576b:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=d45e576b:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=d45e576b:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=d45e576b:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=d45e576b:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=d45e576b:19447
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d45e576b:18868
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d45e576b:9119
+commitRootImpl @ chunk-WERSD76P.js?v=d45e576b:19432
+commitRoot @ chunk-WERSD76P.js?v=d45e576b:19277
+finishConcurrentRender @ chunk-WERSD76P.js?v=d45e576b:18805
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=d45e576b:18718
+workLoop @ chunk-WERSD76P.js?v=d45e576b:197
+flushWork @ chunk-WERSD76P.js?v=d45e576b:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=d45e576b:384Understand this warning
+2StartScreen.tsx:29 StartScreen render, qrCodeOpen: false
