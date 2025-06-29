@@ -36,13 +36,15 @@ export default function TouchControls() {
     return () => window.removeEventListener('resize', updateJoystickSize);
   }, []);
 
-  // Haptic feedback function
-  const triggerHapticFeedback = (intensity: 'light' | 'medium' | 'heavy' = 'light') => {
+  // Enhanced haptic feedback function with game-specific patterns
+  const triggerHapticFeedback = (intensity: 'light' | 'medium' | 'heavy' | 'collect' | 'hit' = 'light') => {
     if ('vibrate' in navigator) {
       const patterns = {
         light: 25,
         medium: 50,
-        heavy: 100
+        heavy: 100,
+        collect: [50, 30, 50], // Double tap pattern for collectibles
+        hit: [100, 50, 100, 50, 100] // Strong pattern for obstacles
       };
       navigator.vibrate(patterns[intensity]);
     }

@@ -1,7 +1,7 @@
 // Service Worker for Arcade Collector PWA
-const CACHE_NAME = 'arcade-collector-v1';
-const STATIC_CACHE = 'arcade-collector-static-v1';
-const DYNAMIC_CACHE = 'arcade-collector-dynamic-v1';
+const CACHE_NAME = 'arcade-collector-v2';
+const STATIC_CACHE = 'arcade-collector-static-v2';
+const DYNAMIC_CACHE = 'arcade-collector-dynamic-v2';
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
@@ -108,6 +108,13 @@ self.addEventListener('sync', (event) => {
   }
 });
 
+// Handle messages from main thread
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Push notifications (if needed later)
 self.addEventListener('push', (event) => {
   if (event.data) {
@@ -115,10 +122,20 @@ self.addEventListener('push', (event) => {
     const options = {
       body: data.body,
       icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-192x192.png'
+      badge: '/icons/icon-192x192.png',
+      vibrate: [200, 100, 200],
+      tag: 'arcade-collector-notification'
     };
     event.waitUntil(
       self.registration.showNotification(data.title, options)
     );
   }
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow('/')
+  );
 });

@@ -60,19 +60,42 @@ function GameApp() {
     };
   }, [setHitSound, setSuccessSound]);
 
+  // Save progress offline
+  useEffect(() => {
+    if (phase === 'gameOver' || phase === 'ended') {
+      offlineStorageManager.saveProgress(level, []); // Save current progress
+      hapticManager.gameOver(); // Haptic feedback for game over
+    }
+  }, [phase, level]);
+
+  // Handle splash screen completion
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    setAppReady(true);
+  };
+
   return (
     <div className="game-container">
-      <InstallPWA />
-      {phase === "ready" && <StartScreen />}
-      {phase === "loading" && <LoadingScreen transitionType={transitionType} />}
-      {phase === "playing" && (
+      <SplashScreen show={showSplash} onComplete={handleSplashComplete} />
+      
+      {appReady && (
         <>
-          <GameCanvas />
-          <GameUI />
-          <TouchControls />
+          <WakeLockManager />
+          <InstallPWA />
+          <AppUpdatePrompt />
+          
+          {phase === "ready" && <StartScreen />}
+          {phase === "loading" && <LoadingScreen transitionType={transitionType} />}
+          {phase === "playing" && (
+            <>
+              <GameCanvas />
+              <GameUI />
+              <TouchControls />
+            </>
+          )}
+          {(phase === "gameOver" || phase === "ended") && <GameOverScreen />}
         </>
       )}
-      {(phase === "gameOver" || phase === "ended") && <GameOverScreen />}
     </div>
   );
 }
