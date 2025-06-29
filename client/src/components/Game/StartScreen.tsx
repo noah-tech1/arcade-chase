@@ -22,7 +22,10 @@ interface AnimatedCounter {
   increment: number;
 }
 
-function StartScreenModern() {
+function StartScreen() {
+  // Force browser cache refresh - Modern UI v3.0
+  const COMPONENT_VERSION = "modern-ui-v3.0-" + Date.now();
+  
   const { start, resetGame, startTransition } = useGame();
   const { isMuted, toggleMute, initializeAudio } = useAudio();
   const { personalHighScore, allTimeHighScore, playerName } = useHighScore();
@@ -124,6 +127,16 @@ function StartScreenModern() {
 
   const handleShowLeaderboard = () => {
     setLeaderboardOpen(true);
+  };
+
+  const handleDownload = () => {
+    // Create download link for Chrome extension
+    const link = document.createElement('a');
+    link.href = '/api/download/extension';
+    link.download = 'arcade-collector-chrome-extension.zip';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const quickStats = [
@@ -282,7 +295,14 @@ function StartScreenModern() {
               © 2025 Arcade Collector - Enhanced Edition
             </div>
             <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300">
+              <button 
+                onClick={handleDownload}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  handleDownload();
+                }}
+                className="flex items-center space-x-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300 touch-manipulation"
+              >
                 <FaDownload size={14} />
                 <span className="text-sm">Download</span>
               </button>
@@ -336,4 +356,4 @@ function StartScreenModern() {
   );
 }
 
-export default StartScreenModern;
+export default StartScreen;

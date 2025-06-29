@@ -1,7 +1,7 @@
 // Service Worker for Arcade Collector PWA
-const CACHE_NAME = 'arcade-collector-v2';
-const STATIC_CACHE = 'arcade-collector-static-v2';
-const DYNAMIC_CACHE = 'arcade-collector-dynamic-v2';
+const CACHE_NAME = 'arcade-collector-v3-modern';
+const STATIC_CACHE = 'arcade-collector-static-v3-modern';
+const DYNAMIC_CACHE = 'arcade-collector-dynamic-v3-modern';
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
