@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useGame } from "../../lib/stores/useGame";
 import { useAudio } from "../../lib/stores/useAudio";
+import { useGameSettings } from "../../lib/gameSettings";
 import { GameEngine } from "../../lib/game/GameEngine";
 import CheatMenu from "./CheatMenu";
 import FPSCounter from "./FPSCounter";
@@ -39,6 +40,7 @@ export default function GameCanvas() {
     startGameTimer
   } = useGame();
   const { playHit, playSuccess, playCollect, playPowerUp, playLevelUp, playMove, playBoost, playShield, playMagnet, playAmbientPulse, startBackgroundMusic, stopBackgroundMusic, initializeAudio } = useAudio();
+  const { settings } = useGameSettings();
 
   // Initialize audio and start background music when game starts
   React.useEffect(() => {
@@ -194,12 +196,45 @@ export default function GameCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    canvas.width = 800;
-    canvas.height = 600;
+    // Set canvas size with responsive scaling
+    const canvasSize = () => {
+      const maxWidth = Math.min(window.innerWidth - 40, 800);
+      const maxHeight = Math.min(window.innerHeight - 200, 600);
+      const aspectRatio = 800 / 600;
+      
+      let width = maxWidth;
+      let height = width / aspectRatio;
+      
+      if (height > maxHeight) {
+        height = maxHeight;
+        width = height * aspectRatio;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      
+      return { width, height };
+    };
+    
+    const { width, height } = canvasSize();
+    
+    // Handle window resize
+    const handleResize = () => {
+      if (canvas) {
+        const { width: newWidth, height: newHeight } = canvasSize();
+        if (gameEngineRef.current) {
+          gameEngineRef.current.canvas.width = newWidth;
+          gameEngineRef.current.canvas.height = newHeight;
+        }
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
 
-    // Initialize game engine with canvas dimensions
-    gameEngineRef.current = new GameEngine(800, 600);
+    // Initialize game engine with calculated canvas dimensions
+    gameEngineRef.current = new GameEngine(width, height);
     
     // Set up stat tracking callbacks
     gameEngineRef.current.onCollectibleCollected = incrementCollectibles;
@@ -232,15 +267,23 @@ export default function GameCanvas() {
           case 'ArrowUp':
           case 'w':
           case 'W':
-            inputRef.current.up = true;
-            // console.log('UP movement set to true');
+            // Check if Y-axis should be inverted
+            if (settings.controls.invertYAxis) {
+              inputRef.current.down = true;
+            } else {
+              inputRef.current.up = true;
+            }
             e.preventDefault();
             break;
           case 'ArrowDown':
           case 's':
           case 'S':
-            inputRef.current.down = true;
-            // console.log('DOWN movement set to true');
+            // Check if Y-axis should be inverted
+            if (settings.controls.invertYAxis) {
+              inputRef.current.up = true;
+            } else {
+              inputRef.current.down = true;
+            }
             e.preventDefault();
             break;
           case 'ArrowLeft':
@@ -262,19 +305,24 @@ export default function GameCanvas() {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      // console.log('Key released:', e.key);
       switch (e.key) {
         case 'ArrowUp':
         case 'w':
         case 'W':
-          inputRef.current.up = false;
-          // console.log('UP movement set to false');
+          if (settings.controls.invertYAxis) {
+            inputRef.current.down = false;
+          } else {
+            inputRef.current.up = false;
+          }
           break;
         case 'ArrowDown':
         case 's':
         case 'S':
-          inputRef.current.down = false;
-          // console.log('DOWN movement set to false');
+          if (settings.controls.invertYAxis) {
+            inputRef.current.up = false;
+          } else {
+            inputRef.current.down = false;
+          }
           break;
         case 'ArrowLeft':
         case 'a':
@@ -294,14 +342,32 @@ export default function GameCanvas() {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
+    // Handle auto-pause on focus loss if enabled in settings
+    const handleVisibilityChange = () => {
+      if (settings.gameplay.pauseOnFocusLoss && phase === 'playing') {
+        if (document.hidden) {
+          // Pause the game when tab becomes inactive
+          if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+          }
+        } else {
+          // Resume the game when tab becomes active again
+          gameLoop();
+        }
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [settings.gameplay.pauseOnFocusLoss, phase, gameLoop]);
 
   // Handle game loop and timer
   useEffect(() => {

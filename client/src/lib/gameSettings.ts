@@ -217,6 +217,11 @@ class GameSettingsManager {
 // Export singleton instance
 export const gameSettings = GameSettingsManager.getInstance();
 
+// Expose to window for testing (development only)
+if (typeof window !== 'undefined') {
+  (window as any).gameSettings = gameSettings;
+}
+
 // React hook for using settings
 import { useState, useEffect } from 'react';
 
