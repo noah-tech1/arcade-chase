@@ -392,8 +392,12 @@ export default function GameCanvas() {
     <>
       <canvas
         ref={canvasRef}
-        className="block mx-auto border-2 border-gray-600 rounded-lg"
-        style={{ background: 'linear-gradient(45deg, #2C3E50, #34495E)' }}
+        className="block mx-auto border-2 border-gray-600 rounded-lg max-w-full max-h-full"
+        style={{ 
+          background: 'linear-gradient(45deg, #2C3E50, #34495E)',
+          width: 'auto',
+          height: 'auto'
+        }}
       />
       {phase === 'playing' && (
         <FPSCounter 

@@ -147,7 +147,7 @@ function StartScreen() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-auto">
+    <div className="relative w-full min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-auto">
       {/* Animated Background Particles */}
       <div className="absolute inset-0">
         {particles.map(particle => (
@@ -171,7 +171,7 @@ function StartScreen() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col w-full min-h-screen max-w-full">
         {/* Header */}
         <header className="flex justify-between items-center p-6 lg:p-8">
           <div className="flex items-center space-x-4 lg:space-x-6">

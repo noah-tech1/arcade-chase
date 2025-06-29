@@ -22,9 +22,10 @@
   body {
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     background: var(--background);
     font-family: 'Orbitron', monospace;
     color: white;
@@ -35,19 +36,20 @@
 
   #root {
     width: 100%;
-    height: 100%;
-    position: fixed;
+    min-height: 100vh;
+    position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
   }
 }
 
 /* Game Container */
 .game-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
   position: relative;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(135deg, var(--background) 0%, #34495e 100%);
   display: flex;
   flex-direction: column;
